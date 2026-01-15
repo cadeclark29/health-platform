@@ -21,6 +21,50 @@ class User(Base):
     height_inches = Column(Integer, nullable=True)
     weight_lbs = Column(Float, nullable=True)
 
+    # Lifestyle factors for personalized recommendations
+    region = Column(String, nullable=True)  # northern, central, southern, gulf
+    activity_level = Column(String, nullable=True)  # sedentary, light, moderate, active, athlete
+    work_environment = Column(String, nullable=True)  # office, outdoor, shift, remote
+    diet_type = Column(String, nullable=True)  # omnivore, vegetarian, vegan
+    bedtime = Column(String, nullable=True)  # "22:30" format
+    wake_time = Column(String, nullable=True)  # "06:30" format
+    chronotype = Column(String, nullable=True)  # early_bird, night_owl, neutral
+
+    # Region to latitude mapping for Vitamin D calculations
+    REGION_LATITUDES = {
+        "northern": 47.0,    # Seattle, Boston, Minneapolis, Chicago
+        "central": 40.0,     # Denver, NYC, SF, Philadelphia
+        "southern": 34.0,    # LA, Phoenix, Atlanta, Dallas
+        "gulf": 26.0,        # Miami, Houston, New Orleans
+    }
+
+    @property
+    def latitude(self) -> float:
+        """Get approximate latitude based on region."""
+        if self.region and self.region in self.REGION_LATITUDES:
+            return self.REGION_LATITUDES[self.region]
+        return 39.0  # Default to US average
+
+    @property
+    def needs_b12_boost(self) -> bool:
+        """Vegetarians/vegans need more B12 supplementation."""
+        return self.diet_type in ["vegetarian", "vegan"]
+
+    @property
+    def needs_omega3_boost(self) -> bool:
+        """Vegans don't get EPA/DHA from diet."""
+        return self.diet_type == "vegan"
+
+    @property
+    def is_shift_worker(self) -> bool:
+        """Shift workers have different circadian needs."""
+        return self.work_environment == "shift"
+
+    @property
+    def gets_outdoor_sun(self) -> bool:
+        """Outdoor workers get more natural vitamin D."""
+        return self.work_environment == "outdoor"
+
     @property
     def weight_kg(self) -> float:
         """Convert weight to kg for internal calculations."""

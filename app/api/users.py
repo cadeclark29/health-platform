@@ -21,6 +21,14 @@ class UserCreate(BaseModel):
     height_feet: int
     height_inches: int
     weight_lbs: float
+    # Lifestyle quiz fields
+    region: Optional[str] = None  # northern, central, southern, gulf
+    activity_level: Optional[str] = None  # sedentary, light, moderate, active, athlete
+    work_environment: Optional[str] = None  # office, outdoor, shift, remote
+    diet_type: Optional[str] = None  # omnivore, vegetarian, vegan
+    bedtime: Optional[str] = None  # "22:30" format
+    wake_time: Optional[str] = None  # "06:30" format
+    chronotype: Optional[str] = None  # early_bird, night_owl, neutral
     # Optional fields
     allergies: List[str] = []
     medications: List[str] = []
@@ -34,6 +42,13 @@ class UserUpdate(BaseModel):
     height_feet: Optional[int] = None
     height_inches: Optional[int] = None
     weight_lbs: Optional[float] = None
+    region: Optional[str] = None
+    activity_level: Optional[str] = None
+    work_environment: Optional[str] = None
+    diet_type: Optional[str] = None
+    bedtime: Optional[str] = None
+    wake_time: Optional[str] = None
+    chronotype: Optional[str] = None
     allergies: Optional[List[str]] = None
     medications: Optional[List[str]] = None
     goals: Optional[List[str]] = None
@@ -48,6 +63,13 @@ class UserResponse(BaseModel):
     height_feet: Optional[int]
     height_inches: Optional[int]
     weight_lbs: Optional[float]
+    region: Optional[str]
+    activity_level: Optional[str]
+    work_environment: Optional[str]
+    diet_type: Optional[str]
+    bedtime: Optional[str]
+    wake_time: Optional[str]
+    chronotype: Optional[str]
     allergies: List[str]
     medications: List[str]
     goals: List[str]
@@ -79,6 +101,13 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
         height_feet=user_data.height_feet,
         height_inches=user_data.height_inches,
         weight_lbs=user_data.weight_lbs,
+        region=user_data.region,
+        activity_level=user_data.activity_level,
+        work_environment=user_data.work_environment,
+        diet_type=user_data.diet_type,
+        bedtime=user_data.bedtime,
+        wake_time=user_data.wake_time,
+        chronotype=user_data.chronotype,
         allergies=user_data.allergies,
         medications=user_data.medications,
         goals=user_data.goals
@@ -129,6 +158,20 @@ def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_d
         user.height_inches = user_data.height_inches
     if user_data.weight_lbs is not None:
         user.weight_lbs = user_data.weight_lbs
+    if user_data.region is not None:
+        user.region = user_data.region
+    if user_data.activity_level is not None:
+        user.activity_level = user_data.activity_level
+    if user_data.work_environment is not None:
+        user.work_environment = user_data.work_environment
+    if user_data.diet_type is not None:
+        user.diet_type = user_data.diet_type
+    if user_data.bedtime is not None:
+        user.bedtime = user_data.bedtime
+    if user_data.wake_time is not None:
+        user.wake_time = user_data.wake_time
+    if user_data.chronotype is not None:
+        user.chronotype = user_data.chronotype
     if user_data.allergies is not None:
         user.allergies = user_data.allergies
     if user_data.medications is not None:
@@ -165,6 +208,13 @@ def _user_to_response(user: User) -> UserResponse:
         height_feet=user.height_feet,
         height_inches=user.height_inches,
         weight_lbs=user.weight_lbs,
+        region=user.region,
+        activity_level=user.activity_level,
+        work_environment=user.work_environment,
+        diet_type=user.diet_type,
+        bedtime=user.bedtime,
+        wake_time=user.wake_time,
+        chronotype=user.chronotype,
         allergies=user.allergies or [],
         medications=user.medications or [],
         goals=user.goals or [],

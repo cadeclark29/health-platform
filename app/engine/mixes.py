@@ -3,11 +3,14 @@ Pre-Set Supplement Mixes
 
 Quick-select blends for different needs/moods. Each mix is personalized
 based on user profile (weight, age, sex) and respects daily limits.
+Enhanced with intelligent dosing adjustments.
 """
 
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
+
+from app.engine.intelligence import dosing_intelligence
 
 
 @dataclass
@@ -278,7 +281,10 @@ class MixEngine:
         user_profile: Dict,
         dispensed_today: Dict[str, float] = None,
         current_hour: int = None,
-        sleep_score: float = None
+        sleep_score: float = None,
+        health_data: Dict = None,
+        usage_history: Dict = None,
+        user_latitude: float = None
     ) -> Dict:
         """
         Calculate personalized doses for a mix.
@@ -289,6 +295,9 @@ class MixEngine:
             dispensed_today: Already dispensed supplements today
             current_hour: Current hour (0-23) for caffeine timing checks
             sleep_score: Recent sleep score for caffeine warnings
+            health_data: Health metrics (recovery_score, hrv_score, strain_score)
+            usage_history: Recent supplement usage for tolerance detection
+            user_latitude: User's latitude for seasonal adjustments
 
         Returns:
             Dict with supplements, doses, and any warnings
@@ -297,10 +306,24 @@ class MixEngine:
             dispensed_today = {}
         if current_hour is None:
             current_hour = datetime.now().hour
+        if health_data is None:
+            health_data = {}
+        if usage_history is None:
+            usage_history = {}
 
         supplements = []
         warnings = []
         skipped = []
+        intelligence_insights = []
+
+        # Get all intelligence recommendations upfront
+        intelligence = dosing_intelligence.get_all_intelligence(
+            user_profile=user_profile,
+            health_data=health_data,
+            usage_history=usage_history,
+            current_hour=current_hour,
+            latitude=user_latitude
+        )
 
         for component in mix.components:
             config = self.rules.supplements.get(component.supplement_id)
@@ -320,6 +343,139 @@ class MixEngine:
                 user_profile
             )
             dose = adjusted["adjusted_dose"]
+
+            # Apply intelligence-based modifications
+            intelligence_modifier = 1.0
+            intelligence_notes = []
+
+            # Vitamin D seasonality
+            if component.supplement_id == "vitamin_d3" and intelligence.get("vitamin_d"):
+                vit_d = intelligence["vitamin_d"]
+                intelligence_modifier = vit_d["multiplier"]
+                if vit_d.get("recommendation"):
+                    intelligence_notes.append(vit_d["recommendation"])
+                    intelligence_insights.append({
+                        "supplement": config.name,
+                        "insight": vit_d["recommendation"],
+                        "type": "seasonal_adjustment"
+                    })
+
+            # Melatonin tolerance check
+            if component.supplement_id == "melatonin" and intelligence.get("melatonin"):
+                mel = intelligence["melatonin"]
+                if mel.get("tolerance_detected"):
+                    if mel.get("should_skip"):
+                        skipped.append({
+                            "supplement_id": component.supplement_id,
+                            "name": config.name,
+                            "reason": mel["recommendation"]
+                        })
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mel["recommendation"],
+                            "type": "tolerance_cycle"
+                        })
+                        continue
+                    else:
+                        warnings.append({
+                            "supplement_id": component.supplement_id,
+                            "name": config.name,
+                            "message": mel["recommendation"]
+                        })
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mel["recommendation"],
+                            "type": "tolerance_warning"
+                        })
+
+            # Magnesium timing optimization
+            if component.supplement_id in ["magnesium_glycinate", "magnesium_l_threonate"]:
+                if intelligence.get("magnesium_timing"):
+                    mag = intelligence["magnesium_timing"]
+                    if not mag["is_optimal_time"]:
+                        intelligence_notes.append(mag["recommendation"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mag["recommendation"],
+                            "type": "timing_optimization"
+                        })
+                # Form recommendation
+                if intelligence.get("magnesium_form"):
+                    form_rec = intelligence["magnesium_form"]
+                    if form_rec.get("recommendation"):
+                        intelligence_insights.append({
+                            "supplement": "Magnesium",
+                            "insight": form_rec["recommendation"],
+                            "type": "form_recommendation"
+                        })
+
+            # Recovery-adaptive dosing
+            if intelligence.get("recovery_adaptations"):
+                recovery = intelligence["recovery_adaptations"]
+                for mod in recovery.get("modifications", []):
+                    if mod["supplement_id"] == component.supplement_id:
+                        intelligence_modifier *= mod["multiplier"]
+                        intelligence_notes.append(mod["reason"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mod["reason"],
+                            "type": "recovery_adaptation"
+                        })
+
+            # Age-based adjustments
+            if intelligence.get("age_adjustments"):
+                age_adj = intelligence["age_adjustments"]
+                for mod in age_adj.get("modifications", []):
+                    if mod["supplement_id"] == component.supplement_id:
+                        intelligence_modifier *= mod["multiplier"]
+                        intelligence_notes.append(mod["reason"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mod["reason"],
+                            "type": "age_adjustment"
+                        })
+
+            # Diet-based adjustments (vegan/vegetarian B12, omega-3)
+            if intelligence.get("diet_adjustments"):
+                diet_adj = intelligence["diet_adjustments"]
+                for mod in diet_adj.get("modifications", []):
+                    if mod["supplement_id"] == component.supplement_id:
+                        intelligence_modifier *= mod["multiplier"]
+                        intelligence_notes.append(mod["reason"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mod["reason"],
+                            "type": "diet_adjustment"
+                        })
+
+            # Activity-based adjustments (athletes, sedentary)
+            if intelligence.get("activity_adjustments"):
+                activity_adj = intelligence["activity_adjustments"]
+                for mod in activity_adj.get("modifications", []):
+                    if mod["supplement_id"] == component.supplement_id:
+                        intelligence_modifier *= mod["multiplier"]
+                        intelligence_notes.append(mod["reason"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mod["reason"],
+                            "type": "activity_adjustment"
+                        })
+
+            # Work environment adjustments (office, outdoor, shift)
+            if intelligence.get("work_environment_adjustments"):
+                work_adj = intelligence["work_environment_adjustments"]
+                for mod in work_adj.get("modifications", []):
+                    if mod["supplement_id"] == component.supplement_id:
+                        intelligence_modifier *= mod["multiplier"]
+                        intelligence_notes.append(mod["reason"])
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": mod["reason"],
+                            "type": "work_environment"
+                        })
+
+            # Apply intelligence modifier to dose
+            dose = dose * intelligence_modifier
 
             # Check remaining daily allowance
             already_dispensed = dispensed_today.get(component.supplement_id, 0)
@@ -362,14 +518,32 @@ class MixEngine:
                         "message": f"Consider skipping caffeine - your sleep score ({sleep_score}) suggests sensitivity. Taking caffeine after 2pm may impact tonight's sleep."
                     })
 
+            # STIMULANT STACKING CHECK
+            # Check total stimulant load when adding caffeine or other stimulants
+            if component.supplement_id in ["caffeine", "vitamin_b12"]:
+                if intelligence.get("stimulant_stacking"):
+                    stim = intelligence["stimulant_stacking"]
+                    if stim.get("warning"):
+                        warnings.append({
+                            "supplement_id": component.supplement_id,
+                            "name": config.name,
+                            "message": stim["warning"]
+                        })
+                        intelligence_insights.append({
+                            "supplement": config.name,
+                            "insight": stim["warning"],
+                            "type": "stimulant_stacking"
+                        })
+
             supplements.append({
                 "supplement_id": component.supplement_id,
                 "name": config.name,
                 "dose": round(final_dose, 1),
                 "unit": config.unit,
                 "standard_dose": config.standard_dose,
-                "adjusted_from": round(base_dose, 1) if adjusted["adjustments_applied"] else None,
-                "adjustments": adjusted["adjustments_applied"] if adjusted["adjustments_applied"] else None
+                "adjusted_from": round(base_dose, 1) if adjusted["adjustments_applied"] or intelligence_modifier != 1.0 else None,
+                "adjustments": adjusted["adjustments_applied"] if adjusted["adjustments_applied"] else None,
+                "intelligence_notes": intelligence_notes if intelligence_notes else None
             })
 
         # Check for interactions between mix components
@@ -388,6 +562,15 @@ class MixEngine:
                     "recommendation": interaction.recommendation
                 })
 
+        # Deduplicate intelligence insights
+        seen_insights = set()
+        unique_insights = []
+        for insight in intelligence_insights:
+            key = (insight["supplement"], insight["insight"])
+            if key not in seen_insights:
+                seen_insights.add(key)
+                unique_insights.append(insight)
+
         return {
             "mix_id": mix.id,
             "mix_name": mix.name,
@@ -397,6 +580,7 @@ class MixEngine:
             "warnings": warnings,
             "skipped": skipped,
             "interaction_warnings": interaction_warnings,
+            "intelligence_insights": unique_insights,
             "total_supplements": len(supplements)
         }
 

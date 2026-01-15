@@ -1450,6 +1450,55 @@
                     <input type="number" id="onboard-weight" placeholder="Weight (lbs)" step="0.1" required>
                 </div>
 
+                <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1em; color: rgba(255,255,255,0.9);">
+                    Lifestyle Quiz <span style="font-weight: normal; color: rgba(255,255,255,0.5);">(helps personalize your supplements)</span>
+                </h3>
+
+                <div class="onboard-grid">
+                    <select id="onboard-region">
+                        <option value="">Where do you live?</option>
+                        <option value="northern">Northern US/Canada (Seattle, Boston, Chicago)</option>
+                        <option value="central">Central US (NYC, Denver, SF)</option>
+                        <option value="southern">Southern US (LA, Phoenix, Atlanta)</option>
+                        <option value="gulf">Gulf/Florida (Miami, Houston)</option>
+                    </select>
+                    <select id="onboard-activity">
+                        <option value="">Activity Level</option>
+                        <option value="sedentary">Sedentary (desk job, minimal exercise)</option>
+                        <option value="light">Lightly Active (light exercise 1-2x/week)</option>
+                        <option value="moderate">Moderately Active (exercise 3-4x/week)</option>
+                        <option value="active">Very Active (exercise 5-6x/week)</option>
+                        <option value="athlete">Athlete (intense training daily)</option>
+                    </select>
+                    <select id="onboard-work">
+                        <option value="">Work Environment</option>
+                        <option value="office">Office/Indoor</option>
+                        <option value="remote">Remote/Work from Home</option>
+                        <option value="outdoor">Outdoor Work</option>
+                        <option value="shift">Shift Work (irregular hours)</option>
+                    </select>
+                    <select id="onboard-diet">
+                        <option value="">Diet Type</option>
+                        <option value="omnivore">Omnivore (eat everything)</option>
+                        <option value="vegetarian">Vegetarian (no meat)</option>
+                        <option value="vegan">Vegan (no animal products)</option>
+                    </select>
+                </div>
+
+                <div class="onboard-grid" style="margin-top: 12px;">
+                    <select id="onboard-chronotype">
+                        <option value="">Sleep Pattern</option>
+                        <option value="early_bird">Early Bird (prefer early mornings)</option>
+                        <option value="night_owl">Night Owl (prefer late nights)</option>
+                        <option value="neutral">Neutral (flexible)</option>
+                    </select>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="time" id="onboard-bedtime" style="flex: 1;" title="Typical bedtime">
+                        <span style="color: rgba(255,255,255,0.5);">to</span>
+                        <input type="time" id="onboard-waketime" style="flex: 1;" title="Typical wake time">
+                    </div>
+                </div>
+
                 <button onclick="createAccount()" style="width: 100%; margin-top: 16px;">
                     Create Account
                 </button>
@@ -1708,8 +1757,17 @@
             const height_inches = parseInt(document.getElementById('onboard-height-inches').value);
             const weight_lbs = parseFloat(document.getElementById('onboard-weight').value);
 
+            // Lifestyle quiz fields (optional)
+            const region = document.getElementById('onboard-region').value || null;
+            const activity_level = document.getElementById('onboard-activity').value || null;
+            const work_environment = document.getElementById('onboard-work').value || null;
+            const diet_type = document.getElementById('onboard-diet').value || null;
+            const chronotype = document.getElementById('onboard-chronotype').value || null;
+            const bedtime = document.getElementById('onboard-bedtime').value || null;
+            const wake_time = document.getElementById('onboard-waketime').value || null;
+
             if (!name || !email || !age || !sex || isNaN(height_feet) || isNaN(height_inches) || !weight_lbs) {
-                showStatus('Please fill in all fields', 'error');
+                showStatus('Please fill in all required fields', 'error');
                 return;
             }
 
@@ -1717,7 +1775,11 @@
                 const res = await fetch('/users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, age, sex, height_feet, height_inches, weight_lbs })
+                    body: JSON.stringify({
+                        name, email, age, sex, height_feet, height_inches, weight_lbs,
+                        region, activity_level, work_environment, diet_type,
+                        chronotype, bedtime, wake_time
+                    })
                 });
 
                 if (res.ok) {
@@ -1853,6 +1915,13 @@
             document.getElementById('onboard-height-feet').value = '';
             document.getElementById('onboard-height-inches').value = '';
             document.getElementById('onboard-weight').value = '';
+            document.getElementById('onboard-region').value = '';
+            document.getElementById('onboard-activity').value = '';
+            document.getElementById('onboard-work').value = '';
+            document.getElementById('onboard-diet').value = '';
+            document.getElementById('onboard-chronotype').value = '';
+            document.getElementById('onboard-bedtime').value = '';
+            document.getElementById('onboard-waketime').value = '';
         }
 
         // Date navigation

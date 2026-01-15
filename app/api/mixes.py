@@ -25,6 +25,13 @@ class MixSupplement(BaseModel):
     standard_dose: float
     adjusted_from: Optional[float] = None
     adjustments: Optional[List[dict]] = None
+    intelligence_notes: Optional[List[str]] = None
+
+
+class IntelligenceInsight(BaseModel):
+    supplement: str
+    insight: str
+    type: str  # seasonal_adjustment, tolerance_cycle, timing_optimization, etc.
 
 
 class MixWarning(BaseModel):
@@ -56,6 +63,7 @@ class MixResponse(BaseModel):
     warnings: List[MixWarning] = []
     skipped: List[MixSkipped] = []
     interaction_warnings: List[InteractionWarning] = []
+    intelligence_insights: List[IntelligenceInsight] = []
     total_supplements: int
 
 
@@ -312,27 +320,54 @@ async def get_mix_details(
     # Get current hour
     current_hour = time_override if time_override is not None else datetime.now().hour
 
-    # Get user's latest sleep score for caffeine warnings
+    # Get user's latest health data for intelligence
     latest_health = db.query(HealthData).filter(
         HealthData.user_id == user_id
     ).order_by(HealthData.timestamp.desc()).first()
     sleep_score = latest_health.sleep_score if latest_health else None
 
-    # Get user profile
+    # Build health_data dict for intelligence module
+    health_data = {}
+    if latest_health:
+        health_data = {
+            "sleep_score": latest_health.sleep_score,
+            "recovery_score": latest_health.recovery_score,
+            "hrv_score": latest_health.hrv_score,
+            "strain_score": latest_health.strain_score,
+            "resting_hr": latest_health.resting_hr
+        }
+
+    # Get user profile with lifestyle factors
     user_profile = {
         "weight_kg": user.weight_kg,
         "age": user.age,
-        "sex": user.sex
+        "sex": user.sex,
+        "region": user.region,
+        "activity_level": user.activity_level,
+        "work_environment": user.work_environment,
+        "diet_type": user.diet_type,
+        "bedtime": user.bedtime,
+        "wake_time": user.wake_time,
+        "chronotype": user.chronotype,
     }
+
+    # Get usage history for tolerance detection
+    usage_history = _get_usage_history(user_id, db, days=30)
 
     # Get what's been dispensed on the target date
     dispensed_on_date = _get_dispensed_for_date(user_id, target_date, db)
 
-    # Calculate mix doses with caffeine timing logic
+    # Get latitude from user's region
+    user_latitude = user.latitude if hasattr(user, 'latitude') else None
+
+    # Calculate mix doses with intelligence
     result = mix_engine.calculate_mix_doses(
         mix, user_profile, dispensed_on_date,
         current_hour=current_hour,
-        sleep_score=sleep_score
+        sleep_score=sleep_score,
+        health_data=health_data,
+        usage_history=usage_history,
+        user_latitude=user_latitude
     )
 
     return MixResponse(**result)
@@ -386,27 +421,54 @@ async def dispense_mix(
     # Get current hour
     current_hour = time_override if time_override is not None else datetime.now().hour
 
-    # Get user's latest sleep score for caffeine warnings
+    # Get user's latest health data for intelligence
     latest_health = db.query(HealthData).filter(
         HealthData.user_id == user_id
     ).order_by(HealthData.timestamp.desc()).first()
     sleep_score = latest_health.sleep_score if latest_health else None
 
-    # Get user profile
+    # Build health_data dict for intelligence module
+    health_data = {}
+    if latest_health:
+        health_data = {
+            "sleep_score": latest_health.sleep_score,
+            "recovery_score": latest_health.recovery_score,
+            "hrv_score": latest_health.hrv_score,
+            "strain_score": latest_health.strain_score,
+            "resting_hr": latest_health.resting_hr
+        }
+
+    # Get user profile with lifestyle factors
     user_profile = {
         "weight_kg": user.weight_kg,
         "age": user.age,
-        "sex": user.sex
+        "sex": user.sex,
+        "region": user.region,
+        "activity_level": user.activity_level,
+        "work_environment": user.work_environment,
+        "diet_type": user.diet_type,
+        "bedtime": user.bedtime,
+        "wake_time": user.wake_time,
+        "chronotype": user.chronotype,
     }
+
+    # Get usage history for tolerance detection
+    usage_history = _get_usage_history(user_id, db, days=30)
 
     # Get what's been dispensed on the target date
     dispensed_on_date = _get_dispensed_for_date(user_id, target_date, db)
 
-    # Calculate mix doses with caffeine timing logic
+    # Get latitude from user's region
+    user_latitude = user.latitude if hasattr(user, 'latitude') else None
+
+    # Calculate mix doses with intelligence
     result = mix_engine.calculate_mix_doses(
         mix, user_profile, dispensed_on_date,
         current_hour=current_hour,
-        sleep_score=sleep_score
+        sleep_score=sleep_score,
+        health_data=health_data,
+        usage_history=usage_history,
+        user_latitude=user_latitude
     )
 
     # Create timestamp for the target date with the override time
@@ -443,7 +505,8 @@ async def dispense_mix(
         "supplements_dispensed": dispensed,
         "total_dispensed": len(dispensed),
         "warnings": result.get("warnings", []),
-        "skipped": result.get("skipped", [])
+        "skipped": result.get("skipped", []),
+        "intelligence_insights": result.get("intelligence_insights", [])
     }
 
 
@@ -483,6 +546,40 @@ def _get_dispensed_for_date(user_id: str, target_date: date, db: Session) -> dic
         dispensed[log.supplement_name] += log.dose
 
     return dispensed
+
+
+def _get_usage_history(user_id: str, db: Session, days: int = 30) -> dict:
+    """Get supplement usage history for intelligence analysis."""
+    start_date = datetime.combine(date.today() - timedelta(days=days), datetime.min.time())
+
+    logs = db.query(DispenseLog).filter(
+        DispenseLog.user_id == user_id,
+        DispenseLog.dispensed_at >= start_date
+    ).order_by(DispenseLog.dispensed_at.desc()).all()
+
+    usage = {}
+    for log in logs:
+        supp_id = log.supplement_name
+        if supp_id not in usage:
+            usage[supp_id] = {
+                "last_taken": None,
+                "days_used_last_14": 0,
+                "total_doses": 0,
+                "dates": []
+            }
+
+        log_date = log.dispensed_at.date()
+        if usage[supp_id]["last_taken"] is None:
+            usage[supp_id]["last_taken"] = log_date.isoformat()
+
+        if log_date not in usage[supp_id]["dates"]:
+            usage[supp_id]["dates"].append(log_date)
+            if (date.today() - log_date).days <= 14:
+                usage[supp_id]["days_used_last_14"] += 1
+
+        usage[supp_id]["total_doses"] += 1
+
+    return usage
 
 
 @router.get("/{user_id}/tracking/daily")
