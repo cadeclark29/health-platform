@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Platform - Supplement Dispenser</title>
+    <title>Dose - Smart Supplement Dispensing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -12,10 +13,10 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0A0A0A;
             min-height: 100vh;
-            color: #fff;
+            color: #E8E8E8;
             padding: 20px;
         }
 
@@ -26,26 +27,30 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 2em;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            margin-bottom: 24px;
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
             padding: 24px;
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .card h2 {
             margin-bottom: 16px;
-            font-size: 1.2em;
-            color: #00d9ff;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #A0A0A0;
+            letter-spacing: -0.01em;
         }
 
         .form-row {
@@ -55,47 +60,77 @@
             flex-wrap: wrap;
         }
 
-        input, select {
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 1em;
+        input, select, textarea {
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: #E8E8E8;
+            font-size: 0.95em;
+            font-family: inherit;
             flex: 1;
             min-width: 150px;
+            transition: all 0.2s ease;
         }
 
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1a1a1a;
+            color: #E8E8E8;
         }
 
         button {
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
             border: none;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
-            color: #1a1a2e;
-            font-size: 1em;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: #fff;
+            font-size: 0.95em;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            color: #A0A0A0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #E8E8E8;
+            box-shadow: none;
         }
 
         .hidden {
@@ -107,20 +142,23 @@
             top: 20px;
             right: 20px;
             padding: 16px 24px;
-            border-radius: 8px;
+            border-radius: 12px;
             z-index: 1000;
             max-width: 350px;
-            transition: opacity 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         #status.success {
-            background: rgba(0, 255, 136, 0.9);
-            color: #000;
+            background: rgba(34, 197, 94, 0.9);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
         }
 
         #status.error {
-            background: rgba(255, 68, 68, 0.9);
+            background: rgba(239, 68, 68, 0.9);
             color: #fff;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
         }
 
         /* Onboarding */
@@ -148,28 +186,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 16px;
-            margin-bottom: 20px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .date-nav button {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             padding: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 1.2em;
+            background: rgba(255, 255, 255, 0.04);
+            color: #A0A0A0;
+            font-size: 1.1em;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .date-nav button:hover {
-            background: rgba(0, 217, 255, 0.3);
+            background: rgba(139, 92, 246, 0.15);
+            color: #8B5CF6;
+            box-shadow: none;
         }
 
         .date-display {
@@ -180,22 +221,26 @@
         .date-display .day {
             font-size: 1.4em;
             font-weight: 700;
+            color: #E8E8E8;
         }
 
         .date-display .full-date {
             font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.6);
+            color: #666;
+            margin-top: 2px;
         }
 
         .date-display .today-badge {
             display: inline-block;
-            background: #00ff88;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 6px;
             font-size: 0.7em;
             font-weight: 600;
             margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         /* Time Selector */
@@ -203,21 +248,31 @@
             display: flex;
             gap: 8px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .time-btn {
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid transparent;
-            border-radius: 20px;
-            color: #fff;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            color: #666;
             font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .time-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
         }
 
         .time-btn.active {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.2);
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
         }
 
         /* Main Dispenser Layout */
@@ -232,13 +287,13 @@
         .ai-recommendation {
             grid-column: 2;
             grid-row: 1;
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(0, 217, 255, 0.3) 100%);
-            border: 2px solid rgba(138, 43, 226, 0.5);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(167, 139, 250, 0.08) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
             border-radius: 20px;
-            padding: 20px;
+            padding: 24px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             min-height: 180px;
             display: flex;
             flex-direction: column;
@@ -248,28 +303,28 @@
 
         .ai-recommendation:hover {
             transform: scale(1.02);
-            border-color: #8a2be2;
-            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.4);
+            border-color: #8B5CF6;
+            box-shadow: 0 8px 40px rgba(139, 92, 246, 0.25);
         }
 
         .ai-recommendation .ai-icon {
             font-size: 2.5em;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .ai-recommendation .ai-title {
             font-size: 1.1em;
             font-weight: 700;
             margin-bottom: 6px;
-            background: linear-gradient(90deg, #8a2be2, #00d9ff);
+            background: linear-gradient(135deg, #A78BFA, #C4B5FD);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .ai-recommendation .ai-subtitle {
             font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.3;
+            color: #666;
+            line-height: 1.4;
         }
 
         .ai-recommendation.loading .ai-icon {
@@ -285,47 +340,47 @@
         .daily-foundation {
             grid-column: 2;
             grid-row: 2;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 217, 255, 0.2) 100%);
-            border: 2px solid rgba(0, 255, 136, 0.4);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(196, 181, 253, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 16px;
-            padding: 16px;
+            padding: 18px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .daily-foundation:hover {
             transform: scale(1.02);
-            border-color: #00ff88;
-            box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+            border-color: #A78BFA;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
         }
 
         .daily-foundation.taken {
             opacity: 0.4;
             cursor: default;
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .daily-foundation.taken:hover {
             transform: none;
             box-shadow: none;
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .daily-foundation.taken .df-name {
-            color: rgba(255, 255, 255, 0.5);
+            color: #555;
         }
 
         .daily-foundation .taken-badge {
             display: none;
-            background: rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-            padding: 2px 8px;
-            border-radius: 4px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+            padding: 3px 10px;
+            border-radius: 6px;
             font-size: 0.7em;
             font-weight: 600;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         .daily-foundation.taken .taken-badge {
@@ -334,52 +389,55 @@
 
         .daily-foundation .df-icon {
             font-size: 1.8em;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .daily-foundation .df-name {
             font-weight: 600;
             font-size: 0.95em;
-            color: #00ff88;
+            color: #A78BFA;
         }
 
         .daily-foundation .df-desc {
             font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.6);
+            color: #555;
+            margin-top: 4px;
         }
 
         /* Mix Cards */
         .mix-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 16px;
-            padding: 14px;
+            padding: 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .mix-card:hover {
             transform: translateY(-4px);
-            border-color: var(--mix-color, #00d9ff);
-            box-shadow: 0 8px 25px rgba(var(--mix-color-rgb, 0, 217, 255), 0.3);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+            background: rgba(139, 92, 246, 0.05);
         }
 
         .mix-card .mix-icon {
             font-size: 1.8em;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .mix-card .mix-name {
             font-weight: 600;
             font-size: 0.9em;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+            color: #E8E8E8;
         }
 
         .mix-card .mix-desc {
             font-size: 0.7em;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.2;
+            color: #555;
+            line-height: 1.3;
         }
 
         .mix-card.custom-blend-mix {
@@ -388,16 +446,16 @@
 
         .mix-card .custom-badge {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(138, 43, 226, 0.9);
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
             color: #fff;
             font-size: 0.55em;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
         }
 
         /* Dispense Modal */
@@ -407,22 +465,22 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.92);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             animation: fadeIn 0.2s ease-out;
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #121212;
             border-radius: 24px;
             padding: 32px;
             max-width: 500px;
             width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             animation: slideUp 0.3s ease-out;
         }
 
@@ -433,7 +491,7 @@
 
         .modal-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-icon {
@@ -445,26 +503,28 @@
             font-size: 1.4em;
             font-weight: 700;
             margin-bottom: 6px;
+            color: #E8E8E8;
         }
 
         .modal-subtitle {
-            color: rgba(255, 255, 255, 0.7);
+            color: #666;
             font-size: 0.9em;
         }
 
         .supplement-list {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .supplement-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .supplement-item:last-child {
@@ -474,21 +534,22 @@
         .supplement-name {
             font-weight: 500;
             font-size: 0.95em;
+            color: #E8E8E8;
         }
 
         .supplement-dose {
-            color: #00ff88;
+            color: #A78BFA;
             font-weight: 600;
         }
 
         .modal-warning {
-            background: rgba(255, 170, 0, 0.2);
-            border: 1px solid rgba(255, 170, 0, 0.4);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 16px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
             font-size: 0.85em;
-            color: #ffaa00;
+            color: #FBBF24;
         }
 
         .modal-actions {
@@ -498,25 +559,27 @@
 
         .modal-actions button {
             flex: 1;
-            padding: 14px;
+            padding: 16px;
             font-size: 1em;
         }
 
         .btn-cancel {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            color: #666;
         }
 
         .btn-cancel:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: #A0A0A0;
+            box-shadow: none;
         }
 
         .btn-dispense {
-            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
         }
 
         .btn-dispense.dispensing {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             pointer-events: none;
         }
 
@@ -530,7 +593,7 @@
             position: relative;
             width: 120px;
             height: 160px;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
         }
 
         .glass {
@@ -540,8 +603,8 @@
             transform: translateX(-50%);
             width: 100px;
             height: 140px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 0 0 20px 20px;
+            border: 4px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0 0 24px 24px;
             border-top: none;
             overflow: hidden;
         }
@@ -551,10 +614,10 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(180deg, rgba(0, 217, 255, 0.6) 0%, rgba(0, 255, 136, 0.8) 100%);
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.5) 0%, rgba(167, 139, 250, 0.7) 100%);
             height: 0;
             transition: height 2s ease-out;
-            border-radius: 0 0 16px 16px;
+            border-radius: 0 0 20px 20px;
         }
 
         .glass-water.filling {
@@ -584,29 +647,41 @@
 
         .dispense-message {
             font-size: 1.3em;
-            font-weight: 600;
-            color: #00ff88;
+            font-weight: 700;
+            background: linear-gradient(135deg, #A78BFA, #C4B5FD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
 
         .dispense-details {
-            color: rgba(255, 255, 255, 0.7);
+            color: #666;
             font-size: 0.9em;
         }
 
         .dispensed-list {
-            margin-top: 16px;
-            padding: 12px;
-            background: rgba(0, 255, 136, 0.1);
-            border-radius: 8px;
+            margin-top: 18px;
+            padding: 14px;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 12px;
             text-align: left;
+            border: 1px solid rgba(139, 92, 246, 0.15);
         }
 
         .dispensed-item {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 5px 0;
             font-size: 0.85em;
+        }
+
+        .dispensed-item span:first-child {
+            color: #A0A0A0;
+        }
+
+        .dispensed-item span:last-child {
+            color: #A78BFA;
+            font-weight: 500;
         }
 
         /* Tracking Section */
@@ -617,32 +692,43 @@
         .tracking-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .tracking-tab {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            color: #555;
             cursor: pointer;
             font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .tracking-tab:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
         }
 
         .tracking-tab.active {
-            background: rgba(0, 217, 255, 0.3);
-            color: #00d9ff;
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #A78BFA;
         }
 
         .tracking-content {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .tracking-item {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .tracking-item:last-child {
@@ -653,62 +739,65 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .tracking-name {
             font-weight: 500;
             font-size: 0.95em;
+            color: #E8E8E8;
         }
 
         .tracking-values {
             font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.7);
+            color: #666;
         }
 
         .tracking-bar {
             height: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
             overflow: hidden;
         }
 
         .tracking-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            background: linear-gradient(90deg, #8B5CF6, #A78BFA);
             border-radius: 4px;
             transition: width 0.5s ease-out;
         }
 
         .tracking-fill.warning {
-            background: linear-gradient(90deg, #ffaa00, #ff6600);
+            background: linear-gradient(90deg, #F59E0B, #FBBF24);
         }
 
         .tracking-fill.danger {
-            background: linear-gradient(90deg, #ff4444, #ff0000);
+            background: linear-gradient(90deg, #EF4444, #F87171);
         }
 
         /* Saturation Gauge */
         .saturation-gauge {
-            margin-top: 20px;
-            padding: 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            margin-top: 24px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .saturation-title {
             font-size: 0.9em;
-            color: #00d9ff;
-            margin-bottom: 12px;
+            color: #A78BFA;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 500;
         }
 
         .saturation-item {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
         }
 
         .saturation-ring {
@@ -727,21 +816,21 @@
         }
 
         .saturation-ring .bg {
-            stroke: rgba(255, 255, 255, 0.1);
+            stroke: rgba(255, 255, 255, 0.06);
         }
 
         .saturation-ring .progress {
-            stroke: #00ff88;
+            stroke: #8B5CF6;
             stroke-linecap: round;
             transition: stroke-dashoffset 0.5s ease-out;
         }
 
         .saturation-ring .progress.building {
-            stroke: #ffaa00;
+            stroke: #F59E0B;
         }
 
         .saturation-ring .progress.decaying {
-            stroke: #ff6666;
+            stroke: #EF4444;
         }
 
         .saturation-pct {
@@ -751,6 +840,7 @@
             transform: translate(-50%, -50%);
             font-size: 1.1em;
             font-weight: 700;
+            color: #E8E8E8;
         }
 
         .saturation-info {
@@ -760,23 +850,24 @@
         .saturation-name {
             font-weight: 600;
             margin-bottom: 4px;
+            color: #E8E8E8;
         }
 
         .saturation-status {
             font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.7);
+            color: #555;
         }
 
         .saturation-status.saturated {
-            color: #00ff88;
+            color: #22C55E;
         }
 
         .saturation-status.building {
-            color: #ffaa00;
+            color: #F59E0B;
         }
 
         .saturation-status.decaying {
-            color: #ff6666;
+            color: #EF4444;
         }
 
         /* User header */
@@ -784,36 +875,45 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #8B5CF6, #A78BFA);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: #1a1a2e;
+            color: #fff;
+            font-size: 1.1em;
         }
 
         .user-name {
             font-weight: 600;
+            font-size: 1.05em;
+            color: #E8E8E8;
         }
 
         .btn-logout {
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-size: 0.85em;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+            color: #666;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #A0A0A0;
+            box-shadow: none;
         }
 
         /* Responsive */
@@ -846,48 +946,58 @@
         /* Settings panel */
         .settings-toggle {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
+            bottom: 24px;
+            right: 24px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 1.5em;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #666;
+            font-size: 1.4em;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
         }
 
         .settings-panel {
             position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: rgba(26, 26, 46, 0.95);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            bottom: 88px;
+            right: 24px;
+            background: #121212;
+            border-radius: 18px;
+            padding: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             min-width: 280px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
         }
 
         .settings-panel h3 {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             font-size: 1em;
-            color: #00d9ff;
+            color: #A78BFA;
+            font-weight: 600;
         }
 
         .setting-row {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .setting-row label {
             display: block;
             font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 4px;
+            color: #666;
+            margin-bottom: 6px;
         }
 
         .setting-row select {
@@ -896,13 +1006,14 @@
 
         .empty-state {
             text-align: center;
-            padding: 30px;
-            color: rgba(255, 255, 255, 0.5);
+            padding: 36px;
+            color: #444;
         }
 
         .empty-state .emoji {
             font-size: 2.5em;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            opacity: 0.5;
         }
 
         /* Custom Blends Section */
@@ -910,7 +1021,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .custom-blends-header h2 {
@@ -918,34 +1029,34 @@
         }
 
         .btn-create-blend {
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-size: 0.85em;
-            border-radius: 20px;
-            background: linear-gradient(90deg, #8a2be2, #00d9ff);
+            border-radius: 24px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
         }
 
         .custom-blend-card {
-            background: rgba(138, 43, 226, 0.15);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 12px;
-            padding: 14px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 14px;
+            padding: 16px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .custom-blend-card:hover {
-            border-color: #8a2be2;
-            background: rgba(138, 43, 226, 0.25);
+            border-color: rgba(139, 92, 246, 0.4);
+            background: rgba(139, 92, 246, 0.12);
         }
 
         .custom-blend-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .custom-blend-icon {
@@ -954,11 +1065,13 @@
 
         .custom-blend-name {
             font-weight: 600;
+            color: #E8E8E8;
         }
 
         .custom-blend-count {
             font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.6);
+            color: #555;
+            margin-top: 2px;
         }
 
         .custom-blend-actions {
@@ -967,12 +1080,12 @@
         }
 
         .btn-delete-blend {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             padding: 0;
             border-radius: 50%;
-            background: rgba(255, 68, 68, 0.2);
-            color: #ff4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
             font-size: 0.9em;
             display: flex;
             align-items: center;
@@ -980,7 +1093,8 @@
         }
 
         .btn-delete-blend:hover {
-            background: rgba(255, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: none;
         }
 
         /* Blend Builder Modal */
@@ -992,7 +1106,7 @@
         .blend-builder-header {
             display: flex;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .blend-builder-header input {
@@ -1000,7 +1114,7 @@
         }
 
         .icon-picker {
-            width: 50px;
+            width: 54px;
             text-align: center;
             font-size: 1.5em;
             cursor: pointer;
@@ -1010,22 +1124,32 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .category-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             font-size: 0.8em;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid transparent;
-            border-radius: 16px;
-            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            color: #666;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
         }
 
         .category-btn.active {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            background: rgba(139, 92, 246, 0.12);
+            color: #A78BFA;
         }
 
         .supplement-grid {
@@ -1035,25 +1159,26 @@
             max-height: 300px;
             overflow-y: auto;
             padding: 4px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .supplement-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .supplement-card:hover {
-            border-color: rgba(0, 217, 255, 0.5);
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.05);
         }
 
         .supplement-card.selected {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
         }
 
         .supplement-card-header {
@@ -1066,18 +1191,19 @@
         .supplement-card-name {
             font-weight: 600;
             font-size: 0.95em;
+            color: #E8E8E8;
         }
 
         .supplement-card-dose {
             font-size: 0.8em;
-            color: #00d9ff;
+            color: #A78BFA;
         }
 
         .supplement-card-desc {
             font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.3;
-            margin-bottom: 8px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 10px;
         }
 
         .supplement-card-benefits {
@@ -1087,54 +1213,56 @@
         }
 
         .benefit-tag {
-            padding: 2px 6px;
+            padding: 3px 8px;
             font-size: 0.65em;
-            background: rgba(0, 217, 255, 0.2);
-            color: #00d9ff;
-            border-radius: 4px;
+            background: rgba(139, 92, 246, 0.12);
+            color: #A78BFA;
+            border-radius: 6px;
         }
 
         .supplement-card-links {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .pubmed-link {
             display: block;
             font-size: 0.7em;
-            color: #8a2be2;
+            color: #8B5CF6;
             text-decoration: none;
-            padding: 2px 0;
+            padding: 3px 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
         .pubmed-link:hover {
-            color: #00d9ff;
+            color: #A78BFA;
             text-decoration: underline;
         }
 
         .selected-supplements {
-            background: rgba(0, 255, 136, 0.1);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 18px;
         }
 
         .selected-supplements-title {
             font-size: 0.85em;
-            color: #00ff88;
-            margin-bottom: 8px;
+            color: #A78BFA;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
 
         .selected-supp-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .selected-supp-item:last-child {
@@ -1143,6 +1271,7 @@
 
         .selected-supp-name {
             font-size: 0.9em;
+            color: #E8E8E8;
         }
 
         .selected-supp-dose {
@@ -1152,8 +1281,8 @@
         }
 
         .dose-input {
-            width: 70px;
-            padding: 4px 8px;
+            width: 75px;
+            padding: 6px 10px;
             font-size: 0.85em;
             text-align: center;
         }
@@ -1166,29 +1295,29 @@
 
         .dose-unit {
             font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.6);
+            color: #555;
             min-width: 30px;
         }
 
         .dose-range {
             font-size: 0.65em;
-            color: rgba(255, 255, 255, 0.4);
+            color: #444;
         }
 
         /* AI Blend Assistant */
         .ai-blend-section {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(0, 217, 255, 0.1));
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(167, 139, 250, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 22px;
         }
 
         .ai-blend-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 12px;
+            margin-bottom: 14px;
         }
 
         .ai-blend-header .ai-icon {
@@ -1198,12 +1327,13 @@
         .ai-blend-header h3 {
             margin: 0;
             font-size: 1em;
-            color: #fff;
+            color: #E8E8E8;
+            font-weight: 600;
         }
 
         .ai-blend-header span {
             font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.6);
+            color: #555;
         }
 
         .ai-input-row {
@@ -1215,7 +1345,6 @@
             flex: 1;
             min-height: 60px;
             resize: vertical;
-            font-family: inherit;
         }
 
         .ai-input-row button {
@@ -1224,10 +1353,10 @@
         }
 
         .ai-suggestions {
-            margin-top: 12px;
-            padding: 12px;
+            margin-top: 14px;
+            padding: 14px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            border-radius: 10px;
             display: none;
         }
 
@@ -1239,22 +1368,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .ai-suggestions-title {
             font-size: 0.9em;
-            color: #00d9ff;
+            color: #A78BFA;
+            font-weight: 500;
         }
 
         .ai-suggestion-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            margin-bottom: 6px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
         }
 
         .ai-suggestion-item:last-child {
@@ -1263,23 +1393,25 @@
 
         .ai-suggestion-name {
             font-size: 0.9em;
+            color: #E8E8E8;
         }
 
         .ai-suggestion-dose {
             font-size: 0.8em;
-            color: #00ff88;
+            color: #A78BFA;
+            font-weight: 500;
         }
 
         .ai-suggestion-reason {
             font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 2px;
+            color: #555;
+            margin-top: 3px;
         }
 
         .ai-loading {
             text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 24px;
+            color: #555;
         }
 
         .ai-loading::after {
@@ -1294,25 +1426,31 @@
         }
 
         .btn-add-all {
-            padding: 6px 12px;
+            padding: 8px 14px;
             font-size: 0.8em;
-            background: rgba(0, 255, 136, 0.2);
-            color: #00ff88;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.25);
         }
 
         .btn-add-all:hover {
-            background: rgba(0, 255, 136, 0.3);
+            background: rgba(34, 197, 94, 0.25);
+            box-shadow: none;
         }
 
         .btn-remove-supp {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             padding: 0;
-            background: rgba(255, 68, 68, 0.2);
-            color: #ff4444;
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
             border-radius: 50%;
             font-size: 0.8em;
+        }
+
+        .btn-remove-supp:hover {
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: none;
         }
 
         /* Supplement Info Modal */
@@ -1322,77 +1460,81 @@
 
         .supp-info-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .supp-info-name {
             font-size: 1.3em;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            color: #E8E8E8;
         }
 
         .supp-info-dose {
-            color: #00d9ff;
+            color: #A78BFA;
             font-size: 0.9em;
         }
 
         .supp-info-desc {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 18px;
             font-size: 0.9em;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #A0A0A0;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .supp-info-benefits {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .supp-info-benefits-title {
             font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 8px;
+            color: #666;
+            margin-bottom: 10px;
         }
 
         .supp-info-benefits-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 8px;
         }
 
         .supp-info-benefit {
-            padding: 4px 10px;
-            background: rgba(0, 217, 255, 0.2);
-            color: #00d9ff;
-            border-radius: 12px;
+            padding: 5px 12px;
+            background: rgba(139, 92, 246, 0.12);
+            color: #A78BFA;
+            border-radius: 14px;
             font-size: 0.8em;
         }
 
         .supp-info-studies {
-            background: rgba(138, 43, 226, 0.1);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 12px;
-            padding: 14px;
+            background: rgba(139, 92, 246, 0.06);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 14px;
+            padding: 16px;
         }
 
         .supp-info-studies-title {
             font-size: 0.85em;
-            color: #8a2be2;
-            margin-bottom: 10px;
+            color: #A78BFA;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-weight: 500;
         }
 
         .study-link {
             display: block;
-            padding: 8px;
-            margin-bottom: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
 
         .study-link:last-child {
@@ -1400,19 +1542,41 @@
         }
 
         .study-link:hover {
-            background: rgba(138, 43, 226, 0.2);
+            background: rgba(139, 92, 246, 0.15);
         }
 
         .study-title {
-            color: #fff;
+            color: #E8E8E8;
             font-size: 0.85em;
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
         .study-pmid {
-            color: rgba(255, 255, 255, 0.5);
+            color: #555;
             font-size: 0.75em;
+        }
+
+        /* Intelligence notes styling */
+        .intelligence-note {
+            background: rgba(139, 92, 246, 0.08);
+            border-left: 3px solid #8B5CF6;
+            padding: 10px 14px;
+            margin-top: 10px;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.8em;
+            color: #A78BFA;
+        }
+
+        /* Sign in link */
+        a {
+            color: #8B5CF6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #A78BFA;
         }
     </style>
 </head>
@@ -1420,13 +1584,13 @@
     <div id="status" class="hidden"></div>
 
     <div class="container">
-        <h1>Supplement Dispenser</h1>
+        <h1>Dose</h1>
 
         <!-- Not logged in -->
         <div id="no-user">
             <div class="card onboarding-step" id="onboarding-step-1">
                 <h2>Create Your Profile</h2>
-                <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7); font-size: 0.9em;">
+                <p style="margin-bottom: 18px; color: #555; font-size: 0.9em;">
                     We need a few details to personalize your supplement doses.
                 </p>
 
@@ -1450,8 +1614,8 @@
                     <input type="number" id="onboard-weight" placeholder="Weight (lbs)" step="0.1" required>
                 </div>
 
-                <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1em; color: rgba(255,255,255,0.9);">
-                    Lifestyle Quiz <span style="font-weight: normal; color: rgba(255,255,255,0.5);">(helps personalize your supplements)</span>
+                <h3 style="margin-top: 28px; margin-bottom: 14px; font-size: 1em; color: #E8E8E8; font-weight: 600;">
+                    Lifestyle Quiz <span style="font-weight: normal; color: #555;">(helps personalize your supplements)</span>
                 </h3>
 
                 <div class="onboard-grid">
@@ -1494,21 +1658,21 @@
                     </select>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <input type="time" id="onboard-bedtime" style="flex: 1;" title="Typical bedtime">
-                        <span style="color: rgba(255,255,255,0.5);">to</span>
+                        <span style="color: #444;">to</span>
                         <input type="time" id="onboard-waketime" style="flex: 1;" title="Typical wake time">
                     </div>
                 </div>
 
-                <button onclick="createAccount()" style="width: 100%; margin-top: 16px;">
+                <button onclick="createAccount()" style="width: 100%; margin-top: 20px;">
                     Create Account
                 </button>
 
-                <div style="text-align: center; margin-top: 16px;">
-                    <span style="color: rgba(255,255,255,0.5);">Already have an account?</span>
-                    <a href="#" onclick="toggleSignIn(event)" style="color: #00d9ff; margin-left: 8px;">Sign in</a>
+                <div style="text-align: center; margin-top: 18px;">
+                    <span style="color: #444;">Already have an account?</span>
+                    <a href="#" onclick="toggleSignIn(event)" style="margin-left: 8px;">Sign in</a>
                 </div>
 
-                <div id="signin-form" class="hidden" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div id="signin-form" class="hidden" style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.06);">
                     <div class="form-row">
                         <input type="email" id="signin-email" placeholder="Email address">
                         <button onclick="signIn()">Sign In</button>
@@ -1551,17 +1715,17 @@
                 <div class="dispenser-layout" id="dispenser-layout">
                     <!-- AI Recommendation -->
                     <div class="ai-recommendation" onclick="getAIRecommendation()" id="ai-recommendation">
-                        <div class="ai-icon">🤖</div>
-                        <div class="ai-title">AI Recommendation</div>
+                        <div class="ai-icon">&#x2728;</div>
+                        <div class="ai-title">Smart Recommendation</div>
                         <div class="ai-subtitle">Personalized based on your health data</div>
                     </div>
 
                     <!-- Daily Foundation - Always visible below AI -->
                     <div class="daily-foundation" onclick="selectDailyFoundation()" id="daily-foundation">
-                        <div class="df-icon">💎</div>
+                        <div class="df-icon">&#x1F48E;</div>
                         <div class="df-name">Daily Foundation</div>
                         <div class="df-desc">Essential daily nutrients</div>
-                        <div class="taken-badge">✓ Taken Today</div>
+                        <div class="taken-badge">&#x2713; Taken Today</div>
                     </div>
 
                     <!-- Mix cards populated by JS -->
@@ -1579,7 +1743,7 @@
 
                 <div class="tracking-content" id="tracking-content">
                     <div class="empty-state">
-                        <div class="emoji">💊</div>
+                        <div class="emoji">&#x1F48A;</div>
                         <div>No supplements taken yet</div>
                     </div>
                 </div>
@@ -1587,7 +1751,7 @@
                 <!-- Saturation Gauge -->
                 <div class="saturation-gauge" id="saturation-gauge">
                     <div class="saturation-title">
-                        <span>⚡</span> Saturation Tracking
+                        <span>&#x26A1;</span> Saturation Tracking
                     </div>
                     <div id="saturation-content">
                         <!-- Populated by JS -->
@@ -1603,9 +1767,9 @@
                 </div>
                 <div id="custom-blends-list">
                     <div class="empty-state">
-                        <div class="emoji">🧪</div>
+                        <div class="emoji">&#x1F9EA;</div>
                         <div>No custom blends yet</div>
-                        <div style="font-size: 0.8em; color: rgba(255,255,255,0.4); margin-top: 4px;">
+                        <div style="font-size: 0.8em; color: #333; margin-top: 6px;">
                             Create your own supplement combinations
                         </div>
                     </div>
@@ -1617,20 +1781,20 @@
     <!-- Blend Builder Modal -->
     <div class="modal-overlay hidden" id="blend-builder-modal">
         <div class="modal-content blend-builder" id="blend-builder-content">
-            <div class="modal-header" style="text-align: left; margin-bottom: 16px;">
+            <div class="modal-header" style="text-align: left; margin-bottom: 18px;">
                 <div class="modal-title">Create Custom Blend</div>
                 <div class="modal-subtitle">Select supplements and customize doses</div>
             </div>
 
             <div class="blend-builder-header">
                 <input type="text" id="blend-name" placeholder="Blend name (e.g. My Morning Stack)">
-                <input type="text" id="blend-icon" class="icon-picker" value="🧪" maxlength="2" onclick="this.select()">
+                <input type="text" id="blend-icon" class="icon-picker" value="&#x1F9EA;" maxlength="2" onclick="this.select()">
             </div>
 
             <!-- AI Assistant Section -->
             <div class="ai-blend-section">
                 <div class="ai-blend-header">
-                    <span class="ai-icon">🤖</span>
+                    <span class="ai-icon">&#x2728;</span>
                     <div>
                         <h3>AI Blend Assistant</h3>
                         <span>Describe what you want and I'll suggest supplements</span>
@@ -1687,7 +1851,7 @@
 
     <!-- Settings Toggle -->
     <button class="settings-toggle" onclick="toggleSettings()" title="Settings">
-        <span>⚙️</span>
+        <span>&#x2699;</span>
     </button>
 
     <!-- Settings Panel -->
@@ -1706,7 +1870,7 @@
         </div>
         <div class="setting-row">
             <label>Connect Wearable</label>
-            <button onclick="connectOura()" class="btn-secondary" style="width: 100%; margin-top: 4px;">
+            <button onclick="connectOura()" class="btn-secondary" style="width: 100%; margin-top: 6px;">
                 Connect Oura Ring
             </button>
         </div>
@@ -1906,29 +2070,13 @@
         function logout() {
             localStorage.removeItem('userId');
             currentUserId = null;
-            document.getElementById('no-user').classList.remove('hidden');
             document.getElementById('has-user').classList.add('hidden');
-            document.getElementById('user-name').value = '';
-            document.getElementById('user-email').value = '';
-            document.getElementById('onboard-age').value = '';
-            document.getElementById('onboard-sex').value = '';
-            document.getElementById('onboard-height-feet').value = '';
-            document.getElementById('onboard-height-inches').value = '';
-            document.getElementById('onboard-weight').value = '';
-            document.getElementById('onboard-region').value = '';
-            document.getElementById('onboard-activity').value = '';
-            document.getElementById('onboard-work').value = '';
-            document.getElementById('onboard-diet').value = '';
-            document.getElementById('onboard-chronotype').value = '';
-            document.getElementById('onboard-bedtime').value = '';
-            document.getElementById('onboard-waketime').value = '';
+            document.getElementById('no-user').classList.remove('hidden');
         }
 
-        // Date navigation
-        function changeDate(delta) {
-            currentDate.setDate(currentDate.getDate() + delta);
-            updateDateDisplay();
-            loadAllData();
+        // Date functions
+        function getDateString() {
+            return currentDate.toISOString().split('T')[0];
         }
 
         function updateDateDisplay() {
@@ -1937,33 +2085,28 @@
             const current = new Date(currentDate);
             current.setHours(0, 0, 0, 0);
 
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const isToday = today.getTime() === current.getTime();
+            const dayEl = document.getElementById('date-day');
+            const fullEl = document.getElementById('date-full');
 
-            const diff = Math.round((current - today) / (1000 * 60 * 60 * 24));
+            const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+            fullEl.textContent = currentDate.toLocaleDateString('en-US', options);
 
-            let dayText = dayNames[currentDate.getDay()];
-            let badge = '';
-
-            if (diff === 0) {
-                dayText = 'Today';
-                badge = '<span class="today-badge">TODAY</span>';
-            } else if (diff === -1) {
-                dayText = 'Yesterday';
-            } else if (diff === 1) {
-                dayText = 'Tomorrow';
+            if (isToday) {
+                dayEl.innerHTML = 'Today<span class="today-badge">Now</span>';
+            } else {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                dayEl.textContent = days[currentDate.getDay()];
             }
-
-            document.getElementById('date-day').innerHTML = dayText + badge;
-            document.getElementById('date-full').textContent =
-                `${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
         }
 
-        function getDateString() {
-            return currentDate.toISOString().split('T')[0];
+        function changeDate(delta) {
+            currentDate.setDate(currentDate.getDate() + delta);
+            updateDateDisplay();
+            loadAllData();
         }
 
-        // Time selection
+        // Time functions
         function setTime(hour) {
             currentTime = hour;
             updateTimeButtons();
@@ -1972,35 +2115,23 @@
 
         function updateTimeButtons() {
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
-
-            if (currentTime >= 5 && currentTime < 12) {
+            if (currentTime < 12) {
                 document.getElementById('time-btn-morning').classList.add('active');
-            } else if (currentTime >= 12 && currentTime < 18) {
+            } else if (currentTime < 18) {
                 document.getElementById('time-btn-afternoon').classList.add('active');
             } else {
                 document.getElementById('time-btn-evening').classList.add('active');
             }
         }
 
-        // Load available mixes
+        // Load mixes
         async function loadMixes() {
-            if (!currentUserId) return;
-
             try {
-                // Load both preset mixes and custom blends
-                const [mixesRes, blendsRes] = await Promise.all([
-                    fetch(`/mixes/available?time_override=${currentTime}`),
-                    fetch(`/mixes/blends/${currentUserId}`)
-                ]);
-
-                if (mixesRes.ok) {
-                    availableMixes = await mixesRes.json();
+                const res = await fetch('/mixes');
+                if (res.ok) {
+                    availableMixes = await res.json();
+                    renderMixCards();
                 }
-                if (blendsRes.ok) {
-                    customBlends = await blendsRes.json();
-                }
-
-                renderMixCards();
             } catch (e) {
                 console.error('Error loading mixes:', e);
             }
@@ -2009,48 +2140,103 @@
         // Render mix cards
         function renderMixCards() {
             const layout = document.getElementById('dispenser-layout');
+            // Keep AI recommendation and Daily Foundation
+            const aiRec = document.getElementById('ai-recommendation');
+            const dailyFoundation = document.getElementById('daily-foundation');
 
-            // Remove existing mix cards (but keep AI and Daily Foundation)
+            // Remove existing mix cards
             layout.querySelectorAll('.mix-card').forEach(card => card.remove());
 
-            // Filter out daily_foundation from available mixes (it's always shown separately)
-            const otherMixes = availableMixes.filter(m => m.id !== 'daily_foundation');
+            // Filter mixes by time of day and exclude daily_foundation
+            const currentPeriod = currentTime < 12 ? 'morning' : currentTime < 18 ? 'afternoon' : 'evening';
+            const filteredMixes = availableMixes.filter(mix => {
+                if (mix.id === 'daily_foundation') return false;
+                if (!mix.time_windows || mix.time_windows.length === 0) return true;
+                return mix.time_windows.includes(currentPeriod);
+            });
 
-            // Add preset mix cards
-            for (const mix of otherMixes) {
+            // Add mix cards
+            filteredMixes.forEach(mix => {
                 const card = document.createElement('div');
                 card.className = 'mix-card';
-                card.style.cssText = `--mix-color: ${mix.color}; --mix-color-rgb: ${hexToRgb(mix.color)}`;
                 card.onclick = () => selectMix(mix.id);
                 card.innerHTML = `
-                    <div class="mix-icon">${mix.icon}</div>
+                    <div class="mix-icon">${mix.icon || '&#x1F48A;'}</div>
                     <div class="mix-name">${mix.name}</div>
                     <div class="mix-desc">${mix.description}</div>
                 `;
                 layout.appendChild(card);
-            }
+            });
 
-            // Add custom blend cards
-            for (const blend of customBlends) {
-                const card = document.createElement('div');
-                card.className = 'mix-card custom-blend-mix';
-                card.style.cssText = `--mix-color: #8a2be2; --mix-color-rgb: 138, 43, 226`;
-                card.onclick = () => selectCustomBlend(blend.id);
-                card.innerHTML = `
-                    <div class="mix-icon">${blend.icon}</div>
-                    <div class="mix-name">${blend.name}</div>
-                    <div class="mix-desc">${blend.components.length} supplements</div>
-                    <div class="custom-badge">Custom</div>
-                `;
-                layout.appendChild(card);
+            // Load custom blends
+            loadCustomBlends();
+        }
+
+        // Load custom blends
+        async function loadCustomBlends() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/mixes/${currentUserId}/custom-blends`);
+                if (res.ok) {
+                    customBlends = await res.json();
+                    renderCustomBlends();
+                    renderCustomBlendCards();
+                }
+            } catch (e) {
+                console.error('Error loading custom blends:', e);
             }
         }
 
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result
-                ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-                : '0, 217, 255';
+        // Render custom blend cards in dispenser grid
+        function renderCustomBlendCards() {
+            const layout = document.getElementById('dispenser-layout');
+
+            customBlends.forEach(blend => {
+                const card = document.createElement('div');
+                card.className = 'mix-card custom-blend-mix';
+                card.onclick = () => selectCustomBlend(blend.id);
+                card.innerHTML = `
+                    <div class="custom-badge">Custom</div>
+                    <div class="mix-icon">${blend.icon || '&#x1F9EA;'}</div>
+                    <div class="mix-name">${blend.name}</div>
+                    <div class="mix-desc">${blend.supplements.length} supplements</div>
+                `;
+                layout.appendChild(card);
+            });
+        }
+
+        // Render custom blends list
+        function renderCustomBlends() {
+            const list = document.getElementById('custom-blends-list');
+
+            if (customBlends.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">&#x1F9EA;</div>
+                        <div>No custom blends yet</div>
+                        <div style="font-size: 0.8em; color: #333; margin-top: 6px;">
+                            Create your own supplement combinations
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = customBlends.map(blend => `
+                <div class="custom-blend-card" onclick="selectCustomBlend('${blend.id}')">
+                    <div class="custom-blend-info">
+                        <span class="custom-blend-icon">${blend.icon || '&#x1F9EA;'}</span>
+                        <div>
+                            <div class="custom-blend-name">${blend.name}</div>
+                            <div class="custom-blend-count">${blend.supplements.length} supplements</div>
+                        </div>
+                    </div>
+                    <div class="custom-blend-actions">
+                        <button class="btn-delete-blend" onclick="event.stopPropagation(); deleteCustomBlend('${blend.id}')" title="Delete">&#x2715;</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Select a mix
@@ -2062,108 +2248,112 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${mixId}?time_override=${currentTime}&date_override=${dateStr}`);
+                const res = await fetch(`/mixes/${currentUserId}/calculate/${mixId}?hour=${currentTime}&date_str=${dateStr}`);
+
                 if (res.ok) {
                     currentMixData = await res.json();
                     showDispenseModal(currentMixData);
                 } else {
                     const err = await res.json();
-                    showStatus(err.detail || 'Error loading mix', 'error');
+                    showStatus(err.detail || 'Error calculating mix', 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
         }
 
-        // Get AI recommendation
+        // Select custom blend
+        async function selectCustomBlend(blendId) {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+
+            try {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/custom-blends/${blendId}/calculate?hour=${currentTime}&date_str=${dateStr}`);
+
+                if (res.ok) {
+                    currentMixData = await res.json();
+                    showDispenseModal(currentMixData);
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error calculating blend', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // AI Recommendation
         async function getAIRecommendation() {
             if (!currentUserId) {
                 showStatus('Please sign in first', 'error');
                 return;
             }
 
-            const aiCard = document.getElementById('ai-recommendation');
-            aiCard.classList.add('loading');
+            const aiRec = document.getElementById('ai-recommendation');
+            aiRec.classList.add('loading');
+            aiRec.querySelector('.ai-subtitle').textContent = 'Analyzing your health data...';
 
             try {
                 const dateStr = getDateString();
-                const smartRes = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentTime}`);
+                const res = await fetch(`/mixes/${currentUserId}/ai-recommendation?hour=${currentTime}&date_str=${dateStr}`);
 
-                if (smartRes.ok) {
-                    const smart = await smartRes.json();
-
-                    if (smart.recommended_mix_id) {
-                        const mixRes = await fetch(`/mixes/${currentUserId}/${smart.recommended_mix_id}?time_override=${currentTime}&date_override=${dateStr}`);
-
-                        if (mixRes.ok) {
-                            currentMixData = await mixRes.json();
-                            currentMixData.ai_reason = smart.reason;
-                            showDispenseModal(currentMixData, true);
-                        }
-                    } else {
-                        showStatus('No recommendation available. Load health data first.', 'error');
-                    }
+                if (res.ok) {
+                    currentMixData = await res.json();
+                    showDispenseModal(currentMixData);
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error getting recommendation', 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             } finally {
-                aiCard.classList.remove('loading');
+                aiRec.classList.remove('loading');
+                aiRec.querySelector('.ai-subtitle').textContent = 'Personalized based on your health data';
             }
         }
 
         // Show dispense modal
-        function showDispenseModal(mixData, isAI = false) {
+        function showDispenseModal(data) {
             const modal = document.getElementById('dispense-modal');
             const content = document.getElementById('modal-content');
 
-            let supplementsHtml = '';
-            for (const supp of mixData.supplements) {
-                const adjusted = supp.adjusted_from ? ' <span style="color: rgba(255,255,255,0.5); font-size: 0.75em;">(adjusted)</span>' : '';
-                supplementsHtml += `
-                    <div class="supplement-item">
-                        <span class="supplement-name">${supp.name}${adjusted}</span>
-                        <span class="supplement-dose">${supp.dose} ${supp.unit}</span>
-                    </div>
-                `;
-            }
-
-            let warningsHtml = '';
-            if (mixData.skipped && mixData.skipped.length > 0) {
-                const skippedNames = mixData.skipped.map(s => s.name || s.supplement_id).join(', ');
-                warningsHtml += `<div class="modal-warning">Skipped (daily limit): ${skippedNames}</div>`;
-            }
-
-            if (mixData.interaction_warnings && mixData.interaction_warnings.length > 0) {
-                for (const w of mixData.interaction_warnings) {
-                    warningsHtml += `<div class="modal-warning">${w.description}</div>`;
-                }
-            }
-
-            const aiReasonHtml = isAI && mixData.ai_reason
-                ? `<div style="background: rgba(138, 43, 226, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.85em;">
-                     <strong style="color: #8a2be2;">Why:</strong> ${mixData.ai_reason}
-                   </div>`
-                : '';
+            const supplements = data.supplements || [];
+            const warnings = data.warnings || [];
 
             content.innerHTML = `
                 <div class="modal-header">
-                    <div class="modal-icon">${mixData.mix_icon}</div>
-                    <div class="modal-title">${mixData.mix_name}</div>
-                    <div class="modal-subtitle">${mixData.mix_description}</div>
+                    <div class="modal-icon">${data.icon || '&#x1F48A;'}</div>
+                    <div class="modal-title">${data.name}</div>
+                    <div class="modal-subtitle">${data.description || 'Your personalized supplement mix'}</div>
                 </div>
-
-                ${aiReasonHtml}
 
                 <div class="supplement-list">
-                    ${supplementsHtml}
+                    ${supplements.map(s => `
+                        <div class="supplement-item">
+                            <span class="supplement-name">${s.name}</span>
+                            <span class="supplement-dose">${s.dose_display}</span>
+                        </div>
+                        ${s.intelligence_notes && s.intelligence_notes.length > 0 ? `
+                            <div class="intelligence-note">
+                                ${s.intelligence_notes.join('; ')}
+                            </div>
+                        ` : ''}
+                    `).join('')}
                 </div>
 
-                ${warningsHtml}
+                ${warnings.length > 0 ? `
+                    <div class="modal-warning">
+                        ${warnings.join('<br>')}
+                    </div>
+                ` : ''}
 
                 <div class="modal-actions">
-                    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                    <button class="btn-dispense" onclick="dispense()" id="dispense-btn">
-                        Dispense Now
+                    <button class="btn-cancel" onclick="closeDispenseModal()">Cancel</button>
+                    <button class="btn-dispense" onclick="confirmDispense()" id="dispense-btn">
+                        Get Dose
                     </button>
                 </div>
             `;
@@ -2171,211 +2361,167 @@
             modal.classList.remove('hidden');
         }
 
-        // Close modal
-        function closeModal() {
+        // Close dispense modal
+        function closeDispenseModal() {
             document.getElementById('dispense-modal').classList.add('hidden');
             currentMixData = null;
             isDispensing = false;
         }
 
-        // Handle backdrop click
-        document.getElementById('dispense-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'dispense-modal' && !isDispensing) {
-                closeModal();
-            }
-        });
-
-        // Dispense
-        async function dispense() {
-            if (!currentMixData || !currentUserId || isDispensing) return;
-
+        // Confirm dispense
+        async function confirmDispense() {
+            if (!currentMixData || isDispensing) return;
             isDispensing = true;
+
             const btn = document.getElementById('dispense-btn');
             btn.classList.add('dispensing');
             btn.textContent = 'Dispensing...';
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
-                    method: 'POST'
+                const res = await fetch(`/mixes/${currentUserId}/dispense`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mix_id: currentMixData.id,
+                        supplements: currentMixData.supplements,
+                        date_str: dateStr,
+                        hour: currentTime
+                    })
                 });
 
                 if (res.ok) {
-                    const result = await res.json();
-                    showDispenseAnimation(result);
+                    showDispenseAnimation(currentMixData);
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error dispensing', 'error');
-                    btn.classList.remove('dispensing');
-                    btn.textContent = 'Dispense Now';
-                    isDispensing = false;
+                    closeDispenseModal();
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
-                btn.classList.remove('dispensing');
-                btn.textContent = 'Dispense Now';
-                isDispensing = false;
+                closeDispenseModal();
             }
         }
 
         // Show dispense animation
-        function showDispenseAnimation(result) {
+        function showDispenseAnimation(data) {
             const content = document.getElementById('modal-content');
-
-            // Build list of dispensed supplements
-            let dispensedHtml = '';
-            for (const supp of result.supplements_dispensed) {
-                dispensedHtml += `
-                    <div class="dispensed-item">
-                        <span>${supp.name}</span>
-                        <span style="color: #00ff88;">${supp.dose} ${supp.unit}</span>
-                    </div>
-                `;
-            }
-
-            // Build dropping pills HTML
-            const pills = result.supplements_dispensed.slice(0, 5).map((_, i) =>
-                `<div class="dropping-pill" style="animation-delay: ${i * 0.2}s">💊</div>`
-            ).join('');
+            const supplements = data.supplements || [];
 
             content.innerHTML = `
                 <div class="dispense-animation">
                     <div class="glass-container">
-                        <div class="dropping-supplements">${pills}</div>
                         <div class="glass">
-                            <div class="glass-water" id="glass-water"></div>
+                            <div class="glass-water" id="water"></div>
+                        </div>
+                        <div class="dropping-supplements" id="dropping">
+                            ${supplements.map((s, i) => `
+                                <span class="dropping-pill" style="animation-delay: ${0.2 * i}s">&#x1F48A;</span>
+                            `).join('')}
                         </div>
                     </div>
-                    <div class="dispense-message">${result.mix_name} Dispensed!</div>
-                    <div class="dispense-details">${result.total_dispensed} supplements added</div>
-                    <div class="dispensed-list">
-                        ${dispensedHtml}
-                    </div>
+                    <div class="dispense-message">Dispensing your dose...</div>
+                    <div class="dispense-details">${supplements.length} supplements</div>
                 </div>
             `;
 
-            // Trigger water fill animation
+            // Start animation
             setTimeout(() => {
-                document.getElementById('glass-water').classList.add('filling');
+                document.getElementById('water').classList.add('filling');
             }, 100);
 
-            // Close and refresh after animation
+            // Show success after animation
             setTimeout(() => {
-                closeModal();
-                loadAllData();
-            }, 3500);
+                showDispenseSuccess(data);
+            }, 2500);
         }
 
-        // Load tracking data
+        // Show dispense success
+        function showDispenseSuccess(data) {
+            const content = document.getElementById('modal-content');
+            const supplements = data.supplements || [];
+
+            content.innerHTML = `
+                <div class="dispense-animation">
+                    <div style="font-size: 4em; margin-bottom: 16px;">&#x2705;</div>
+                    <div class="dispense-message">Dose Ready!</div>
+                    <div class="dispense-details">Your supplements have been dispensed</div>
+
+                    <div class="dispensed-list">
+                        ${supplements.map(s => `
+                            <div class="dispensed-item">
+                                <span>${s.name}</span>
+                                <span>${s.dose_display}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="btn-dispense" onclick="closeDispenseModal(); loadAllData();" style="width: 100%;">
+                        Done
+                    </button>
+                </div>
+            `;
+        }
+
+        // Load tracking
         async function loadTracking() {
             if (!currentUserId) return;
 
-            if (trackingTab === 'daily') {
-                await loadDailyTracking();
-            } else {
-                await loadWeeklyTracking();
-            }
-        }
-
-        async function loadDailyTracking() {
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`);
+                let url = `/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`;
+                if (trackingTab === 'weekly') {
+                    url = `/mixes/${currentUserId}/tracking/weekly?date_str=${dateStr}`;
+                }
 
+                const res = await fetch(url);
                 if (res.ok) {
                     const data = await res.json();
-                    renderDailyTracking(data.supplements);
+                    renderTracking(data);
                 }
             } catch (e) {
-                console.error('Error loading daily tracking:', e);
+                console.error('Error loading tracking:', e);
             }
         }
 
-        async function loadWeeklyTracking() {
-            try {
-                const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/tracking/weekly?end_date_str=${dateStr}`);
+        // Render tracking
+        function renderTracking(data) {
+            const content = document.getElementById('tracking-content');
+            const supplements = data.supplements || [];
 
-                if (res.ok) {
-                    const data = await res.json();
-                    renderWeeklyTracking(data.supplements);
-                }
-            } catch (e) {
-                console.error('Error loading weekly tracking:', e);
-            }
-        }
-
-        function renderDailyTracking(supplements) {
-            const container = document.getElementById('tracking-content');
-
-            if (!supplements || supplements.length === 0) {
-                container.innerHTML = `
+            if (supplements.length === 0) {
+                content.innerHTML = `
                     <div class="empty-state">
-                        <div class="emoji">💊</div>
-                        <div>No supplements taken on this day</div>
+                        <div class="emoji">&#x1F48A;</div>
+                        <div>No supplements taken yet</div>
                     </div>
                 `;
                 return;
             }
 
-            let html = '';
-            for (const supp of supplements) {
-                let fillClass = '';
-                if (supp.percentage >= 100) fillClass = 'danger';
-                else if (supp.percentage >= 80) fillClass = 'warning';
+            content.innerHTML = supplements.map(s => {
+                const pct = Math.min((s.total_mg / s.max_daily_mg) * 100, 100);
+                let barClass = '';
+                if (pct >= 90) barClass = 'danger';
+                else if (pct >= 70) barClass = 'warning';
 
-                html += `
+                return `
                     <div class="tracking-item">
                         <div class="tracking-header">
-                            <span class="tracking-name">${supp.name}</span>
-                            <span class="tracking-values">${supp.taken} / ${supp.max_daily} ${supp.unit}</span>
+                            <span class="tracking-name">${s.name}</span>
+                            <span class="tracking-values">${s.total_mg}${s.unit} / ${s.max_daily_mg}${s.unit}</span>
                         </div>
                         <div class="tracking-bar">
-                            <div class="tracking-fill ${fillClass}" style="width: ${supp.percentage}%"></div>
+                            <div class="tracking-fill ${barClass}" style="width: ${pct}%"></div>
                         </div>
                     </div>
                 `;
-            }
-
-            container.innerHTML = html;
+            }).join('');
         }
 
-        function renderWeeklyTracking(supplements) {
-            const container = document.getElementById('tracking-content');
-
-            if (!supplements || supplements.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="emoji">📊</div>
-                        <div>No supplements taken this week</div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            for (const supp of supplements) {
-                const pct = Math.min(100, Math.round((supp.weekly_total / supp.weekly_max) * 100));
-                let fillClass = '';
-                if (pct >= 100) fillClass = 'danger';
-                else if (pct >= 80) fillClass = 'warning';
-
-                html += `
-                    <div class="tracking-item">
-                        <div class="tracking-header">
-                            <span class="tracking-name">${supp.name}</span>
-                            <span class="tracking-values">${supp.weekly_total} ${supp.unit} (${supp.days_taken} days)</span>
-                        </div>
-                        <div class="tracking-bar">
-                            <div class="tracking-fill ${fillClass}" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
-        }
-
+        // Switch tracking tab
         function switchTrackingTab(tab) {
             trackingTab = tab;
             document.querySelectorAll('.tracking-tab').forEach(t => t.classList.remove('active'));
@@ -2383,62 +2529,52 @@
             loadTracking();
         }
 
-        // Load saturation data
+        // Load saturation
         async function loadSaturation() {
             if (!currentUserId) return;
 
             try {
-                const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/tracking/saturation?as_of_date=${dateStr}`);
-
+                const res = await fetch(`/mixes/${currentUserId}/saturation`);
                 if (res.ok) {
                     const data = await res.json();
-                    renderSaturation(data.supplements);
+                    renderSaturation(data);
                 }
             } catch (e) {
                 console.error('Error loading saturation:', e);
             }
         }
 
-        function renderSaturation(supplements) {
-            const container = document.getElementById('saturation-content');
+        // Render saturation
+        function renderSaturation(data) {
+            const content = document.getElementById('saturation-content');
+            const items = data.supplements || [];
 
-            if (!supplements || supplements.length === 0) {
-                document.getElementById('saturation-gauge').classList.add('hidden');
+            if (items.length === 0) {
+                content.innerHTML = '<p style="color: #444; font-size: 0.85em;">No saturation data yet. Take supplements with saturation effects to see progress here.</p>';
                 return;
             }
 
-            document.getElementById('saturation-gauge').classList.remove('hidden');
-
-            let html = '';
-            for (const supp of supplements) {
+            content.innerHTML = items.map(s => {
                 const circumference = 2 * Math.PI * 32;
-                const offset = circumference - (supp.saturation_percentage / 100) * circumference;
-
+                const offset = circumference - (s.saturation_pct / 100) * circumference;
                 let progressClass = '';
+                let statusClass = '';
                 let statusText = '';
 
-                switch (supp.status) {
-                    case 'saturated':
-                        statusText = 'Fully saturated';
-                        break;
-                    case 'building':
-                        progressClass = 'building';
-                        statusText = `Building (${supp.consecutive_days}/${supp.days_to_saturate} days)`;
-                        break;
-                    case 'starting':
-                        progressClass = 'building';
-                        statusText = `Just starting (${supp.consecutive_days} days)`;
-                        break;
-                    case 'decaying':
-                        progressClass = 'decaying';
-                        statusText = `Decaying (${supp.days_since_last_intake} days since last)`;
-                        break;
-                    default:
-                        statusText = 'Not started';
+                if (s.saturation_pct >= 100) {
+                    statusClass = 'saturated';
+                    statusText = 'Fully saturated';
+                } else if (s.trend === 'building') {
+                    progressClass = 'building';
+                    statusClass = 'building';
+                    statusText = `Building (${s.days_consistent} days consistent)`;
+                } else {
+                    progressClass = 'decaying';
+                    statusClass = 'decaying';
+                    statusText = 'Decaying - take daily to maintain';
                 }
 
-                html += `
+                return `
                     <div class="saturation-item">
                         <div class="saturation-ring">
                             <svg width="80" height="80">
@@ -2447,155 +2583,70 @@
                                     stroke-dasharray="${circumference}"
                                     stroke-dashoffset="${offset}"></circle>
                             </svg>
-                            <div class="saturation-pct">${supp.saturation_percentage}%</div>
+                            <div class="saturation-pct">${Math.round(s.saturation_pct)}%</div>
                         </div>
                         <div class="saturation-info">
-                            <div class="saturation-name">${supp.name}</div>
-                            <div class="saturation-status ${supp.status}">${statusText}</div>
-                            <div style="font-size: 0.8em; color: rgba(255,255,255,0.5); margin-top: 4px;">
-                                Maintenance: ${supp.maintenance_dose}${supp.unit}/day
-                            </div>
+                            <div class="saturation-name">${s.name}</div>
+                            <div class="saturation-status ${statusClass}">${statusText}</div>
                         </div>
                     </div>
                 `;
-            }
-
-            container.innerHTML = html;
+            }).join('');
         }
 
-        // Settings
+        // Toggle settings
         function toggleSettings() {
             document.getElementById('settings-panel').classList.toggle('hidden');
         }
 
+        // Load scenario
         async function loadScenario() {
-            if (!currentUserId) {
-                showStatus('Please sign in first', 'error');
-                return;
-            }
-
             const scenario = document.getElementById('scenario').value;
-            if (scenario === 'none') return;
+            if (!currentUserId || scenario === 'none') return;
 
             try {
-                const res = await fetch(`/integrations/${currentUserId}/mock?scenario=${scenario}`, {
+                const res = await fetch(`/users/${currentUserId}/simulate/${scenario}`, {
                     method: 'POST'
                 });
 
                 if (res.ok) {
-                    showStatus(`Loaded ${scenario.replace('_', ' ')} scenario`, 'success');
-                    document.getElementById('scenario').value = 'none';
+                    showStatus(`Loaded ${scenario} scenario`, 'success');
+                    loadAllData();
+                } else {
+                    showStatus('Error loading scenario', 'error');
                 }
             } catch (e) {
-                showStatus('Error loading scenario', 'error');
+                showStatus('Error: ' + e.message, 'error');
             }
         }
 
+        // Connect Oura
         function connectOura() {
             if (!currentUserId) {
                 showStatus('Please sign in first', 'error');
                 return;
             }
-            window.location.href = `/integrations/${currentUserId}/oura/authorize`;
+            // Would redirect to OAuth flow
+            showStatus('Oura connection coming soon!', 'success');
         }
 
-        // Close settings when clicking outside
-        document.addEventListener('click', (e) => {
-            const panel = document.getElementById('settings-panel');
-            const toggle = document.querySelector('.settings-toggle');
+        // ========== Custom Blend Builder ==========
 
-            if (!panel.contains(e.target) && !toggle.contains(e.target)) {
-                panel.classList.add('hidden');
-            }
-        });
-
-        // ===== CUSTOM BLENDS =====
-        let supplementCatalog = [];
         let selectedSupplements = {};
-        let activeCategory = 'all';
-
-        // Load supplement catalog
-        async function loadSupplementCatalog() {
-            try {
-                const res = await fetch('/mixes/catalog');
-                if (res.ok) {
-                    const data = await res.json();
-                    supplementCatalog = data.supplements;
-                }
-            } catch (e) {
-                console.error('Error loading supplement catalog:', e);
-            }
-        }
-
-        // Load custom blends
-        async function loadCustomBlends() {
-            if (!currentUserId) return;
-
-            try {
-                const res = await fetch(`/mixes/blends/${currentUserId}`);
-                if (res.ok) {
-                    customBlends = await res.json();
-                    renderCustomBlends();
-                }
-            } catch (e) {
-                console.error('Error loading custom blends:', e);
-            }
-        }
-
-        // Render custom blends list
-        function renderCustomBlends() {
-            const container = document.getElementById('custom-blends-list');
-
-            if (!customBlends || customBlends.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="emoji">🧪</div>
-                        <div>No custom blends yet</div>
-                        <div style="font-size: 0.8em; color: rgba(255,255,255,0.4); margin-top: 4px;">
-                            Create your own supplement combinations
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            for (const blend of customBlends) {
-                html += `
-                    <div class="custom-blend-card" onclick="selectCustomBlend('${blend.id}')">
-                        <div class="custom-blend-info">
-                            <div class="custom-blend-icon">${blend.icon}</div>
-                            <div>
-                                <div class="custom-blend-name">${blend.name}</div>
-                                <div class="custom-blend-count">${blend.components.length} supplements</div>
-                            </div>
-                        </div>
-                        <div class="custom-blend-actions">
-                            <button class="btn-delete-blend" onclick="event.stopPropagation(); deleteCustomBlend('${blend.id}')" title="Delete blend">
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
-        }
+        let allSupplements = [];
+        let aiSuggestions = [];
 
         // Open blend builder
         async function openBlendBuilder() {
-            if (supplementCatalog.length === 0) {
-                await loadSupplementCatalog();
-            }
-
-            selectedSupplements = {};
-            document.getElementById('blend-name').value = '';
-            document.getElementById('blend-icon').value = '🧪';
-
-            renderSupplementCategories();
-            renderSupplementGrid();
-            updateSelectedSupplementsUI();
-
             document.getElementById('blend-builder-modal').classList.remove('hidden');
+            document.getElementById('blend-name').value = '';
+            document.getElementById('blend-icon').value = '&#x1F9EA;';
+            selectedSupplements = {};
+            aiSuggestions = [];
+
+            await loadSupplements();
+            renderSupplementGrid();
+            updateSelectedSupplements();
         }
 
         // Close blend builder
@@ -2603,180 +2654,263 @@
             document.getElementById('blend-builder-modal').classList.add('hidden');
         }
 
-        // Render supplement categories
-        function renderSupplementCategories() {
-            const categories = ['all', ...new Set(supplementCatalog.map(s => s.category))];
-            const categoryLabels = {
-                'all': 'All',
-                'vitamins': 'Vitamins',
-                'minerals': 'Minerals',
-                'amino_acids': 'Amino Acids',
-                'performance': 'Performance',
-                'adaptogens': 'Adaptogens',
-                'nootropics': 'Nootropics',
-                'antioxidants': 'Antioxidants',
-                'sleep': 'Sleep',
-                'fatty_acids': 'Fatty Acids',
-                'herbals': 'Herbals'
-            };
-
-            const container = document.getElementById('supplement-categories');
-            let html = '';
-            for (const cat of categories) {
-                const label = categoryLabels[cat] || cat;
-                const active = cat === activeCategory ? 'active' : '';
-                html += `<button class="category-btn ${active}" onclick="filterByCategory('${cat}')">${label}</button>`;
+        // Load all supplements
+        async function loadSupplements() {
+            try {
+                const res = await fetch('/supplements');
+                if (res.ok) {
+                    allSupplements = await res.json();
+                    renderCategories();
+                }
+            } catch (e) {
+                console.error('Error loading supplements:', e);
             }
-            container.innerHTML = html;
+        }
+
+        // Render categories
+        function renderCategories() {
+            const categories = [...new Set(allSupplements.flatMap(s => s.categories || []))];
+            const container = document.getElementById('supplement-categories');
+
+            container.innerHTML = `
+                <button class="category-btn active" onclick="filterCategory('all')">All</button>
+                ${categories.map(cat => `
+                    <button class="category-btn" onclick="filterCategory('${cat}')">${cat}</button>
+                `).join('')}
+            `;
         }
 
         // Filter by category
-        function filterByCategory(category) {
-            activeCategory = category;
-            renderSupplementCategories();
-            renderSupplementGrid();
+        function filterCategory(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            renderSupplementGrid(category);
         }
 
         // Render supplement grid
-        function renderSupplementGrid() {
-            const container = document.getElementById('supplement-grid');
-            let filtered = supplementCatalog;
+        function renderSupplementGrid(category = 'all') {
+            const grid = document.getElementById('supplement-grid');
+            let supplements = allSupplements;
 
-            if (activeCategory !== 'all') {
-                filtered = supplementCatalog.filter(s => s.category === activeCategory);
+            if (category !== 'all') {
+                supplements = allSupplements.filter(s => s.categories && s.categories.includes(category));
             }
 
-            let html = '';
-            for (const supp of filtered) {
-                const selected = selectedSupplements[supp.id] ? 'selected' : '';
-                const benefitsHtml = supp.benefits.slice(0, 3).map(b => `<span class="benefit-tag">${b}</span>`).join('');
-
-                const pubmedHtml = supp.pubmed_studies.length > 0
-                    ? `<div class="supplement-card-links">
-                         ${supp.pubmed_studies.slice(0, 2).map(s => `<a href="${s.url}" target="_blank" class="pubmed-link" onclick="event.stopPropagation()">📄 ${s.title}</a>`).join('')}
-                       </div>`
-                    : '';
-
-                html += `
-                    <div class="supplement-card ${selected}" onclick="toggleSupplement('${supp.id}')">
-                        <div class="supplement-card-header">
-                            <div>
-                                <div class="supplement-card-name">${supp.name}</div>
-                                <div class="supplement-card-dose">${supp.standard_dose} ${supp.unit}</div>
-                            </div>
-                            <button style="padding: 4px 8px; font-size: 0.7em;" onclick="event.stopPropagation(); showSupplementInfo('${supp.id}')">ℹ️</button>
-                        </div>
-                        <div class="supplement-card-desc">${supp.description}</div>
-                        <div class="supplement-card-benefits">${benefitsHtml}</div>
-                        ${pubmedHtml}
+            grid.innerHTML = supplements.map(s => `
+                <div class="supplement-card ${selectedSupplements[s.id] ? 'selected' : ''}"
+                     onclick="toggleSupplement('${s.id}')">
+                    <div class="supplement-card-header">
+                        <span class="supplement-card-name">${s.name}</span>
+                        <span class="supplement-card-dose">${s.default_dose_mg}${s.unit}</span>
                     </div>
-                `;
-            }
-            container.innerHTML = html;
+                    <div class="supplement-card-desc">${s.description}</div>
+                    <div class="supplement-card-benefits">
+                        ${(s.benefits || []).slice(0, 3).map(b => `<span class="benefit-tag">${b}</span>`).join('')}
+                    </div>
+                    ${s.pubmed_links && s.pubmed_links.length > 0 ? `
+                        <div class="supplement-card-links">
+                            ${s.pubmed_links.slice(0, 2).map(link => `
+                                <a href="${link.url}" target="_blank" class="pubmed-link" onclick="event.stopPropagation()">
+                                    ${link.title.substring(0, 50)}...
+                                </a>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
         }
 
         // Toggle supplement selection
-        function toggleSupplement(suppId) {
-            if (selectedSupplements[suppId]) {
-                delete selectedSupplements[suppId];
+        function toggleSupplement(id) {
+            const supp = allSupplements.find(s => s.id === id);
+            if (!supp) return;
+
+            if (selectedSupplements[id]) {
+                delete selectedSupplements[id];
             } else {
-                const supp = supplementCatalog.find(s => s.id === suppId);
-                if (supp) {
-                    selectedSupplements[suppId] = {
-                        supplement_id: suppId,
-                        dose_multiplier: 1.0,
-                        dose: supp.standard_dose,
-                        name: supp.name,
-                        standard_dose: supp.standard_dose,
-                        max_daily_dose: supp.max_daily_dose,
-                        unit: supp.unit
-                    };
-                }
+                selectedSupplements[id] = {
+                    supplement_id: id,
+                    name: supp.name,
+                    dose_mg: supp.default_dose_mg,
+                    unit: supp.unit,
+                    min_dose_mg: supp.min_dose_mg,
+                    max_dose_mg: supp.max_dose_mg
+                };
             }
-            renderSupplementGrid();
-            updateSelectedSupplementsUI();
+
+            renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
+            updateSelectedSupplements();
         }
 
-        // Update selected supplements UI
-        function updateSelectedSupplementsUI() {
+        // Update selected supplements display
+        function updateSelectedSupplements() {
             const container = document.getElementById('selected-supplements');
             const list = document.getElementById('selected-supplements-list');
-            const keys = Object.keys(selectedSupplements);
+            const selected = Object.values(selectedSupplements);
 
-            if (keys.length === 0) {
+            if (selected.length === 0) {
                 container.style.display = 'none';
                 return;
             }
 
             container.style.display = 'block';
-            let html = '';
-            for (const suppId of keys) {
-                const s = selectedSupplements[suppId];
-                const currentDose = s.dose || s.standard_dose;
-                const maxDose = s.max_daily_dose;
-                html += `
-                    <div class="selected-supp-item">
-                        <div>
-                            <span class="selected-supp-name">${s.name}</span>
-                            <div class="dose-range">Range: 0 - ${maxDose} ${s.unit}</div>
-                        </div>
+            list.innerHTML = selected.map(s => `
+                <div class="selected-supp-item">
+                    <span class="selected-supp-name">${s.name}</span>
+                    <div class="selected-supp-dose">
                         <div class="dose-controls">
-                            <input type="number" class="dose-input" value="${currentDose}"
-                                step="${s.unit === 'g' ? '0.5' : (s.unit === 'IU' ? '500' : '25')}"
-                                min="0" max="${maxDose}"
-                                onchange="updateDose('${suppId}', this.value)">
+                            <input type="number" class="dose-input" value="${s.dose_mg}"
+                                min="${s.min_dose_mg}" max="${s.max_dose_mg}"
+                                onchange="updateDose('${s.supplement_id}', this.value)">
                             <span class="dose-unit">${s.unit}</span>
-                            <button class="btn-remove-supp" onclick="toggleSupplement('${suppId}')">×</button>
                         </div>
+                        <span class="dose-range">(${s.min_dose_mg}-${s.max_dose_mg})</span>
+                        <button class="btn-remove-supp" onclick="removeSupplement('${s.supplement_id}')">&#x2715;</button>
                     </div>
-                `;
-            }
-            list.innerHTML = html;
+                </div>
+            `).join('');
         }
 
-        // Update dose (actual value)
-        function updateDose(suppId, value) {
-            if (selectedSupplements[suppId]) {
-                const dose = parseFloat(value) || 0;
-                const s = selectedSupplements[suppId];
-                // Clamp to max
-                selectedSupplements[suppId].dose = Math.min(dose, s.max_daily_dose);
-                // Calculate multiplier for backend
-                selectedSupplements[suppId].dose_multiplier = selectedSupplements[suppId].dose / s.standard_dose;
+        // Update dose
+        function updateDose(id, value) {
+            if (selectedSupplements[id]) {
+                selectedSupplements[id].dose_mg = parseFloat(value);
             }
+        }
+
+        // Remove supplement
+        function removeSupplement(id) {
+            delete selectedSupplements[id];
+            renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
+            updateSelectedSupplements();
+        }
+
+        // AI Blend suggestion
+        async function getAIBlendSuggestion() {
+            const input = document.getElementById('ai-blend-input').value.trim();
+            if (!input) {
+                showStatus('Please describe what you want', 'error');
+                return;
+            }
+
+            const suggestionsDiv = document.getElementById('ai-suggestions');
+            const listDiv = document.getElementById('ai-suggestions-list');
+
+            suggestionsDiv.classList.add('visible');
+            listDiv.innerHTML = '<div class="ai-loading">Thinking</div>';
+
+            try {
+                const res = await fetch('/mixes/ai/suggest-blend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: input })
+                });
+
+                if (res.ok) {
+                    aiSuggestions = await res.json();
+                    renderAISuggestions();
+                } else {
+                    listDiv.innerHTML = '<p style="color: #EF4444;">Error getting suggestions</p>';
+                }
+            } catch (e) {
+                listDiv.innerHTML = '<p style="color: #EF4444;">Error: ' + e.message + '</p>';
+            }
+        }
+
+        // Render AI suggestions
+        function renderAISuggestions() {
+            const listDiv = document.getElementById('ai-suggestions-list');
+
+            listDiv.innerHTML = aiSuggestions.map(s => `
+                <div class="ai-suggestion-item" onclick="addSuggestion('${s.supplement_id}')">
+                    <div>
+                        <div class="ai-suggestion-name">${s.name}</div>
+                        <div class="ai-suggestion-reason">${s.reason}</div>
+                    </div>
+                    <span class="ai-suggestion-dose">${s.dose_mg}${s.unit}</span>
+                </div>
+            `).join('');
+        }
+
+        // Add single suggestion
+        function addSuggestion(id) {
+            const suggestion = aiSuggestions.find(s => s.supplement_id === id);
+            if (!suggestion) return;
+
+            const supp = allSupplements.find(s => s.id === id);
+            if (!supp) return;
+
+            selectedSupplements[id] = {
+                supplement_id: id,
+                name: suggestion.name,
+                dose_mg: suggestion.dose_mg,
+                unit: suggestion.unit,
+                min_dose_mg: supp.min_dose_mg,
+                max_dose_mg: supp.max_dose_mg
+            };
+
+            renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
+            updateSelectedSupplements();
+            showStatus(`Added ${suggestion.name}`, 'success');
+        }
+
+        // Add all suggestions
+        function addAllSuggestions() {
+            aiSuggestions.forEach(s => {
+                const supp = allSupplements.find(sup => sup.id === s.supplement_id);
+                if (supp) {
+                    selectedSupplements[s.supplement_id] = {
+                        supplement_id: s.supplement_id,
+                        name: s.name,
+                        dose_mg: s.dose_mg,
+                        unit: s.unit,
+                        min_dose_mg: supp.min_dose_mg,
+                        max_dose_mg: supp.max_dose_mg
+                    };
+                }
+            });
+
+            renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
+            updateSelectedSupplements();
+            showStatus(`Added ${aiSuggestions.length} supplements`, 'success');
         }
 
         // Save custom blend
         async function saveCustomBlend() {
             const name = document.getElementById('blend-name').value.trim();
-            const icon = document.getElementById('blend-icon').value.trim() || '🧪';
+            const icon = document.getElementById('blend-icon').value || '&#x1F9EA;';
+            const supplements = Object.values(selectedSupplements);
 
             if (!name) {
                 showStatus('Please enter a blend name', 'error');
                 return;
             }
 
-            const components = Object.values(selectedSupplements).map(s => ({
-                supplement_id: s.supplement_id,
-                dose_multiplier: s.dose_multiplier
-            }));
-
-            if (components.length === 0) {
+            if (supplements.length === 0) {
                 showStatus('Please select at least one supplement', 'error');
                 return;
             }
 
             try {
-                const res = await fetch(`/mixes/blends/${currentUserId}`, {
+                const res = await fetch(`/mixes/${currentUserId}/custom-blends`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, icon, components })
+                    body: JSON.stringify({
+                        name,
+                        icon,
+                        supplements: supplements.map(s => ({
+                            supplement_id: s.supplement_id,
+                            dose_mg: s.dose_mg
+                        }))
+                    })
                 });
 
                 if (res.ok) {
-                    showStatus('Custom blend created!', 'success');
+                    showStatus('Blend created!', 'success');
                     closeBlendBuilder();
                     loadCustomBlends();
+                    loadMixes();
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error creating blend', 'error');
@@ -2788,295 +2922,24 @@
 
         // Delete custom blend
         async function deleteCustomBlend(blendId) {
-            if (!confirm('Delete this custom blend?')) return;
+            if (!confirm('Delete this blend?')) return;
 
             try {
-                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}`, {
+                const res = await fetch(`/mixes/${currentUserId}/custom-blends/${blendId}`, {
                     method: 'DELETE'
                 });
 
                 if (res.ok) {
                     showStatus('Blend deleted', 'success');
                     loadCustomBlends();
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        // Select custom blend (show dispense modal)
-        async function selectCustomBlend(blendId) {
-            try {
-                const dateStr = getDateString();
-                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}/preview?date_override=${dateStr}`);
-
-                if (res.ok) {
-                    const data = await res.json();
-                    currentMixData = {
-                        mix_id: `custom/${blendId}`,
-                        mix_name: data.blend_name,
-                        mix_icon: data.blend_icon,
-                        mix_description: 'Your custom blend',
-                        supplements: data.supplements,
-                        skipped: data.skipped,
-                        warnings: data.warnings,
-                        interaction_warnings: data.interaction_warnings,
-                        is_custom: true,
-                        custom_blend_id: blendId
-                    };
-                    showDispenseModal(currentMixData);
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        // Show supplement info modal
-        function showSupplementInfo(suppId) {
-            const supp = supplementCatalog.find(s => s.id === suppId);
-            if (!supp) return;
-
-            const benefitsHtml = supp.benefits.map(b => `<span class="supp-info-benefit">${b}</span>`).join('');
-
-            const studiesHtml = supp.pubmed_studies.length > 0
-                ? supp.pubmed_studies.map(s => `
-                    <a href="${s.url}" target="_blank" class="study-link">
-                        <span class="study-title">${s.title}</span>
-                        <span class="study-pmid">PMID: ${s.pmid}</span>
-                    </a>
-                  `).join('')
-                : '<div style="color: rgba(255,255,255,0.5); font-size: 0.85em;">No studies linked yet</div>';
-
-            const content = document.getElementById('supp-info-content');
-            content.innerHTML = `
-                <div class="supp-info-header">
-                    <div class="supp-info-name">${supp.name}</div>
-                    <div class="supp-info-dose">Standard dose: ${supp.standard_dose} ${supp.unit} (max: ${supp.max_daily_dose} ${supp.unit}/day)</div>
-                </div>
-
-                <div class="supp-info-desc">${supp.description}</div>
-
-                <div class="supp-info-benefits">
-                    <div class="supp-info-benefits-title">Key Benefits</div>
-                    <div class="supp-info-benefits-list">${benefitsHtml}</div>
-                </div>
-
-                <div class="supp-info-studies">
-                    <div class="supp-info-studies-title">
-                        <span>📚</span> PubMed Studies
-                    </div>
-                    ${studiesHtml}
-                </div>
-
-                <div class="modal-actions" style="margin-top: 16px;">
-                    <button class="btn-cancel" onclick="closeSuppInfo()">Close</button>
-                    <button class="btn-dispense" onclick="closeSuppInfo(); toggleSupplement('${suppId}')">
-                        ${selectedSupplements[suppId] ? 'Remove from Blend' : 'Add to Blend'}
-                    </button>
-                </div>
-            `;
-
-            document.getElementById('supp-info-modal').classList.remove('hidden');
-        }
-
-        // Close supplement info modal
-        function closeSuppInfo() {
-            document.getElementById('supp-info-modal').classList.add('hidden');
-        }
-
-        // Handle modal backdrop clicks
-        document.getElementById('blend-builder-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'blend-builder-modal') closeBlendBuilder();
-        });
-
-        document.getElementById('supp-info-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'supp-info-modal') closeSuppInfo();
-        });
-
-        // Override dispense for custom blends
-        const originalDispense = dispense;
-        dispense = async function() {
-            if (currentMixData && currentMixData.is_custom) {
-                await dispenseCustomBlend();
-            } else {
-                await originalDispense();
-            }
-        };
-
-        async function dispenseCustomBlend() {
-            if (!currentMixData || !currentUserId || isDispensing) return;
-
-            isDispensing = true;
-            const btn = document.getElementById('dispense-btn');
-            btn.classList.add('dispensing');
-            btn.textContent = 'Dispensing...';
-
-            try {
-                const dateStr = getDateString();
-                const res = await fetch(`/mixes/blends/${currentUserId}/${currentMixData.custom_blend_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
-                    method: 'POST'
-                });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    result.mix_name = currentMixData.mix_name;
-                    showDispenseAnimation(result);
+                    loadMixes();
                 } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error dispensing', 'error');
-                    btn.classList.remove('dispensing');
-                    btn.textContent = 'Dispense Now';
-                    isDispensing = false;
+                    showStatus('Error deleting blend', 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
-                btn.classList.remove('dispensing');
-                btn.textContent = 'Dispense Now';
-                isDispensing = false;
             }
         }
-
-        // Update loadAllData to include custom blends
-        const originalLoadAllData = loadAllData;
-        loadAllData = function() {
-            originalLoadAllData();
-            loadCustomBlends();
-        };
-
-        // ===== AI BLEND ASSISTANT =====
-        let aiSuggestions = [];
-
-        async function getAIBlendSuggestion() {
-            const input = document.getElementById('ai-blend-input').value.trim();
-            if (!input) {
-                showStatus('Please describe what you want from your blend', 'error');
-                return;
-            }
-
-            const suggestionsDiv = document.getElementById('ai-suggestions');
-            const listDiv = document.getElementById('ai-suggestions-list');
-
-            // Show loading state
-            suggestionsDiv.classList.add('visible');
-            listDiv.innerHTML = '<div class="ai-loading">Analyzing your request</div>';
-
-            try {
-                const res = await fetch('/mixes/suggest-blend', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_request: input,
-                        user_id: currentUserId
-                    })
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    aiSuggestions = data.supplements || [];
-                    window.lastAIResponse = data;
-
-                    // Auto-fill blend name and icon if empty
-                    const nameInput = document.getElementById('blend-name');
-                    const iconInput = document.getElementById('blend-icon');
-                    if (!nameInput.value && data.blend_name) {
-                        nameInput.value = data.blend_name;
-                    }
-                    if (data.blend_icon) {
-                        iconInput.value = data.blend_icon;
-                    }
-
-                    // Render suggestions
-                    renderAISuggestions(data);
-                } else {
-                    const err = await res.json();
-                    listDiv.innerHTML = `<div style="color: #ff6b6b; padding: 10px;">${err.detail || 'Error getting suggestions'}</div>`;
-                }
-            } catch (e) {
-                listDiv.innerHTML = `<div style="color: #ff6b6b; padding: 10px;">Error: ${e.message}</div>`;
-            }
-        }
-
-        function renderAISuggestions(data) {
-            const listDiv = document.getElementById('ai-suggestions-list');
-
-            if (!data.supplements || data.supplements.length === 0) {
-                listDiv.innerHTML = '<div style="color: rgba(255,255,255,0.5); padding: 10px;">No supplements suggested. Try a different description.</div>';
-                return;
-            }
-
-            let html = '';
-
-            // Show summary if available
-            if (data.summary) {
-                html += `<div style="margin-bottom: 12px; padding: 10px; background: rgba(138, 43, 226, 0.15); border-radius: 8px; font-size: 0.85em;">
-                    <strong style="color: #8a2be2;">AI Says:</strong> ${data.summary}
-                    ${data.timing ? `<br><span style="color: rgba(255,255,255,0.6);">Best taken: ${data.timing}</span>` : ''}
-                </div>`;
-            }
-
-            for (const supp of data.supplements) {
-                const catalogSupp = supplementCatalog.find(s => s.id === supp.supplement_id);
-                if (!catalogSupp) continue;
-
-                const isSelected = selectedSupplements[supp.supplement_id];
-                html += `
-                    <div class="ai-suggestion-item">
-                        <div>
-                            <div class="ai-suggestion-name">${catalogSupp.name}</div>
-                            <div class="ai-suggestion-reason">${supp.reason || ''}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="ai-suggestion-dose">${supp.dose} ${catalogSupp.unit}</span>
-                            <button style="padding: 4px 10px; font-size: 0.8em; ${isSelected ? 'background: rgba(0,255,136,0.3);' : ''}"
-                                onclick="addAISuggestion('${supp.supplement_id}', ${supp.dose})">
-                                ${isSelected ? '✓' : '+ Add'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            listDiv.innerHTML = html;
-        }
-
-        function addAISuggestion(suppId, dose) {
-            const supp = supplementCatalog.find(s => s.id === suppId);
-            if (!supp) return;
-
-            if (selectedSupplements[suppId]) {
-                // Already selected, just update the dose
-                selectedSupplements[suppId].dose = dose;
-                selectedSupplements[suppId].dose_multiplier = dose / supp.standard_dose;
-            } else {
-                // Add new
-                selectedSupplements[suppId] = {
-                    supplement_id: suppId,
-                    dose_multiplier: dose / supp.standard_dose,
-                    dose: dose,
-                    name: supp.name,
-                    standard_dose: supp.standard_dose,
-                    max_daily_dose: supp.max_daily_dose,
-                    unit: supp.unit
-                };
-            }
-
-            renderSupplementGrid();
-            updateSelectedSupplementsUI();
-            // Re-render AI suggestions to update button states
-            if (window.lastAIResponse) {
-                renderAISuggestions(window.lastAIResponse);
-            }
-        }
-
-        function addAllSuggestions() {
-            for (const supp of aiSuggestions) {
-                addAISuggestion(supp.supplement_id, supp.dose);
-            }
-            showStatus('All suggestions added!', 'success');
-        }
-
-        // Load supplement catalog on page load
-        loadSupplementCatalog();
     </script>
 </body>
 </html>
