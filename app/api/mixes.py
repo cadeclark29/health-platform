@@ -221,6 +221,53 @@ def _generate_reason(health_data: dict, mix_id: str, time_of_day: str) -> str:
     return reasons.get(mix_id, f"Recommended based on your health data and current time ({time_of_day}).")
 
 
+@router.get("/{user_id}/history")
+async def get_mix_history(
+    user_id: str,
+    days: int = 7,
+    db: Session = Depends(get_db)
+):
+    """
+    Get user's recent dispense history.
+
+    Shows what mixes/supplements have been dispensed recently.
+    """
+    from datetime import timedelta
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    start_date = datetime.combine(
+        date.today() - timedelta(days=days),
+        datetime.min.time()
+    )
+
+    logs = db.query(DispenseLog).filter(
+        DispenseLog.user_id == user_id,
+        DispenseLog.dispensed_at >= start_date
+    ).order_by(DispenseLog.dispensed_at.desc()).all()
+
+    # Group by day
+    by_day = {}
+    for log in logs:
+        day = log.dispensed_at.date().isoformat()
+        if day not in by_day:
+            by_day[day] = []
+        by_day[day].append({
+            "supplement_id": log.supplement_name,
+            "dose": log.dose,
+            "unit": log.unit,
+            "time": log.dispensed_at.strftime("%H:%M")
+        })
+
+    return {
+        "user_id": user_id,
+        "days": days,
+        "history": by_day
+    }
+
+
 @router.get("/{user_id}/{mix_id}")
 async def get_mix_details(
     user_id: str,
@@ -344,50 +391,3 @@ def _get_dispensed_today(user_id: str, db: Session) -> dict:
         dispensed[log.supplement_name] += log.dose
 
     return dispensed
-
-
-@router.get("/{user_id}/history")
-async def get_mix_history(
-    user_id: str,
-    days: int = 7,
-    db: Session = Depends(get_db)
-):
-    """
-    Get user's recent dispense history.
-
-    Shows what mixes/supplements have been dispensed recently.
-    """
-    from datetime import timedelta
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    start_date = datetime.combine(
-        date.today() - timedelta(days=days),
-        datetime.min.time()
-    )
-
-    logs = db.query(DispenseLog).filter(
-        DispenseLog.user_id == user_id,
-        DispenseLog.dispensed_at >= start_date
-    ).order_by(DispenseLog.dispensed_at.desc()).all()
-
-    # Group by day
-    by_day = {}
-    for log in logs:
-        day = log.dispensed_at.date().isoformat()
-        if day not in by_day:
-            by_day[day] = []
-        by_day[day].append({
-            "supplement_id": log.supplement_name,
-            "dose": log.dose,
-            "unit": log.unit,
-            "time": log.dispensed_at.strftime("%H:%M")
-        })
-
-    return {
-        "user_id": user_id,
-        "days": days,
-        "history": by_day
-    }
