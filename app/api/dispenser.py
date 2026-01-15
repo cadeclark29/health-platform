@@ -12,12 +12,30 @@ router = APIRouter()
 engine = RecommendationEngine()
 
 
+class TriggerExplanation(BaseModel):
+    trigger: str
+    description: str
+    metric: str
+    actual_value: Optional[float]
+    threshold: Optional[float]
+    comparison: Optional[str]
+
+
+class SupplementExplanation(BaseModel):
+    matched_triggers: List[TriggerExplanation] = []
+    evidence: str = ""
+    standard_dose: float
+    max_daily_dose: float
+    time_windows: List[str] = []
+
+
 class SupplementRecommendation(BaseModel):
     supplement_id: str
     name: str
     dose: float
     unit: str
     reason: str
+    explanation: Optional[SupplementExplanation] = None
 
 
 class DispenseResponse(BaseModel):

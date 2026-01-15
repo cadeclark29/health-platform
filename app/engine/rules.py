@@ -132,6 +132,28 @@ class RulesEngine:
 
         return True, "OK"
 
+    # Threshold definitions for explainability
+    TRIGGER_THRESHOLDS = {
+        "poor_sleep": {"metric": "sleep_score", "threshold": 60, "comparison": "<", "description": "Sleep score below 60"},
+        "poor_sleep_quality": {"metric": "sleep_score", "threshold": 65, "comparison": "<", "description": "Sleep quality below 65"},
+        "poor_sleep_onset": {"metric": "sleep_score", "threshold": 55, "comparison": "<", "description": "Sleep score below 55"},
+        "low_sleep_score": {"metric": "sleep_score", "threshold": 60, "comparison": "<", "description": "Sleep score below 60"},
+        "sleep_optimization": {"metric": "sleep_score", "threshold": 80, "comparison": "<", "description": "Sleep score below optimal (80)"},
+        "fatigue": {"metric": "sleep_duration_hrs", "threshold": 6, "comparison": "<", "description": "Less than 6 hours of sleep"},
+        "low_hrv": {"metric": "hrv_score", "threshold": 50, "comparison": "<", "description": "HRV score below 50"},
+        "high_stress": {"metric": "hrv_score", "threshold": 45, "comparison": "<", "description": "HRV score below 45 (high stress)"},
+        "poor_recovery": {"metric": "recovery_score", "threshold": 55, "comparison": "<", "description": "Recovery score below 55"},
+        "recovery_needed": {"metric": "recovery_score", "threshold": 60, "comparison": "<", "description": "Recovery score below 60"},
+        "muscle_recovery": {"metric": "recovery_score", "threshold": 70, "comparison": "<", "description": "Recovery score below 70"},
+        "high_strain": {"metric": "strain_score", "threshold": 70, "comparison": ">", "description": "Strain score above 70"},
+        "dehydration": {"metric": "strain_score", "threshold": 75, "comparison": ">", "description": "Strain score above 75"},
+        "high_inflammation": {"metric": "strain_score", "threshold": 60, "comparison": ">", "description": "Strain score above 60"},
+        "low_energy": {"metric": "composite", "threshold": 60, "comparison": "<", "description": "Combined sleep+recovery below 60"},
+        "low_sunlight": {"metric": "default", "threshold": None, "comparison": None, "description": "Default: assume limited sun exposure"},
+        "immune_support": {"metric": "user_reported", "threshold": None, "comparison": None, "description": "User-reported need"},
+        "illness": {"metric": "user_reported", "threshold": None, "comparison": None, "description": "User-reported illness"},
+    }
+
     def analyze_health_triggers(self, health_data: dict) -> Dict[str, bool]:
         """Analyze health data and determine which triggers are active."""
         triggers = {}
@@ -180,6 +202,48 @@ class RulesEngine:
         triggers["high_inflammation"] = strain_score > 60 if strain_score else False
 
         return triggers
+
+    def get_trigger_explanation(self, trigger_name: str, health_data: dict) -> Optional[dict]:
+        """Get detailed explanation for why a trigger is active."""
+        threshold_info = self.TRIGGER_THRESHOLDS.get(trigger_name)
+        if not threshold_info:
+            return None
+
+        metric = threshold_info["metric"]
+        threshold = threshold_info["threshold"]
+        comparison = threshold_info["comparison"]
+        description = threshold_info["description"]
+
+        # Handle composite metric
+        if metric == "composite":
+            sleep_score = health_data.get("sleep_score")
+            recovery_score = health_data.get("recovery_score")
+            if sleep_score is not None and recovery_score is not None:
+                actual_value = (sleep_score + recovery_score) / 2
+            else:
+                return None
+        elif metric in ("default", "user_reported"):
+            return {
+                "trigger": trigger_name,
+                "description": description,
+                "metric": metric,
+                "actual_value": None,
+                "threshold": None,
+                "comparison": None
+            }
+        else:
+            actual_value = health_data.get(metric)
+            if actual_value is None:
+                return None
+
+        return {
+            "trigger": trigger_name,
+            "description": description,
+            "metric": metric,
+            "actual_value": round(actual_value, 1) if actual_value else None,
+            "threshold": threshold,
+            "comparison": comparison
+        }
 
     def match_supplements_to_triggers(
         self,

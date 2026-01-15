@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Platform - Supplement Recommendations</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -429,6 +431,333 @@
         .user-info span {
             color: #00d9ff;
         }
+
+        /* Oura Integration Styles */
+        .oura-status-card {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .oura-status-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .oura-status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .oura-status-indicator.connected {
+            background: #00ff88;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+        }
+
+        .oura-status-indicator.disconnected {
+            background: #ff4444;
+        }
+
+        .oura-history-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .oura-day {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .oura-day-date {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+            font-size: 0.75em;
+        }
+
+        .oura-day-score {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .oura-day-score.warning {
+            color: #ffaa00;
+        }
+
+        .oura-day-score.danger {
+            color: #ff4444;
+        }
+
+        .oura-day-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.7em;
+            margin-top: 4px;
+        }
+
+        .oura-loading {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .oura-loading::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Expandable Explanation Styles */
+        .supplement-expandable {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .supplement-main {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .expand-indicator {
+            margin-left: auto;
+            color: rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s;
+            font-size: 0.9em;
+        }
+
+        .supplement-expandable.expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+
+        .supplement-explanation {
+            display: none;
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .supplement-expandable.expanded .supplement-explanation {
+            display: block;
+        }
+
+        .explanation-section {
+            margin-bottom: 12px;
+        }
+
+        .explanation-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .explanation-label {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .trigger-detail {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .trigger-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .trigger-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trigger-name {
+            color: #ffaa00;
+            font-weight: 500;
+        }
+
+        .trigger-values {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+        }
+
+        .trigger-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+
+        .evidence-box {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        .dose-info {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .dose-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+        }
+
+        .dose-item-label {
+            color: rgba(255, 255, 255, 0.5);
+            margin-right: 4px;
+        }
+
+        .dose-item-value {
+            color: #00ff88;
+            font-weight: 500;
+        }
+
+        /* Progress Dashboard Styles */
+        .dashboard-section {
+            margin-top: 24px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .metric-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .metric-toggle-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+
+        .metric-toggle-btn.active {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+            color: #00d9ff;
+        }
+
+        .correlation-card {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .correlation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .correlation-supplement {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .correlation-score {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .correlation-score.positive {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .correlation-score.neutral {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .correlation-score.negative {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .correlation-detail {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .dispense-markers {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .dispense-marker {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00d9ff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -441,12 +770,23 @@
             <div id="status" class="status"></div>
 
             <div id="no-user">
+                <!-- Sign In Form -->
+                <div id="signin-form">
+                    <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Already have an account?</p>
+                    <div class="form-row">
+                        <input type="email" id="signin-email" placeholder="Email address">
+                        <button onclick="signIn()">Sign In</button>
+                    </div>
+                    <p style="margin-top: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-size: 0.9em;">— or create a new account —</p>
+                </div>
+
+                <!-- Create User Form -->
                 <div class="form-row">
                     <input type="text" id="user-name" placeholder="Your name">
                     <input type="email" id="user-email" placeholder="Email address">
                 </div>
                 <div class="form-row">
-                    <button onclick="createUser()">Create User</button>
+                    <button onclick="createUser()">Create Account</button>
                 </div>
             </div>
 
@@ -464,8 +804,42 @@
 
             <!-- Tab selector -->
             <div class="tab-selector" style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button class="tab-btn active" onclick="selectTab('mock')">Simulate Data</button>
-                <button class="tab-btn" onclick="selectTab('csv')">Upload Oura CSV</button>
+                <button class="tab-btn" onclick="selectTab('oura')" id="tab-btn-oura">Connect Oura</button>
+                <button class="tab-btn active" onclick="selectTab('mock')" id="tab-btn-mock">Simulate Data</button>
+                <button class="tab-btn" onclick="selectTab('csv')" id="tab-btn-csv">Upload CSV</button>
+            </div>
+
+            <!-- Oura connection tab -->
+            <div id="tab-oura" class="hidden">
+                <div id="oura-not-connected">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 16px;">💍</div>
+                        <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7);">Connect your Oura Ring to sync real health data</p>
+                        <button onclick="connectOura()" style="padding: 16px 32px; font-size: 1.1em;">
+                            Connect Oura Ring
+                        </button>
+                        <p style="margin-top: 16px; font-size: 0.85em; color: rgba(255,255,255,0.5);">
+                            You'll be redirected to Oura to authorize access
+                        </p>
+                    </div>
+                </div>
+                <div id="oura-connected" class="hidden">
+                    <div class="oura-status-card">
+                        <div class="oura-status-header">
+                            <span class="oura-status-indicator connected"></span>
+                            <span>Connected to Oura</span>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button onclick="syncOuraData()" id="sync-oura-btn">Sync Latest Data</button>
+                            <button onclick="fetchOuraHistory()" class="btn-secondary">Load 7-Day History</button>
+                            <button onclick="disconnectOura()" class="btn-secondary" style="background: rgba(255,68,68,0.2); border: 1px solid rgba(255,68,68,0.5);">Disconnect</button>
+                        </div>
+                    </div>
+                    <div id="oura-history" class="hidden" style="margin-top: 16px;">
+                        <h3 style="font-size: 1em; margin-bottom: 12px; color: #00d9ff;">Last 7 Days</h3>
+                        <div id="oura-history-chart"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Mock data tab -->
@@ -555,6 +929,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Progress Dashboard -->
+        <div class="card" id="progress-section">
+            <h2>4. Progress Dashboard</h2>
+
+            <div class="metric-toggle">
+                <button class="metric-toggle-btn active" data-metric="sleep_score" onclick="toggleMetric(this)">Sleep</button>
+                <button class="metric-toggle-btn" data-metric="hrv_score" onclick="toggleMetric(this)">HRV</button>
+                <button class="metric-toggle-btn" data-metric="recovery_score" onclick="toggleMetric(this)">Recovery</button>
+                <button class="metric-toggle-btn" data-metric="strain_score" onclick="toggleMetric(this)">Strain</button>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="progress-chart"></canvas>
+            </div>
+
+            <button onclick="loadProgressData()" style="width: 100%; margin-bottom: 16px;">
+                Load 14-Day Progress
+            </button>
+
+            <div id="correlation-section" class="hidden">
+                <h3 style="font-size: 1em; margin-bottom: 12px; color: #00d9ff;">Supplement Correlations</h3>
+                <p style="font-size: 0.85em; color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+                    How your health metrics changed after taking supplements
+                </p>
+                <div id="correlation-cards"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -592,11 +994,17 @@
 
         function selectTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.getElementById('tab-btn-' + tab).classList.add('active');
 
             document.getElementById('tab-mock').classList.add('hidden');
             document.getElementById('tab-csv').classList.add('hidden');
+            document.getElementById('tab-oura').classList.add('hidden');
             document.getElementById('tab-' + tab).classList.remove('hidden');
+
+            // Check Oura status when tab is selected
+            if (tab === 'oura' && currentUserId) {
+                checkOuraStatus();
+            }
         }
 
         function handleCSVUpload(input) {
@@ -666,6 +1074,36 @@
             }
         }
 
+        async function signIn() {
+            const email = document.getElementById('signin-email').value;
+
+            if (!email) {
+                showStatus('Please enter your email', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/users/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    currentUserId = user.id;
+                    localStorage.setItem('userId', user.id);
+                    showLoggedIn(user);
+                    showStatus('Welcome back, ' + user.name + '!', 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Sign in failed', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
         async function createUser() {
             const name = document.getElementById('user-name').value;
             const email = document.getElementById('user-email').value;
@@ -687,7 +1125,7 @@
                     currentUserId = user.id;
                     localStorage.setItem('userId', user.id);
                     showLoggedIn(user);
-                    showStatus('User created successfully!', 'success');
+                    showStatus('Account created successfully!', 'success');
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error creating user', 'error');
@@ -804,6 +1242,7 @@
                 'vitamin_b12': '⚡',
                 'vitamin_c': '🍊',
                 'magnesium_glycinate': '😴',
+                'magnesium_l_threonate': '🧠',
                 'omega_3': '🐟',
                 'zinc': '🛡️',
                 'electrolytes': '💧',
@@ -812,7 +1251,14 @@
                 'blackseed_oil': '🌿',
                 'caffeine': '☕',
                 'creatine': '💪',
-                'glycine': '😌'
+                'glycine': '😌',
+                'ashwagandha': '🌱',
+                'coq10': '⚡',
+                'l_citrulline': '🏃',
+                'lions_mane': '🦁',
+                'nac': '🧬',
+                'vitamin_k2': '🦴',
+                'apigenin': '🌼'
             };
 
             // Store recommendations for dispensing
@@ -822,17 +1268,69 @@
             let html = '<div class="recommendations">';
 
             for (const rec of data.recommendations) {
+                const explanation = rec.explanation || {};
+                const triggers = explanation.matched_triggers || [];
+
                 html += `
-                    <div class="supplement" id="supp-${rec.supplement_id}">
-                        <div class="supplement-icon">${icons[rec.supplement_id] || '💊'}</div>
-                        <div class="supplement-info">
-                            <div class="supplement-name">${rec.name}</div>
-                            <div class="supplement-dose">${rec.dose} ${rec.unit}</div>
-                            <div class="supplement-reason">${rec.reason}</div>
+                    <div class="supplement supplement-expandable" id="supp-${rec.supplement_id}" onclick="toggleExplanation(event, this)">
+                        <div class="supplement-main">
+                            <div class="supplement-icon">${icons[rec.supplement_id] || '💊'}</div>
+                            <div class="supplement-info">
+                                <div class="supplement-name">${rec.name}</div>
+                                <div class="supplement-dose">${rec.dose} ${rec.unit}</div>
+                                <div class="supplement-reason">${rec.reason}</div>
+                            </div>
+                            <span class="expand-indicator">▼</span>
+                            <button class="dispense-btn" onclick="event.stopPropagation(); dispenseSingle('${rec.supplement_id}', ${rec.dose}, this)">
+                                Dispense
+                            </button>
                         </div>
-                        <button class="dispense-btn" onclick="dispenseSingle('${rec.supplement_id}', ${rec.dose}, this)">
-                            Dispense
-                        </button>
+                        <div class="supplement-explanation">
+                            ${triggers.length > 0 ? `
+                            <div class="explanation-section">
+                                <div class="explanation-label">Why this supplement?</div>
+                                ${triggers.map(t => `
+                                    <div class="trigger-detail">
+                                        <div class="trigger-metric">
+                                            <span class="trigger-name">${t.trigger.replace(/_/g, ' ')}</span>
+                                            ${t.actual_value !== null ? `
+                                            <span class="trigger-values">
+                                                Your value: <strong>${t.actual_value}</strong>
+                                                ${t.comparison ? `${t.comparison} threshold: ${t.threshold}` : ''}
+                                            </span>
+                                            ` : ''}
+                                        </div>
+                                        <div class="trigger-description">${t.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ` : ''}
+
+                            ${explanation.evidence ? `
+                            <div class="explanation-section">
+                                <div class="explanation-label">Research & Evidence</div>
+                                <div class="evidence-box">${explanation.evidence}</div>
+                            </div>
+                            ` : ''}
+
+                            <div class="explanation-section">
+                                <div class="explanation-label">Dosing Information</div>
+                                <div class="dose-info">
+                                    <div class="dose-item">
+                                        <span class="dose-item-label">Standard:</span>
+                                        <span class="dose-item-value">${explanation.standard_dose || rec.dose} ${rec.unit}</span>
+                                    </div>
+                                    <div class="dose-item">
+                                        <span class="dose-item-label">Max Daily:</span>
+                                        <span class="dose-item-value">${explanation.max_daily_dose || 'N/A'} ${rec.unit}</span>
+                                    </div>
+                                    <div class="dose-item">
+                                        <span class="dose-item-label">Best Time:</span>
+                                        <span class="dose-item-value">${(explanation.time_windows || []).join(', ') || 'Anytime'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
@@ -861,6 +1359,12 @@
             }
 
             container.innerHTML = html;
+        }
+
+        function toggleExplanation(event, element) {
+            // Don't toggle if clicking on the dispense button
+            if (event.target.classList.contains('dispense-btn')) return;
+            element.classList.toggle('expanded');
         }
 
         function showStatus(message, type) {
@@ -1002,6 +1506,448 @@
             setTimeout(() => {
                 complete.classList.add('show');
             }, 500);
+        }
+
+        // --- Oura Integration Functions ---
+
+        async function checkOuraStatus() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura/status`);
+                if (res.ok) {
+                    const status = await res.json();
+                    if (status.connected) {
+                        showOuraConnected();
+                    } else {
+                        showOuraNotConnected();
+                    }
+                } else {
+                    showOuraNotConnected();
+                }
+            } catch (e) {
+                console.error('Error checking Oura status:', e);
+                showOuraNotConnected();
+            }
+        }
+
+        function showOuraConnected() {
+            document.getElementById('oura-not-connected').classList.add('hidden');
+            document.getElementById('oura-connected').classList.remove('hidden');
+        }
+
+        function showOuraNotConnected() {
+            document.getElementById('oura-not-connected').classList.remove('hidden');
+            document.getElementById('oura-connected').classList.add('hidden');
+            document.getElementById('oura-history').classList.add('hidden');
+        }
+
+        async function connectOura() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura/auth`);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    // Redirect to Oura authorization page
+                    window.location.href = data.auth_url;
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Failed to start Oura connection', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function syncOuraData() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('sync-oura-btn');
+            btn.disabled = true;
+            btn.textContent = 'Syncing...';
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/sync`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    displayHealthMetrics(result.data);
+                    showStatus('Synced latest data from Oura', 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error syncing Oura data', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sync Latest Data';
+            }
+        }
+
+        async function fetchOuraHistory() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            const historyDiv = document.getElementById('oura-history');
+            const chartDiv = document.getElementById('oura-history-chart');
+
+            historyDiv.classList.remove('hidden');
+            chartDiv.innerHTML = '<div class="oura-loading">Loading 7-day history</div>';
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
+
+                if (res.ok) {
+                    const result = await res.json();
+                    displayOuraHistory(result.data);
+
+                    // Also update current metrics with latest data
+                    if (result.data && result.data.length > 0) {
+                        const latest = result.data[result.data.length - 1];
+                        displayHealthMetrics(latest);
+                    }
+                } else {
+                    const err = await res.json();
+                    chartDiv.innerHTML = `<p style="color: #ff4444; text-align: center;">${err.detail || 'Error loading history'}</p>`;
+                }
+            } catch (e) {
+                chartDiv.innerHTML = `<p style="color: #ff4444; text-align: center;">Error: ${e.message}</p>`;
+            }
+        }
+
+        function displayOuraHistory(data) {
+            const chartDiv = document.getElementById('oura-history-chart');
+
+            if (!data || data.length === 0) {
+                chartDiv.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No historical data available</p>';
+                return;
+            }
+
+            let html = '<div class="oura-history-grid">';
+
+            for (const day of data) {
+                const date = new Date(day.date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayNum = date.getDate();
+
+                const sleepScore = day.sleep_score || '--';
+                const sleepClass = getSleepScoreClass(day.sleep_score);
+
+                html += `
+                    <div class="oura-day">
+                        <div class="oura-day-date">${dayName} ${dayNum}</div>
+                        <div class="oura-day-score ${sleepClass}">${sleepScore}</div>
+                        <div class="oura-day-label">Sleep</div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+
+            // Add summary stats
+            const avgSleep = data.reduce((sum, d) => sum + (d.sleep_score || 0), 0) / data.filter(d => d.sleep_score).length;
+            const avgHRV = data.reduce((sum, d) => sum + (d.hrv_score || 0), 0) / data.filter(d => d.hrv_score).length;
+            const avgRecovery = data.reduce((sum, d) => sum + (d.recovery_score || 0), 0) / data.filter(d => d.recovery_score).length;
+
+            html += `
+                <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div class="metric">
+                        <div class="metric-value ${getSleepScoreClass(avgSleep)}">${Math.round(avgSleep)}</div>
+                        <div class="metric-label">Avg Sleep</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value ${getSleepScoreClass(avgHRV)}">${Math.round(avgHRV) || '--'}</div>
+                        <div class="metric-label">Avg HRV</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value ${getSleepScoreClass(avgRecovery)}">${Math.round(avgRecovery) || '--'}</div>
+                        <div class="metric-label">Avg Recovery</div>
+                    </div>
+                </div>
+            `;
+
+            chartDiv.innerHTML = html;
+        }
+
+        function getSleepScoreClass(score) {
+            if (!score) return '';
+            if (score < 50) return 'danger';
+            if (score < 65) return 'warning';
+            return '';
+        }
+
+        async function disconnectOura() {
+            if (!currentUserId) return;
+
+            if (!confirm('Are you sure you want to disconnect Oura?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showOuraNotConnected();
+                    showStatus('Oura disconnected', 'success');
+                } else {
+                    showStatus('Error disconnecting Oura', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Check for OAuth callback result on page load
+        function checkOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ouraConnected = urlParams.get('oura_connected');
+
+            if (ouraConnected === 'true') {
+                showStatus('Successfully connected to Oura!', 'success');
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                // Switch to Oura tab
+                selectTab('oura');
+            } else if (ouraConnected === 'false') {
+                const error = urlParams.get('error') || 'Unknown error';
+                showStatus('Oura connection failed: ' + error, 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkOAuthCallback();
+        });
+
+        // --- Progress Dashboard Functions ---
+
+        let progressChart = null;
+        let progressData = null;
+        let activeMetrics = ['sleep_score'];
+
+        function toggleMetric(btn) {
+            const metric = btn.dataset.metric;
+
+            if (btn.classList.contains('active')) {
+                // Don't allow deselecting all metrics
+                if (activeMetrics.length === 1) return;
+                btn.classList.remove('active');
+                activeMetrics = activeMetrics.filter(m => m !== metric);
+            } else {
+                btn.classList.add('active');
+                activeMetrics.push(metric);
+            }
+
+            if (progressData) {
+                updateChart();
+            }
+        }
+
+        async function loadProgressData() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/users/${currentUserId}/progress?days=14`);
+
+                if (res.ok) {
+                    progressData = await res.json();
+                    updateChart();
+                    displayCorrelations(progressData.correlations);
+                    showStatus('Loaded 14-day progress data', 'success');
+                } else {
+                    showStatus('Error loading progress data', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        function updateChart() {
+            if (!progressData || !progressData.timeline) return;
+
+            const labels = progressData.timeline.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            const metricColors = {
+                'sleep_score': { line: '#00d9ff', fill: 'rgba(0, 217, 255, 0.1)' },
+                'hrv_score': { line: '#00ff88', fill: 'rgba(0, 255, 136, 0.1)' },
+                'recovery_score': { line: '#ffaa00', fill: 'rgba(255, 170, 0, 0.1)' },
+                'strain_score': { line: '#ff4444', fill: 'rgba(255, 68, 68, 0.1)' }
+            };
+
+            const metricLabels = {
+                'sleep_score': 'Sleep',
+                'hrv_score': 'HRV',
+                'recovery_score': 'Recovery',
+                'strain_score': 'Strain'
+            };
+
+            const datasets = activeMetrics.map(metric => ({
+                label: metricLabels[metric],
+                data: progressData.timeline.map(d => d[metric]),
+                borderColor: metricColors[metric].line,
+                backgroundColor: metricColors[metric].fill,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }));
+
+            // Find days with supplements
+            const supplementAnnotations = {};
+            progressData.timeline.forEach((day, index) => {
+                if (day.supplements_taken && day.supplements_taken.length > 0) {
+                    supplementAnnotations[`supp-${index}`] = {
+                        type: 'line',
+                        xMin: index,
+                        xMax: index,
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        label: {
+                            enabled: false
+                        }
+                    };
+                }
+            });
+
+            const ctx = document.getElementById('progress-chart').getContext('2d');
+
+            if (progressChart) {
+                progressChart.destroy();
+            }
+
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.9)'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const index = context[0].dataIndex;
+                                    const day = progressData.timeline[index];
+                                    if (day.supplements_taken && day.supplements_taken.length > 0) {
+                                        const supps = day.supplements_taken.map(s => s.supplement.replace(/_/g, ' ')).join(', ');
+                                        return [`\nSupplements: ${supps}`];
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: supplementAnnotations
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayCorrelations(correlations) {
+            const container = document.getElementById('correlation-cards');
+            const section = document.getElementById('correlation-section');
+
+            if (!correlations || correlations.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            let html = '';
+            for (const corr of correlations) {
+                const scoreClass = corr.overall_score > 2 ? 'positive' : (corr.overall_score < -2 ? 'negative' : 'neutral');
+                const scoreText = corr.overall_score > 0 ? `+${corr.overall_score}` : corr.overall_score;
+
+                const formatDelta = (delta) => {
+                    if (delta > 0) return `<span style="color: #00ff88;">+${delta}</span>`;
+                    if (delta < 0) return `<span style="color: #ff4444;">${delta}</span>`;
+                    return `<span style="color: rgba(255,255,255,0.5);">0</span>`;
+                };
+
+                html += `
+                    <div class="correlation-card">
+                        <div class="correlation-header">
+                            <span class="correlation-supplement">${corr.supplement.replace(/_/g, ' ')}</span>
+                            <span class="correlation-score ${scoreClass}">${scoreText}</span>
+                        </div>
+                        <div class="correlation-detail">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
+                                <div>
+                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">Sleep</div>
+                                    <div>${formatDelta(corr.sleep_delta)}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">Recovery</div>
+                                    <div>${formatDelta(corr.recovery_delta)}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">HRV</div>
+                                    <div>${formatDelta(corr.hrv_delta)}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 0.8em; color: rgba(255,255,255,0.5);">
+                                Taken ${corr.days_taken} times in the past 14 days
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
     </script>
 </body>

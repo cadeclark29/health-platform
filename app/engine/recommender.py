@@ -95,12 +95,28 @@ class RecommendationEngine:
 
             if is_valid:
                 config = self.rules.supplements.get(supplement_id)
+
+                # Build detailed explanation
+                matched_triggers = []
+                for trigger_name, is_active in active_triggers.items():
+                    if is_active and config.triggers.get(trigger_name, False):
+                        trigger_explanation = self.rules.get_trigger_explanation(trigger_name, health_data)
+                        if trigger_explanation:
+                            matched_triggers.append(trigger_explanation)
+
                 validated_recommendations.append({
                     "supplement_id": supplement_id,
                     "name": config.name,
                     "dose": dose,
                     "unit": config.unit,
-                    "reason": rec.get("reason", "")
+                    "reason": rec.get("reason", ""),
+                    "explanation": {
+                        "matched_triggers": matched_triggers,
+                        "evidence": config.evidence,
+                        "standard_dose": config.standard_dose,
+                        "max_daily_dose": config.max_daily_dose,
+                        "time_windows": config.time_windows
+                    }
                 })
 
         return {
