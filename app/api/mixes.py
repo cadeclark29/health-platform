@@ -986,17 +986,20 @@ async def preview_custom_blend(
 
     for comp in blend.components:
         supp_id = comp["supplement_id"]
-        dose_mult = comp.get("dose_multiplier", 1.0)
+        # Support both new 'dose' field and legacy 'dose_multiplier'
+        if "dose" in comp:
+            requested_dose = comp["dose"]
+        else:
+            dose_mult = comp.get("dose_multiplier", 1.0)
+            requested_dose = config.standard_dose * dose_mult if config else 0
 
         config = rules.supplements.get(supp_id)
         if not config:
             skipped.append({"supplement_id": supp_id, "reason": "Unknown supplement"})
             continue
 
-        # Get personalized dose
-        base_dose = config.standard_dose * dose_mult
-        adjusted = interaction_checker.get_adjusted_dose(supp_id, base_dose, user_profile)
-        dose = adjusted["adjusted_dose"]
+        # Use the requested dose directly (already specified by user)
+        dose = requested_dose
 
         # Check daily limit
         already = dispensed_on_date.get(supp_id, 0)
@@ -1095,15 +1098,17 @@ async def dispense_custom_blend(
     dispensed = []
     for comp in blend.components:
         supp_id = comp["supplement_id"]
-        dose_mult = comp.get("dose_multiplier", 1.0)
 
         config = rules.supplements.get(supp_id)
         if not config:
             continue
 
-        base_dose = config.standard_dose * dose_mult
-        adjusted = interaction_checker.get_adjusted_dose(supp_id, base_dose, user_profile)
-        dose = adjusted["adjusted_dose"]
+        # Support both new 'dose' field and legacy 'dose_multiplier'
+        if "dose" in comp:
+            dose = comp["dose"]
+        else:
+            dose_mult = comp.get("dose_multiplier", 1.0)
+            dose = config.standard_dose * dose_mult
 
         already = dispensed_on_date.get(supp_id, 0)
         remaining = config.max_daily_dose - already
