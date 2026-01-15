@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Platform - Supplement Recommendations</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h2 {
+            margin-bottom: 16px;
+            font-size: 1.3em;
+            color: #00d9ff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .health-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .metric-value.warning {
+            color: #ffaa00;
+        }
+
+        .metric-value.danger {
+            color: #ff4444;
+        }
+
+        .metric-label {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+
+        .recommendations {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .supplement {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            gap: 16px;
+        }
+
+        .supplement-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .supplement-info {
+            flex: 1;
+        }
+
+        .supplement-name {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .supplement-dose {
+            color: #00ff88;
+            font-weight: 500;
+        }
+
+        .supplement-reason {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+
+        .time-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .time-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            color: #fff;
+        }
+
+        .time-btn.active {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .triggers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .trigger-tag {
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid rgba(255, 170, 0, 0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #ffaa00;
+        }
+
+        .reasoning {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dispense-btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .dispense-btn.dispensed {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: default;
+        }
+
+        .dispense-btn.dispensed:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Dispenser Animation */
+        .dispenser-container {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .dispenser-container.active {
+            display: block;
+        }
+
+        .dispenser {
+            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dispenser-title {
+            font-size: 1.1em;
+            margin-bottom: 16px;
+            color: #00d9ff;
+        }
+
+        .glass {
+            width: 80px;
+            height: 120px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px 5px 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(180deg, rgba(0, 217, 255, 0.6) 0%, rgba(0, 255, 136, 0.4) 100%);
+            transition: height 0.5s ease-out;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .water.filling {
+            animation: fill 3s ease-out forwards;
+        }
+
+        @keyframes fill {
+            0% { height: 0%; }
+            100% { height: 85%; }
+        }
+
+        .droplet {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: linear-gradient(180deg, #00d9ff 0%, #00ff88 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+        }
+
+        .droplet.dropping {
+            animation: drop 0.4s ease-in forwards;
+        }
+
+        @keyframes drop {
+            0% { top: -30px; opacity: 1; }
+            100% { top: 20px; opacity: 0; }
+        }
+
+        .supplements-dropping {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            min-height: 30px;
+            flex-wrap: wrap;
+        }
+
+        .dropping-pill {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #00ff88;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dispense-complete {
+            margin-top: 16px;
+            color: #00ff88;
+            font-weight: 600;
+            opacity: 0;
+        }
+
+        .dispense-complete.show {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .status.success {
+            display: block;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            color: #00ff88;
+        }
+
+        .status.error {
+            display: block;
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            color: #ff4444;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .user-info {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Health Platform</h1>
+
+        <!-- User Setup -->
+        <div class="card" id="user-setup">
+            <h2>1. User Setup</h2>
+            <div id="status" class="status"></div>
+
+            <div id="no-user">
+                <div class="form-row">
+                    <input type="text" id="user-name" placeholder="Your name">
+                    <input type="email" id="user-email" placeholder="Email address">
+                </div>
+                <div class="form-row">
+                    <button onclick="createUser()">Create User</button>
+                </div>
+            </div>
+
+            <div id="has-user" class="hidden">
+                <div class="user-info">
+                    <div>Logged in as: <span id="display-name"></span></div>
+                    <button class="btn-secondary" onclick="logout()">Switch User</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Data -->
+        <div class="card" id="health-section">
+            <h2>2. Health Data</h2>
+            <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7);">Simulate different health scenarios:</p>
+
+            <div class="form-row">
+                <select id="scenario">
+                    <option value="average">Average Day</option>
+                    <option value="poor_sleep">Poor Sleep</option>
+                    <option value="high_strain">High Strain (Workout)</option>
+                    <option value="stressed">Stressed</option>
+                    <option value="recovering">Recovering Well</option>
+                    <option value="random">Random</option>
+                </select>
+                <button onclick="loadHealthData()">Load Scenario</button>
+            </div>
+
+            <div id="health-metrics" class="health-metrics hidden">
+                <div class="metric">
+                    <div class="metric-value" id="sleep-score">--</div>
+                    <div class="metric-label">Sleep Score</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="hrv-score">--</div>
+                    <div class="metric-label">HRV Score</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="recovery-score">--</div>
+                    <div class="metric-label">Recovery</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="strain-score">--</div>
+                    <div class="metric-label">Strain</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="sleep-hours">--</div>
+                    <div class="metric-label">Hours Slept</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="resting-hr">--</div>
+                    <div class="metric-label">Resting HR</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card" id="recommendations-section">
+            <h2>3. Supplement Recommendations</h2>
+
+            <div class="time-selector">
+                <button class="time-btn active" data-time="8" onclick="selectTime(this, 8)">Morning</button>
+                <button class="time-btn" data-time="14" onclick="selectTime(this, 14)">Afternoon</button>
+                <button class="time-btn" data-time="21" onclick="selectTime(this, 21)">Evening</button>
+            </div>
+
+            <button onclick="getRecommendations()" style="width: 100%; margin-bottom: 16px;">Get Recommendations</button>
+
+            <div id="recommendations-content">
+                <p style="color: rgba(255,255,255,0.5); text-align: center;">Load health data and click "Get Recommendations"</p>
+            </div>
+
+            <!-- Dispenser Animation -->
+            <div class="dispenser-container" id="dispenser-container">
+                <div class="dispenser">
+                    <div class="dispenser-title">Dispensing Your Supplements</div>
+                    <div class="glass">
+                        <div class="droplet" id="droplet"></div>
+                        <div class="water" id="water"></div>
+                    </div>
+                    <div class="supplements-dropping" id="supplements-dropping"></div>
+                    <div class="dispense-complete" id="dispense-complete">Ready to drink!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = localStorage.getItem('userId');
+        let currentTime = 8;
+
+        // Check for existing user on load
+        if (currentUserId) {
+            checkUser();
+        }
+
+        async function checkUser() {
+            try {
+                const res = await fetch(`/users/${currentUserId}`);
+                if (res.ok) {
+                    const user = await res.json();
+                    showLoggedIn(user);
+                } else {
+                    localStorage.removeItem('userId');
+                    currentUserId = null;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function createUser() {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+
+            if (!name || !email) {
+                showStatus('Please enter name and email', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, goals: ['general_wellness'] })
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    currentUserId = user.id;
+                    localStorage.setItem('userId', user.id);
+                    showLoggedIn(user);
+                    showStatus('User created successfully!', 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error creating user', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        function showLoggedIn(user) {
+            document.getElementById('no-user').classList.add('hidden');
+            document.getElementById('has-user').classList.remove('hidden');
+            document.getElementById('display-name').textContent = user.name;
+        }
+
+        function logout() {
+            localStorage.removeItem('userId');
+            currentUserId = null;
+            document.getElementById('no-user').classList.remove('hidden');
+            document.getElementById('has-user').classList.add('hidden');
+            document.getElementById('health-metrics').classList.add('hidden');
+            document.getElementById('recommendations-content').innerHTML =
+                '<p style="color: rgba(255,255,255,0.5); text-align: center;">Load health data and click "Get Recommendations"</p>';
+        }
+
+        async function loadHealthData() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            const scenario = document.getElementById('scenario').value;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/mock?scenario=${scenario}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    displayHealthMetrics(result.data);
+                    showStatus(`Loaded "${scenario}" health scenario`, 'success');
+                } else {
+                    showStatus('Error loading health data', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        function displayHealthMetrics(data) {
+            document.getElementById('health-metrics').classList.remove('hidden');
+
+            setMetric('sleep-score', data.sleep_score);
+            setMetric('hrv-score', data.hrv_score);
+            setMetric('recovery-score', data.recovery_score);
+            setMetric('strain-score', data.strain_score, true);
+            document.getElementById('sleep-hours').textContent = data.sleep_duration_hrs + 'h';
+            document.getElementById('resting-hr').textContent = data.resting_hr;
+        }
+
+        function setMetric(id, value, invertColors = false) {
+            const el = document.getElementById(id);
+            el.textContent = Math.round(value);
+            el.className = 'metric-value';
+
+            if (invertColors) {
+                // High strain = warning/danger
+                if (value > 75) el.classList.add('danger');
+                else if (value > 60) el.classList.add('warning');
+            } else {
+                // Low score = warning/danger
+                if (value < 50) el.classList.add('danger');
+                else if (value < 65) el.classList.add('warning');
+            }
+        }
+
+        function selectTime(btn, time) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTime = time;
+        }
+
+        async function getRecommendations() {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/dispense/${currentUserId}?time_override=${currentTime}`);
+
+                if (res.ok) {
+                    const result = await res.json();
+                    displayRecommendations(result);
+                } else {
+                    showStatus('Error getting recommendations', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        function displayRecommendations(data) {
+            const container = document.getElementById('recommendations-content');
+
+            if (data.recommendations.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">No supplements recommended for this time period.</p>';
+                return;
+            }
+
+            const icons = {
+                'vitamin_d3': '☀️',
+                'vitamin_b12': '⚡',
+                'vitamin_c': '🍊',
+                'magnesium_glycinate': '😴',
+                'omega_3': '🐟',
+                'zinc': '🛡️',
+                'electrolytes': '💧',
+                'l_theanine': '🧘',
+                'melatonin': '🌙',
+                'blackseed_oil': '🌿',
+                'caffeine': '☕',
+                'creatine': '💪',
+                'glycine': '😌'
+            };
+
+            // Store recommendations for dispensing
+            window.currentRecommendations = data.recommendations;
+            window.supplementIcons = icons;
+
+            let html = '<div class="recommendations">';
+
+            for (const rec of data.recommendations) {
+                html += `
+                    <div class="supplement" id="supp-${rec.supplement_id}">
+                        <div class="supplement-icon">${icons[rec.supplement_id] || '💊'}</div>
+                        <div class="supplement-info">
+                            <div class="supplement-name">${rec.name}</div>
+                            <div class="supplement-dose">${rec.dose} ${rec.unit}</div>
+                            <div class="supplement-reason">${rec.reason}</div>
+                        </div>
+                        <button class="dispense-btn" onclick="dispenseSingle('${rec.supplement_id}', ${rec.dose}, this)">
+                            Dispense
+                        </button>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+
+            // Add Dispense All button
+            html += `
+                <button onclick="dispenseAll()" style="width: 100%; margin-top: 16px; padding: 16px; font-size: 1.1em;">
+                    Dispense All Supplements
+                </button>
+            `;
+
+            // Active triggers
+            if (data.active_triggers && data.active_triggers.length > 0) {
+                html += '<div class="triggers">';
+                for (const trigger of data.active_triggers) {
+                    html += `<span class="trigger-tag">${trigger.replace(/_/g, ' ')}</span>`;
+                }
+                html += '</div>';
+            }
+
+            // Reasoning
+            if (data.reasoning) {
+                html += `<div class="reasoning">"${data.reasoning}"</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function showStatus(message, type) {
+            const el = document.getElementById('status');
+            el.textContent = message;
+            el.className = 'status ' + type;
+
+            setTimeout(() => {
+                el.className = 'status';
+            }, 5000);
+        }
+
+        async function dispenseSingle(supplementId, dose, btn) {
+            if (btn.classList.contains('dispensed')) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Dispensing...';
+
+            try {
+                const res = await fetch(`/dispense/${currentUserId}/confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ supplement_id: supplementId, dose: dose })
+                });
+
+                if (res.ok) {
+                    btn.textContent = '✓ Dispensed';
+                    btn.classList.add('dispensed');
+
+                    // Quick animation
+                    showMiniDispense(supplementId);
+                } else {
+                    btn.textContent = 'Error';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.textContent = 'Error';
+                btn.disabled = false;
+            }
+        }
+
+        function showMiniDispense(supplementId) {
+            const container = document.getElementById('dispenser-container');
+            const dropping = document.getElementById('supplements-dropping');
+            const water = document.getElementById('water');
+            const droplet = document.getElementById('droplet');
+            const complete = document.getElementById('dispense-complete');
+
+            container.classList.add('active');
+
+            // Find the supplement name
+            const rec = window.currentRecommendations.find(r => r.supplement_id === supplementId);
+            const icon = window.supplementIcons[supplementId] || '💊';
+
+            // Add pill to dropping area
+            const pill = document.createElement('span');
+            pill.className = 'dropping-pill';
+            pill.innerHTML = `${icon} ${rec ? rec.name : supplementId}`;
+            dropping.appendChild(pill);
+
+            // Animate droplet
+            droplet.classList.remove('dropping');
+            void droplet.offsetWidth; // Trigger reflow
+            droplet.classList.add('dropping');
+
+            // Increase water level
+            const currentHeight = parseFloat(water.style.height) || 0;
+            const newHeight = Math.min(85, currentHeight + 15);
+            water.style.height = newHeight + '%';
+        }
+
+        async function dispenseAll() {
+            if (!window.currentRecommendations || window.currentRecommendations.length === 0) {
+                showStatus('No supplements to dispense', 'error');
+                return;
+            }
+
+            const container = document.getElementById('dispenser-container');
+            const dropping = document.getElementById('supplements-dropping');
+            const water = document.getElementById('water');
+            const droplet = document.getElementById('droplet');
+            const complete = document.getElementById('dispense-complete');
+
+            // Reset animation
+            container.classList.add('active');
+            dropping.innerHTML = '';
+            water.style.height = '0%';
+            water.classList.remove('filling');
+            complete.classList.remove('show');
+
+            // Disable all individual buttons
+            document.querySelectorAll('.dispense-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+
+            // Start water filling
+            setTimeout(() => {
+                water.classList.add('filling');
+            }, 100);
+
+            // Dispense each supplement with delay
+            for (let i = 0; i < window.currentRecommendations.length; i++) {
+                const rec = window.currentRecommendations[i];
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Animate droplet
+                droplet.classList.remove('dropping');
+                void droplet.offsetWidth;
+                droplet.classList.add('dropping');
+
+                // Add pill badge
+                const icon = window.supplementIcons[rec.supplement_id] || '💊';
+                const pill = document.createElement('span');
+                pill.className = 'dropping-pill';
+                pill.innerHTML = `${icon} ${rec.name}`;
+                dropping.appendChild(pill);
+
+                // Call API
+                try {
+                    await fetch(`/dispense/${currentUserId}/confirm`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ supplement_id: rec.supplement_id, dose: rec.dose })
+                    });
+
+                    // Update button
+                    const btn = document.querySelector(`#supp-${rec.supplement_id} .dispense-btn`);
+                    if (btn) {
+                        btn.textContent = '✓ Dispensed';
+                        btn.classList.add('dispensed');
+                    }
+                } catch (e) {
+                    console.error('Dispense error:', e);
+                }
+            }
+
+            // Show complete message
+            setTimeout(() => {
+                complete.classList.add('show');
+            }, 500);
+        }
+    </script>
+</body>
+</html>

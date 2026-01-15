@@ -1,0 +1,174 @@
+{
+  "supplements": [
+    {
+      "id": "vitamin_d3",
+      "name": "Vitamin D3",
+      "unit": "IU",
+      "max_daily_dose": 5000,
+      "standard_dose": 2500,
+      "time_windows": ["morning"],
+      "triggers": {
+        "low_energy": true,
+        "low_sunlight": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "magnesium_glycinate",
+      "name": "Magnesium Glycinate",
+      "unit": "mg",
+      "max_daily_dose": 400,
+      "standard_dose": 200,
+      "time_windows": ["evening"],
+      "triggers": {
+        "poor_sleep": true,
+        "high_stress": true,
+        "low_hrv": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "vitamin_b12",
+      "name": "Vitamin B12",
+      "unit": "mcg",
+      "max_daily_dose": 1000,
+      "standard_dose": 500,
+      "time_windows": ["morning"],
+      "triggers": {
+        "low_energy": true,
+        "high_strain": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "omega_3",
+      "name": "Omega-3",
+      "unit": "mg",
+      "max_daily_dose": 2000,
+      "standard_dose": 1000,
+      "time_windows": ["morning"],
+      "triggers": {
+        "high_inflammation": true
+      },
+      "contraindications": ["fish_allergy"]
+    },
+    {
+      "id": "vitamin_c",
+      "name": "Vitamin C",
+      "unit": "mg",
+      "max_daily_dose": 1000,
+      "standard_dose": 500,
+      "time_windows": ["morning", "afternoon", "evening"],
+      "triggers": {
+        "high_strain": true,
+        "recovery_needed": true,
+        "illness": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "zinc",
+      "name": "Zinc",
+      "unit": "mg",
+      "max_daily_dose": 30,
+      "standard_dose": 15,
+      "time_windows": ["evening"],
+      "triggers": {
+        "poor_recovery": true,
+        "illness": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "electrolytes",
+      "name": "Electrolytes",
+      "unit": "serving",
+      "max_daily_dose": 2,
+      "standard_dose": 1,
+      "time_windows": ["morning", "afternoon"],
+      "triggers": {
+        "high_strain": true,
+        "dehydration": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "l_theanine",
+      "name": "L-Theanine",
+      "unit": "mg",
+      "max_daily_dose": 200,
+      "standard_dose": 100,
+      "time_windows": ["morning"],
+      "triggers": {
+        "high_stress": true,
+        "low_hrv": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "melatonin",
+      "name": "Melatonin",
+      "unit": "mg",
+      "max_daily_dose": 3,
+      "standard_dose": 1,
+      "time_windows": ["evening"],
+      "triggers": {
+        "poor_sleep_onset": true,
+        "poor_sleep": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "blackseed_oil",
+      "name": "Blackseed Oil",
+      "unit": "mg",
+      "max_daily_dose": 1000,
+      "standard_dose": 500,
+      "time_windows": ["morning", "afternoon", "evening"],
+      "triggers": {
+        "illness": true,
+        "immune_support": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "caffeine",
+      "name": "Caffeine",
+      "unit": "mg",
+      "max_daily_dose": 200,
+      "standard_dose": 100,
+      "time_windows": ["morning"],
+      "triggers": {
+        "low_sleep_score": true,
+        "fatigue": true
+      },
+      "contraindications": ["caffeine_sensitivity"]
+    },
+    {
+      "id": "creatine",
+      "name": "Creatine",
+      "unit": "g",
+      "max_daily_dose": 5,
+      "standard_dose": 5,
+      "time_windows": ["morning", "afternoon"],
+      "triggers": {
+        "high_strain": true,
+        "muscle_recovery": true
+      },
+      "contraindications": []
+    },
+    {
+      "id": "glycine",
+      "name": "Glycine",
+      "unit": "g",
+      "max_daily_dose": 3,
+      "standard_dose": 3,
+      "time_windows": ["evening"],
+      "triggers": {
+        "poor_sleep_quality": true,
+        "sleep_optimization": true
+      },
+      "contraindications": []
+    }
+  ]
+}
