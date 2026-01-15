@@ -15,10 +15,12 @@ router = APIRouter()
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
-    age: Optional[int] = None
-    sex: Optional[str] = None  # "male", "female", "other"
-    height_cm: Optional[float] = None
-    weight_kg: Optional[float] = None
+    # Required profile fields for personalized dosing
+    age: int
+    sex: str  # "male", "female", "other"
+    height_cm: float
+    weight_kg: float
+    # Optional fields
     allergies: List[str] = []
     medications: List[str] = []
     goals: List[str] = []

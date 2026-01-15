@@ -995,6 +995,69 @@
             font-size: 0.9em;
         }
 
+        .connect-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .connect-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .connect-option:hover:not(.disabled) {
+            border-color: rgba(0, 217, 255, 0.5);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .connect-option.connected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .connect-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .connect-icon {
+            font-size: 2em;
+        }
+
+        .connect-info {
+            flex: 1;
+        }
+
+        .connect-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .connect-desc {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .connect-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .connect-option.connected .connect-status {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
         .baseline-status {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
@@ -1032,13 +1095,91 @@
                     <p style="margin-top: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-size: 0.9em;">— or create a new account —</p>
                 </div>
 
-                <!-- Create User Form -->
-                <div class="form-row">
-                    <input type="text" id="user-name" placeholder="Your name">
-                    <input type="email" id="user-email" placeholder="Email address">
+                <!-- Multi-Step Onboarding -->
+                <div id="onboarding-step-1">
+                    <h3 style="color: #00d9ff; margin-bottom: 16px;">Create Your Profile</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px; font-size: 0.9em;">
+                        We need this info to personalize your supplement doses.
+                    </p>
+
+                    <div class="form-row">
+                        <input type="text" id="user-name" placeholder="Your name" required>
+                        <input type="email" id="user-email" placeholder="Email address" required>
+                    </div>
+
+                    <div class="profile-grid" style="margin-top: 12px;">
+                        <div class="profile-field">
+                            <label>Age <span style="color: #ff6b6b;">*</span></label>
+                            <input type="number" id="onboard-age" placeholder="28" min="18" max="120" required>
+                        </div>
+                        <div class="profile-field">
+                            <label>Sex <span style="color: #ff6b6b;">*</span></label>
+                            <select id="onboard-sex" required>
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="profile-field">
+                            <label>Height (cm) <span style="color: #ff6b6b;">*</span></label>
+                            <input type="number" id="onboard-height" placeholder="175" min="100" max="250" required>
+                        </div>
+                        <div class="profile-field">
+                            <label>Weight (kg) <span style="color: #ff6b6b;">*</span></label>
+                            <input type="number" id="onboard-weight" placeholder="70" min="30" max="300" required>
+                        </div>
+                    </div>
+
+                    <button onclick="proceedToStep2()" style="width: 100%; margin-top: 16px;">
+                        Continue
+                    </button>
                 </div>
-                <div class="form-row">
-                    <button onclick="createUser()">Create Account</button>
+
+                <!-- Step 2: Connect Health Data (Optional) -->
+                <div id="onboarding-step-2" class="hidden">
+                    <h3 style="color: #00d9ff; margin-bottom: 16px;">Connect Health Data</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px; font-size: 0.9em;">
+                        Connect your wearable for smart recommendations based on your sleep, HRV, and recovery.
+                    </p>
+
+                    <div class="connect-options">
+                        <div class="connect-option" onclick="connectOuraOnboarding()">
+                            <div class="connect-icon">💍</div>
+                            <div class="connect-info">
+                                <div class="connect-name">Oura Ring</div>
+                                <div class="connect-desc">Sleep, HRV, readiness</div>
+                            </div>
+                            <div class="connect-status" id="oura-connect-status">Connect</div>
+                        </div>
+
+                        <div class="connect-option disabled" style="opacity: 0.5;">
+                            <div class="connect-icon">⌚</div>
+                            <div class="connect-info">
+                                <div class="connect-name">WHOOP</div>
+                                <div class="connect-desc">Coming soon</div>
+                            </div>
+                            <div class="connect-status">Soon</div>
+                        </div>
+
+                        <div class="connect-option disabled" style="opacity: 0.5;">
+                            <div class="connect-icon">⌚</div>
+                            <div class="connect-info">
+                                <div class="connect-name">Apple Watch</div>
+                                <div class="connect-desc">Coming soon</div>
+                            </div>
+                            <div class="connect-status">Soon</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn-secondary" onclick="skipHealthConnect()" style="flex: 1;">
+                            Skip for Now
+                        </button>
+                        <button onclick="completeOnboarding()" style="flex: 1;">
+                            Complete Setup
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1430,36 +1571,118 @@
             }
         }
 
-        async function createUser() {
+        // Onboarding data storage
+        let onboardingData = {};
+
+        function proceedToStep2() {
             const name = document.getElementById('user-name').value;
             const email = document.getElementById('user-email').value;
+            const age = document.getElementById('onboard-age').value;
+            const sex = document.getElementById('onboard-sex').value;
+            const height = document.getElementById('onboard-height').value;
+            const weight = document.getElementById('onboard-weight').value;
 
-            if (!name || !email) {
-                showStatus('Please enter name and email', 'error');
+            // Validate all required fields
+            if (!name || !email || !age || !sex || !height || !weight) {
+                showStatus('Please fill in all required fields', 'error');
                 return;
             }
 
+            if (parseInt(age) < 18 || parseInt(age) > 120) {
+                showStatus('Please enter a valid age (18-120)', 'error');
+                return;
+            }
+
+            if (parseFloat(height) < 100 || parseFloat(height) > 250) {
+                showStatus('Please enter a valid height in cm (100-250)', 'error');
+                return;
+            }
+
+            if (parseFloat(weight) < 30 || parseFloat(weight) > 300) {
+                showStatus('Please enter a valid weight in kg (30-300)', 'error');
+                return;
+            }
+
+            // Store onboarding data
+            onboardingData = {
+                name,
+                email,
+                age: parseInt(age),
+                sex,
+                height_cm: parseFloat(height),
+                weight_kg: parseFloat(weight),
+                goals: ['general_wellness']
+            };
+
+            // Show step 2
+            document.getElementById('onboarding-step-1').classList.add('hidden');
+            document.getElementById('onboarding-step-2').classList.remove('hidden');
+            document.getElementById('signin-form').classList.add('hidden');
+        }
+
+        async function connectOuraOnboarding() {
+            // First create the user account
+            if (!currentUserId) {
+                const created = await createUserAccount();
+                if (!created) return;
+            }
+
+            // Then redirect to Oura OAuth
+            window.location.href = `/integrations/${currentUserId}/oura/authorize`;
+        }
+
+        async function createUserAccount() {
             try {
                 const res = await fetch('/users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, goals: ['general_wellness'] })
+                    body: JSON.stringify(onboardingData)
                 });
 
                 if (res.ok) {
                     const user = await res.json();
                     currentUserId = user.id;
                     localStorage.setItem('userId', user.id);
-                    showLoggedIn(user);
-                    showStatus('Account created successfully!', 'success');
-                    loadMixes();  // Load available mixes
+                    return true;
                 } else {
                     const err = await res.json();
-                    showStatus(err.detail || 'Error creating user', 'error');
+                    showStatus(err.detail || 'Error creating account', 'error');
+                    return false;
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+                return false;
+            }
+        }
+
+        async function skipHealthConnect() {
+            await completeOnboarding();
+        }
+
+        async function completeOnboarding() {
+            // Create user if not already created
+            if (!currentUserId) {
+                const created = await createUserAccount();
+                if (!created) return;
+            }
+
+            // Fetch user to get full data
+            try {
+                const res = await fetch(`/users/${currentUserId}`);
+                if (res.ok) {
+                    const user = await res.json();
+                    showLoggedIn(user);
+                    showStatus('Account created! Your supplements will be personalized for you.', 'success');
+                    loadMixes();
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
+        }
+
+        // Legacy createUser for backward compatibility
+        async function createUser() {
+            proceedToStep2();
         }
 
         function showLoggedIn(user) {
@@ -1471,11 +1694,31 @@
         function logout() {
             localStorage.removeItem('userId');
             currentUserId = null;
+            onboardingData = {};
+
+            // Reset onboarding UI
             document.getElementById('no-user').classList.remove('hidden');
             document.getElementById('has-user').classList.add('hidden');
             document.getElementById('health-metrics').classList.add('hidden');
+            document.getElementById('onboarding-step-1').classList.remove('hidden');
+            document.getElementById('onboarding-step-2').classList.add('hidden');
+            document.getElementById('signin-form').classList.remove('hidden');
+
+            // Clear form fields
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-email').value = '';
+            document.getElementById('onboard-age').value = '';
+            document.getElementById('onboard-sex').value = '';
+            document.getElementById('onboard-height').value = '';
+            document.getElementById('onboard-weight').value = '';
+
             document.getElementById('recommendations-content').innerHTML =
                 '<p style="color: rgba(255,255,255,0.5); text-align: center;">Load health data and click "Get Recommendations"</p>';
+
+            // Clear mixes
+            document.getElementById('mixes-grid').innerHTML = '';
+            document.getElementById('mix-preview').classList.add('hidden');
+            document.getElementById('smart-recommendation').classList.add('hidden');
         }
 
         async function loadHealthData() {
