@@ -16,6 +16,7 @@ class SupplementConfig:
     time_windows: List[str]
     triggers: Dict[str, bool]
     contraindications: List[str]
+    evidence: str = ""
 
 
 class RulesEngine:
