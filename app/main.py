@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 
 from app.db.database import engine, Base
-from app.api import users, dispenser, integrations, upload, checkins, interactions
+from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes
 
 
 @asynccontextmanager
@@ -28,6 +28,7 @@ app.include_router(integrations.router, prefix="/integrations", tags=["integrati
 app.include_router(upload.router, prefix="/upload", tags=["upload"])
 app.include_router(checkins.router, prefix="/checkins", tags=["checkins"])
 app.include_router(interactions.router, prefix="/interactions", tags=["interactions"])
+app.include_router(mixes.router, prefix="/mixes", tags=["mixes"])
 
 # Serve static files
 static_path = Path(__file__).resolve().parent.parent / "static"
