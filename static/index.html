@@ -2127,7 +2127,7 @@
         // Load mixes
         async function loadMixes() {
             try {
-                const res = await fetch('/mixes/available');
+                const res = await fetch('/mixes/all');
                 if (res.ok) {
                     availableMixes = await res.json();
                     renderMixCards();
@@ -2325,16 +2325,16 @@
 
             content.innerHTML = `
                 <div class="modal-header">
-                    <div class="modal-icon">${data.icon || '&#x1F48A;'}</div>
-                    <div class="modal-title">${data.name}</div>
-                    <div class="modal-subtitle">${data.description || 'Your personalized supplement mix'}</div>
+                    <div class="modal-icon">${data.mix_icon || '&#x1F48A;'}</div>
+                    <div class="modal-title">${data.mix_name}</div>
+                    <div class="modal-subtitle">${data.mix_description || 'Your personalized supplement mix'}</div>
                 </div>
 
                 <div class="supplement-list">
                     ${supplements.map(s => `
                         <div class="supplement-item">
                             <span class="supplement-name">${s.name}</span>
-                            <span class="supplement-dose">${s.dose_display}</span>
+                            <span class="supplement-dose">${s.dose}${s.unit}</span>
                         </div>
                         ${s.intelligence_notes && s.intelligence_notes.length > 0 ? `
                             <div class="intelligence-note">
@@ -2346,7 +2346,7 @@
 
                 ${warnings.length > 0 ? `
                     <div class="modal-warning">
-                        ${warnings.join('<br>')}
+                        ${warnings.map(w => w.message || w).join('<br>')}
                     </div>
                 ` : ''}
 
@@ -2379,7 +2379,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.id}/dispense`, {
+                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2450,7 +2450,7 @@
                         ${supplements.map(s => `
                             <div class="dispensed-item">
                                 <span>${s.name}</span>
-                                <span>${s.dose_display}</span>
+                                <span>${s.dose}${s.unit}</span>
                             </div>
                         `).join('')}
                     </div>
