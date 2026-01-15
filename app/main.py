@@ -60,3 +60,27 @@ async def debug_config():
         "openai_key_prefix": settings.openai_api_key[:10] + "..." if settings.openai_api_key else None,
         "openai_key_length": len(settings.openai_api_key) if settings.openai_api_key else 0
     }
+
+
+@app.get("/debug/openai-test")
+async def debug_openai_test():
+    from app.engine.llm import llm_personalizer
+
+    result = {
+        "client_exists": llm_personalizer.client is not None,
+    }
+
+    if llm_personalizer.client:
+        try:
+            response = await llm_personalizer.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": "Say hello"}],
+                max_tokens=10
+            )
+            result["api_works"] = True
+            result["response"] = response.choices[0].message.content
+        except Exception as e:
+            result["api_works"] = False
+            result["error"] = str(e)
+
+    return result
