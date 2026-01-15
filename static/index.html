@@ -225,6 +225,96 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
+        .warnings-section {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .warning-card {
+            background: rgba(255, 100, 100, 0.15);
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .warning-card.minor {
+            background: rgba(255, 200, 0, 0.15);
+            border-color: rgba(255, 200, 0, 0.3);
+        }
+
+        .warning-card.synergy {
+            background: rgba(0, 200, 100, 0.15);
+            border-color: rgba(0, 200, 100, 0.3);
+        }
+
+        .warning-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .warning-icon {
+            font-size: 1.3em;
+        }
+
+        .warning-severity {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .warning-severity.major {
+            background: rgba(255, 50, 50, 0.3);
+            color: #ff6666;
+        }
+
+        .warning-severity.moderate {
+            background: rgba(255, 150, 0, 0.3);
+            color: #ffaa00;
+        }
+
+        .warning-severity.minor {
+            background: rgba(255, 200, 0, 0.3);
+            color: #ffcc00;
+        }
+
+        .warning-supplements {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .warning-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .warning-recommendation {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cycle-warning {
+            background: rgba(100, 150, 255, 0.15);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .dose-adjustment-note {
+            font-size: 0.8em;
+            color: rgba(0, 217, 255, 0.8);
+            margin-top: 4px;
+        }
+
         .dispense-btn {
             padding: 8px 16px;
             font-size: 0.9em;
@@ -1510,6 +1600,11 @@
                                         <span class="dose-item-value">${(explanation.time_windows || []).join(', ') || 'Anytime'}</span>
                                     </div>
                                 </div>
+                                ${explanation.dose_adjustment ? `
+                                <div class="dose-adjustment-note">
+                                    ✨ Dose personalized: ${explanation.dose_adjustment.reasoning}
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -1517,6 +1612,53 @@
             }
 
             html += '</div>';
+
+            // Display interaction warnings
+            const interactions = data.interaction_warnings || [];
+            const cycleWarnings = data.cycle_warnings || [];
+
+            if (interactions.length > 0 || cycleWarnings.length > 0) {
+                html += '<div class="warnings-section">';
+                html += '<h3 style="color: #ffaa00; margin-bottom: 12px;">⚠️ Safety Notices</h3>';
+
+                // Interaction warnings
+                for (const warning of interactions) {
+                    const severityClass = warning.severity === 'major' ? '' : (warning.type === 'synergy' ? 'synergy' : 'minor');
+                    const icon = warning.type === 'synergy' ? '✨' : '⚠️';
+
+                    html += `
+                        <div class="warning-card ${severityClass}">
+                            <div class="warning-header">
+                                <span class="warning-icon">${icon}</span>
+                                <span class="warning-severity ${warning.severity}">${warning.severity}</span>
+                                <span style="color: rgba(255,255,255,0.6); font-size: 0.85em;">${warning.type}</span>
+                            </div>
+                            <div class="warning-supplements">${warning.supplements.join(' + ')}</div>
+                            <div class="warning-description">${warning.description}</div>
+                            <div class="warning-recommendation"><strong>Recommendation:</strong> ${warning.recommendation}</div>
+                        </div>
+                    `;
+                }
+
+                // Cycle warnings
+                for (const warning of cycleWarnings) {
+                    const supplementName = data.recommendations.find(r => r.supplement_id === warning.supplement_id)?.name || warning.supplement_id;
+                    const icon = warning.status === 'cycle_now' ? '🔄' : '📅';
+
+                    html += `
+                        <div class="cycle-warning">
+                            <div class="warning-header">
+                                <span class="warning-icon">${icon}</span>
+                                <span style="font-weight: bold; color: #fff;">${supplementName}</span>
+                            </div>
+                            <div class="warning-description">${warning.message}</div>
+                            ${warning.reason ? `<div class="warning-recommendation"><strong>Why:</strong> ${warning.reason}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+            }
 
             // Add Dispense All button
             html += `

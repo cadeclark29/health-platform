@@ -21,12 +21,20 @@ class TriggerExplanation(BaseModel):
     comparison: Optional[str]
 
 
+class DoseAdjustmentInfo(BaseModel):
+    adjusted_dose: float
+    standard_dose: float
+    adjustments_applied: List[dict] = []
+    reasoning: str = ""
+
+
 class SupplementExplanation(BaseModel):
     matched_triggers: List[TriggerExplanation] = []
     evidence: str = ""
     standard_dose: float
     max_daily_dose: float
     time_windows: List[str] = []
+    dose_adjustment: Optional[DoseAdjustmentInfo] = None
 
 
 class SupplementRecommendation(BaseModel):
@@ -38,6 +46,24 @@ class SupplementRecommendation(BaseModel):
     explanation: Optional[SupplementExplanation] = None
 
 
+class InteractionWarning(BaseModel):
+    supplements: List[str]
+    severity: str
+    type: str
+    description: str
+    recommendation: str
+
+
+class CycleWarning(BaseModel):
+    supplement_id: str
+    status: str
+    message: str
+    needs_cycling: bool
+    off_weeks: Optional[int] = None
+    days_until_cycle: Optional[int] = None
+    reason: Optional[str] = None
+
+
 class DispenseResponse(BaseModel):
     user_id: str
     time_of_day: str
@@ -46,6 +72,8 @@ class DispenseResponse(BaseModel):
     active_triggers: List[str]
     using_baseline: Optional[bool] = False
     has_checkin: Optional[bool] = False
+    interaction_warnings: List[InteractionWarning] = []
+    cycle_warnings: List[CycleWarning] = []
 
 
 class DispenseConfirm(BaseModel):
@@ -93,7 +121,13 @@ async def get_dispense_recommendation(
         reasoning=result.get("reasoning", ""),
         active_triggers=result.get("active_triggers", []),
         using_baseline=result.get("using_baseline", False),
-        has_checkin=result.get("has_checkin", False)
+        has_checkin=result.get("has_checkin", False),
+        interaction_warnings=[
+            InteractionWarning(**w) for w in result.get("interaction_warnings", [])
+        ],
+        cycle_warnings=[
+            CycleWarning(**w) for w in result.get("cycle_warnings", [])
+        ]
     )
 
 
@@ -162,5 +196,7 @@ async def get_detailed_recommendation(
         "recommendations": result["recommendations"],
         "reasoning": result.get("reasoning", ""),
         "active_triggers": result.get("active_triggers", []),
-        "health_snapshot": result.get("health_snapshot", {})
+        "health_snapshot": result.get("health_snapshot", {}),
+        "interaction_warnings": result.get("interaction_warnings", []),
+        "cycle_warnings": result.get("cycle_warnings", [])
     }

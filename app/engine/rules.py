@@ -4,6 +4,8 @@ from datetime import datetime, date
 from typing import Optional, List, Dict, Tuple
 from dataclasses import dataclass
 
+from app.engine.interactions import interaction_checker
+
 
 @dataclass
 class SupplementConfig:
@@ -416,3 +418,63 @@ class RulesEngine:
         matches.sort(key=lambda x: len(x[1]), reverse=True)
 
         return matches
+
+    def check_interactions(
+        self,
+        supplement_ids: List[str],
+        user_medications: Optional[List[str]] = None
+    ) -> List[Dict]:
+        """Check for interactions between supplements."""
+        interactions = interaction_checker.check_interactions(
+            supplement_ids,
+            user_medications
+        )
+        return [
+            {
+                "supplements": [i.supplement_a, i.supplement_b],
+                "severity": i.severity,
+                "type": i.interaction_type,
+                "description": i.description,
+                "recommendation": i.recommendation
+            }
+            for i in interactions
+        ]
+
+    def get_adjusted_dose(
+        self,
+        supplement_id: str,
+        user_profile: Dict
+    ) -> Dict:
+        """Get personalized dose based on user profile."""
+        config = self.supplements.get(supplement_id)
+        if not config:
+            return {"adjusted_dose": 0, "adjustments_applied": [], "reasoning": "Unknown supplement"}
+
+        return interaction_checker.get_adjusted_dose(
+            supplement_id,
+            config.standard_dose,
+            user_profile
+        )
+
+    def get_cycle_status(
+        self,
+        supplement_id: str,
+        consecutive_days: int
+    ) -> Dict:
+        """Check if supplement needs cycling."""
+        return interaction_checker.check_cycle_status(supplement_id, consecutive_days)
+
+    def get_all_safety_warnings(
+        self,
+        supplement_ids: List[str],
+        user_profile: Optional[Dict] = None,
+        user_medications: Optional[List[str]] = None,
+        usage_history: Optional[Dict[str, int]] = None
+    ) -> Dict:
+        """Get comprehensive safety warnings for a set of supplements."""
+        return interaction_checker.get_all_warnings(
+            supplement_ids,
+            user_profile,
+            user_medications,
+            usage_history
+        )

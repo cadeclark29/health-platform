@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models import User, HealthData, DispenseLog, DailyCheckIn
 from .rules import RulesEngine
 from .llm import LLMPersonalizer
+from .interactions import interaction_checker
 
 
 class RecommendationEngine:
@@ -111,6 +112,28 @@ class RecommendationEngine:
             if is_valid:
                 config = self.rules.supplements.get(supplement_id)
 
+                # Get personalized dose based on user profile
+                user_profile = {
+                    "weight_kg": user.weight_kg,
+                    "age": user.age,
+                    "sex": user.sex
+                }
+                dose_info = interaction_checker.get_adjusted_dose(
+                    supplement_id,
+                    config.standard_dose,
+                    user_profile
+                )
+
+                # Use adjusted dose if available and lower than LLM suggestion
+                final_dose = dose
+                dose_adjustment = None
+                if dose_info.get("adjustments_applied"):
+                    adjusted = dose_info["adjusted_dose"]
+                    # Use the smaller of LLM suggestion or adjusted dose for safety
+                    if adjusted < dose:
+                        final_dose = adjusted
+                        dose_adjustment = dose_info
+
                 # Build detailed explanation
                 matched_triggers = []
                 for trigger_name, is_active in active_triggers.items():
@@ -122,7 +145,7 @@ class RecommendationEngine:
                 validated_recommendations.append({
                     "supplement_id": supplement_id,
                     "name": config.name,
-                    "dose": dose,
+                    "dose": final_dose,
                     "unit": config.unit,
                     "reason": rec.get("reason", ""),
                     "explanation": {
@@ -130,9 +153,42 @@ class RecommendationEngine:
                         "evidence": config.evidence,
                         "standard_dose": config.standard_dose,
                         "max_daily_dose": config.max_daily_dose,
-                        "time_windows": config.time_windows
+                        "time_windows": config.time_windows,
+                        "dose_adjustment": dose_adjustment
                     }
                 })
+
+        # Step 9: Check for interactions between recommended supplements
+        recommended_ids = [r["supplement_id"] for r in validated_recommendations]
+        interaction_warnings = []
+        cycle_warnings = []
+
+        if recommended_ids:
+            # Check interactions
+            interactions = interaction_checker.check_interactions(
+                recommended_ids,
+                user.allergies  # May contain medication info
+            )
+            for interaction in interactions:
+                interaction_warnings.append({
+                    "supplements": [interaction.supplement_a, interaction.supplement_b],
+                    "severity": interaction.severity,
+                    "type": interaction.interaction_type,
+                    "description": interaction.description,
+                    "recommendation": interaction.recommendation
+                })
+
+            # Check cycling requirements
+            usage_history = self._get_usage_history(user.id, recommended_ids, db)
+            for supp_id in recommended_ids:
+                days = usage_history.get(supp_id, 0)
+                if days > 0:
+                    status = interaction_checker.check_cycle_status(supp_id, days)
+                    if status["status"] in ["cycle_now", "approaching"]:
+                        cycle_warnings.append({
+                            "supplement_id": supp_id,
+                            **status
+                        })
 
         return {
             "recommendations": validated_recommendations,
@@ -141,7 +197,9 @@ class RecommendationEngine:
             "health_snapshot": health_data,
             "active_triggers": [k for k, v in active_triggers.items() if v],
             "using_baseline": baseline is not None,
-            "has_checkin": checkin is not None
+            "has_checkin": checkin is not None,
+            "interaction_warnings": interaction_warnings,
+            "cycle_warnings": cycle_warnings
         }
 
     def _get_user_baseline(self, user: User, db: Session) -> Optional[Dict]:
@@ -192,6 +250,49 @@ class RecommendationEngine:
             dispensed[log.supplement_name] += log.dose
 
         return dispensed
+
+    def _get_usage_history(
+        self,
+        user_id: str,
+        supplement_ids: list,
+        db: Session
+    ) -> dict:
+        """
+        Get consecutive days of use for each supplement.
+
+        Used for cycling protocol checks.
+        """
+        from datetime import timedelta
+
+        history = {}
+        today = date.today()
+
+        for supp_id in supplement_ids:
+            consecutive_days = 0
+            check_date = today
+
+            # Look back up to 120 days
+            for _ in range(120):
+                day_start = datetime.combine(check_date, datetime.min.time())
+                day_end = datetime.combine(check_date + timedelta(days=1), datetime.min.time())
+
+                log = db.query(DispenseLog).filter(
+                    DispenseLog.user_id == user_id,
+                    DispenseLog.supplement_name == supp_id,
+                    DispenseLog.dispensed_at >= day_start,
+                    DispenseLog.dispensed_at < day_end
+                ).first()
+
+                if log:
+                    consecutive_days += 1
+                    check_date -= timedelta(days=1)
+                else:
+                    break
+
+            if consecutive_days > 0:
+                history[supp_id] = consecutive_days
+
+        return history
 
     def record_dispense(
         self,
