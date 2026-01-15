@@ -2379,14 +2379,9 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense`, {
+                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        supplements: currentMixData.supplements,
-                        date_str: dateStr,
-                        hour: currentTime
-                    })
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (res.ok) {
@@ -2501,7 +2496,7 @@
             }
 
             content.innerHTML = supplements.map(s => {
-                const pct = Math.min((s.total_mg / s.max_daily_mg) * 100, 100);
+                const pct = s.percentage || Math.min((s.taken / s.max_daily) * 100, 100);
                 let barClass = '';
                 if (pct >= 90) barClass = 'danger';
                 else if (pct >= 70) barClass = 'warning';
@@ -2510,7 +2505,7 @@
                     <div class="tracking-item">
                         <div class="tracking-header">
                             <span class="tracking-name">${s.name}</span>
-                            <span class="tracking-values">${s.total_mg}${s.unit} / ${s.max_daily_mg}${s.unit}</span>
+                            <span class="tracking-values">${s.taken}${s.unit} / ${s.max_daily}${s.unit}</span>
                         </div>
                         <div class="tracking-bar">
                             <div class="tracking-fill ${barClass}" style="width: ${pct}%"></div>
