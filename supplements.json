@@ -168,7 +168,7 @@
       "id": "creatine",
       "name": "Creatine Monohydrate",
       "unit": "g",
-      "max_daily_dose": 5,
+      "max_daily_dose": 10,
       "standard_dose": 5,
       "time_windows": ["morning", "afternoon"],
       "triggers": {
@@ -176,7 +176,7 @@
         "muscle_recovery": true
       },
       "contraindications": ["kidney_disease"],
-      "evidence": "Most studied supplement. 3-5g/day for saturation. No loading needed."
+      "evidence": "PMID:28615996,32359762 - 3-5g/day maintenance. Up to 10g safe. No weight adjustment needed."
     },
     {
       "id": "glycine",

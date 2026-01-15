@@ -275,6 +275,7 @@ async def get_mix_history(
 async def get_mix_details(
     user_id: str,
     mix_id: str,
+    time_override: Optional[int] = None,
     date_override: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> MixResponse:
@@ -282,8 +283,10 @@ async def get_mix_details(
     Get personalized mix details for a user.
 
     Calculates doses based on user profile and checks daily limits.
+    Includes caffeine timing warnings based on time and sleep data.
 
     Args:
+        time_override: Hour (0-23) to simulate different time of day
         date_override: Date (YYYY-MM-DD) to check limits against a specific day
     """
     # Reserved paths - don't treat as mix_id
@@ -306,6 +309,15 @@ async def get_mix_details(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
+    # Get current hour
+    current_hour = time_override if time_override is not None else datetime.now().hour
+
+    # Get user's latest sleep score for caffeine warnings
+    latest_health = db.query(HealthData).filter(
+        HealthData.user_id == user_id
+    ).order_by(HealthData.timestamp.desc()).first()
+    sleep_score = latest_health.sleep_score if latest_health else None
+
     # Get user profile
     user_profile = {
         "weight_kg": user.weight_kg,
@@ -316,8 +328,12 @@ async def get_mix_details(
     # Get what's been dispensed on the target date
     dispensed_on_date = _get_dispensed_for_date(user_id, target_date, db)
 
-    # Calculate mix doses
-    result = mix_engine.calculate_mix_doses(mix, user_profile, dispensed_on_date)
+    # Calculate mix doses with caffeine timing logic
+    result = mix_engine.calculate_mix_doses(
+        mix, user_profile, dispensed_on_date,
+        current_hour=current_hour,
+        sleep_score=sleep_score
+    )
 
     return MixResponse(**result)
 
@@ -367,6 +383,15 @@ async def dispense_mix(
             detail=f"{mix.name} is not available during {time_of_day}. Available: {', '.join(mix.time_windows)}"
         )
 
+    # Get current hour
+    current_hour = time_override if time_override is not None else datetime.now().hour
+
+    # Get user's latest sleep score for caffeine warnings
+    latest_health = db.query(HealthData).filter(
+        HealthData.user_id == user_id
+    ).order_by(HealthData.timestamp.desc()).first()
+    sleep_score = latest_health.sleep_score if latest_health else None
+
     # Get user profile
     user_profile = {
         "weight_kg": user.weight_kg,
@@ -377,8 +402,12 @@ async def dispense_mix(
     # Get what's been dispensed on the target date
     dispensed_on_date = _get_dispensed_for_date(user_id, target_date, db)
 
-    # Calculate mix doses
-    result = mix_engine.calculate_mix_doses(mix, user_profile, dispensed_on_date)
+    # Calculate mix doses with caffeine timing logic
+    result = mix_engine.calculate_mix_doses(
+        mix, user_profile, dispensed_on_date,
+        current_hour=current_hour,
+        sleep_score=sleep_score
+    )
 
     # Create timestamp for the target date with the override time
     hour = time_override if time_override is not None else 12

@@ -276,7 +276,9 @@ class MixEngine:
         self,
         mix: SupplementMix,
         user_profile: Dict,
-        dispensed_today: Dict[str, float] = None
+        dispensed_today: Dict[str, float] = None,
+        current_hour: int = None,
+        sleep_score: float = None
     ) -> Dict:
         """
         Calculate personalized doses for a mix.
@@ -285,12 +287,16 @@ class MixEngine:
             mix: The supplement mix to calculate
             user_profile: User's profile (weight_kg, age, sex)
             dispensed_today: Already dispensed supplements today
+            current_hour: Current hour (0-23) for caffeine timing checks
+            sleep_score: Recent sleep score for caffeine warnings
 
         Returns:
             Dict with supplements, doses, and any warnings
         """
         if dispensed_today is None:
             dispensed_today = {}
+        if current_hour is None:
+            current_hour = datetime.now().hour
 
         supplements = []
         warnings = []
@@ -337,6 +343,24 @@ class MixEngine:
                     "name": config.name,
                     "message": f"Reduced to {final_dose}{config.unit} (daily limit)"
                 })
+
+            # CAFFEINE TIMING LOGIC
+            # Never recommend caffeine after 5pm (17:00)
+            if component.supplement_id == "caffeine":
+                if current_hour >= 17:
+                    skipped.append({
+                        "supplement_id": component.supplement_id,
+                        "name": config.name,
+                        "reason": "Caffeine not recommended after 5pm for sleep quality"
+                    })
+                    continue
+                # Warn if after 2pm and user has poor sleep
+                elif current_hour >= 14 and sleep_score is not None and sleep_score < 70:
+                    warnings.append({
+                        "supplement_id": component.supplement_id,
+                        "name": config.name,
+                        "message": f"Consider skipping caffeine - your sleep score ({sleep_score}) suggests sensitivity. Taking caffeine after 2pm may impact tonight's sleep."
+                    })
 
             supplements.append({
                 "supplement_id": component.supplement_id,

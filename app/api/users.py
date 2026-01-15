@@ -15,11 +15,12 @@ router = APIRouter()
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
-    # Required profile fields for personalized dosing
+    # Required profile fields for personalized dosing (imperial units)
     age: int
     sex: str  # "male", "female", "other"
-    height_cm: float
-    weight_kg: float
+    height_feet: int
+    height_inches: int
+    weight_lbs: float
     # Optional fields
     allergies: List[str] = []
     medications: List[str] = []
@@ -30,8 +31,9 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     sex: Optional[str] = None
-    height_cm: Optional[float] = None
-    weight_kg: Optional[float] = None
+    height_feet: Optional[int] = None
+    height_inches: Optional[int] = None
+    weight_lbs: Optional[float] = None
     allergies: Optional[List[str]] = None
     medications: Optional[List[str]] = None
     goals: Optional[List[str]] = None
@@ -43,8 +45,9 @@ class UserResponse(BaseModel):
     email: str
     age: Optional[int]
     sex: Optional[str]
-    height_cm: Optional[float]
-    weight_kg: Optional[float]
+    height_feet: Optional[int]
+    height_inches: Optional[int]
+    weight_lbs: Optional[float]
     allergies: List[str]
     medications: List[str]
     goals: List[str]
@@ -73,8 +76,9 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
         email=user_data.email,
         age=user_data.age,
         sex=user_data.sex,
-        height_cm=user_data.height_cm,
-        weight_kg=user_data.weight_kg,
+        height_feet=user_data.height_feet,
+        height_inches=user_data.height_inches,
+        weight_lbs=user_data.weight_lbs,
         allergies=user_data.allergies,
         medications=user_data.medications,
         goals=user_data.goals
@@ -119,10 +123,12 @@ def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_d
         user.age = user_data.age
     if user_data.sex is not None:
         user.sex = user_data.sex
-    if user_data.height_cm is not None:
-        user.height_cm = user_data.height_cm
-    if user_data.weight_kg is not None:
-        user.weight_kg = user_data.weight_kg
+    if user_data.height_feet is not None:
+        user.height_feet = user_data.height_feet
+    if user_data.height_inches is not None:
+        user.height_inches = user_data.height_inches
+    if user_data.weight_lbs is not None:
+        user.weight_lbs = user_data.weight_lbs
     if user_data.allergies is not None:
         user.allergies = user_data.allergies
     if user_data.medications is not None:
@@ -156,8 +162,9 @@ def _user_to_response(user: User) -> UserResponse:
         email=user.email,
         age=user.age,
         sex=user.sex,
-        height_cm=user.height_cm,
-        weight_kg=user.weight_kg,
+        height_feet=user.height_feet,
+        height_inches=user.height_inches,
+        weight_lbs=user.weight_lbs,
         allergies=user.allergies or [],
         medications=user.medications or [],
         goals=user.goals or [],

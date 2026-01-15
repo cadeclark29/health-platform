@@ -14,11 +14,27 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Profile information for dosing
+    # Profile information for dosing (imperial units)
     age = Column(Integer, nullable=True)
     sex = Column(String, nullable=True)  # "male", "female", "other"
-    height_cm = Column(Float, nullable=True)
-    weight_kg = Column(Float, nullable=True)
+    height_feet = Column(Integer, nullable=True)
+    height_inches = Column(Integer, nullable=True)
+    weight_lbs = Column(Float, nullable=True)
+
+    @property
+    def weight_kg(self) -> float:
+        """Convert weight to kg for internal calculations."""
+        if self.weight_lbs:
+            return self.weight_lbs * 0.453592
+        return None
+
+    @property
+    def height_cm(self) -> float:
+        """Convert height to cm for internal calculations."""
+        if self.height_feet is not None and self.height_inches is not None:
+            total_inches = (self.height_feet * 12) + self.height_inches
+            return total_inches * 2.54
+        return None
 
     # User preferences and constraints
     allergies = Column(JSON, default=list)  # List of allergens

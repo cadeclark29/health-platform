@@ -1443,8 +1443,11 @@
                         <option value="female">Female</option>
                         <option value="other">Other</option>
                     </select>
-                    <input type="number" id="onboard-height" placeholder="Height (cm)" step="0.1" required>
-                    <input type="number" id="onboard-weight" placeholder="Weight (kg)" step="0.1" required>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="onboard-height-feet" placeholder="Height (ft)" min="3" max="8" style="flex: 1;" required>
+                        <input type="number" id="onboard-height-inches" placeholder="in" min="0" max="11" style="flex: 1;" required>
+                    </div>
+                    <input type="number" id="onboard-weight" placeholder="Weight (lbs)" step="0.1" required>
                 </div>
 
                 <button onclick="createAccount()" style="width: 100%; margin-top: 16px;">
@@ -1701,10 +1704,11 @@
             const email = document.getElementById('user-email').value.trim();
             const age = parseInt(document.getElementById('onboard-age').value);
             const sex = document.getElementById('onboard-sex').value;
-            const height_cm = parseFloat(document.getElementById('onboard-height').value);
-            const weight_kg = parseFloat(document.getElementById('onboard-weight').value);
+            const height_feet = parseInt(document.getElementById('onboard-height-feet').value);
+            const height_inches = parseInt(document.getElementById('onboard-height-inches').value);
+            const weight_lbs = parseFloat(document.getElementById('onboard-weight').value);
 
-            if (!name || !email || !age || !sex || !height_cm || !weight_kg) {
+            if (!name || !email || !age || !sex || isNaN(height_feet) || isNaN(height_inches) || !weight_lbs) {
                 showStatus('Please fill in all fields', 'error');
                 return;
             }
@@ -1713,7 +1717,7 @@
                 const res = await fetch('/users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, age, sex, height_cm, weight_kg })
+                    body: JSON.stringify({ name, email, age, sex, height_feet, height_inches, weight_lbs })
                 });
 
                 if (res.ok) {
@@ -1846,7 +1850,8 @@
             document.getElementById('user-email').value = '';
             document.getElementById('onboard-age').value = '';
             document.getElementById('onboard-sex').value = '';
-            document.getElementById('onboard-height').value = '';
+            document.getElementById('onboard-height-feet').value = '';
+            document.getElementById('onboard-height-inches').value = '';
             document.getElementById('onboard-weight').value = '';
         }
 
@@ -2734,7 +2739,7 @@
         async function selectCustomBlend(blendId) {
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/custom/${blendId}/preview?date_override=${dateStr}`);
+                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}/preview?date_override=${dateStr}`);
 
                 if (res.ok) {
                     const data = await res.json();

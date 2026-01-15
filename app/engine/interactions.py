@@ -303,16 +303,9 @@ class InteractionChecker:
     def _load_dose_adjustments(self):
         """Load dose adjustment rules."""
         self.dose_adjustments: Dict[str, List[DoseAdjustment]] = {
-            "creatine": [
-                DoseAdjustment(
-                    supplement_id="creatine",
-                    factor="weight",
-                    adjustment_type="per_kg",
-                    value=0.03,  # 0.03g per kg body weight
-                    condition=None,
-                    reason="Optimal creatine dosing scales with lean body mass. ~3g for 70kg, ~4g for 90kg."
-                )
-            ],
+            # Creatine: Research shows 3-5g/day is optimal regardless of weight
+            # No weight-based adjustment needed - flat 5g is the standard
+            # PMID: 28615996, 32359762
             "caffeine": [
                 DoseAdjustment(
                     supplement_id="caffeine",
