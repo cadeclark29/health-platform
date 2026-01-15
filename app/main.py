@@ -27,13 +27,17 @@ app.include_router(dispenser.router, prefix="/dispense", tags=["dispenser"])
 app.include_router(integrations.router, prefix="/integrations", tags=["integrations"])
 
 # Serve static files
-static_path = Path(__file__).parent.parent / "static"
-app.mount("/static", StaticFiles(directory=static_path), name="static")
+static_path = Path(__file__).resolve().parent.parent / "static"
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 
 @app.get("/")
 async def root():
-    return FileResponse(static_path / "index.html")
+    index_file = static_path / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": "Health Platform API", "docs": "/docs"}
 
 
 @app.get("/health")
