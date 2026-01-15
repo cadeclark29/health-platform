@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Platform - Supplement Recommendations</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <title>Health Platform - Supplement Dispenser</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,8 +26,8 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-size: 2em;
             background: linear-gradient(90deg, #00d9ff, #00ff88);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -46,7 +44,7 @@
 
         .card h2 {
             margin-bottom: 16px;
-            font-size: 1.3em;
+            font-size: 1.2em;
             color: #00d9ff;
         }
 
@@ -100,99 +98,121 @@
             color: #fff;
         }
 
-        .health-metrics {
+        .hidden {
+            display: none !important;
+        }
+
+        #status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            max-width: 350px;
+            transition: opacity 0.3s;
+        }
+
+        #status.success {
+            background: rgba(0, 255, 136, 0.9);
+            color: #000;
+        }
+
+        #status.error {
+            background: rgba(255, 68, 68, 0.9);
+            color: #fff;
+        }
+
+        /* Onboarding */
+        .onboarding-step {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .onboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .metric {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00ff88;
-        }
-
-        .metric-value.warning {
-            color: #ffaa00;
-        }
-
-        .metric-value.danger {
-            color: #ff4444;
-        }
-
-        .metric-label {
-            font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 4px;
-        }
-
-        .recommendations {
-            display: flex;
-            flex-direction: column;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .supplement {
-            display: flex;
-            align-items: center;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            gap: 16px;
+        .onboard-grid input, .onboard-grid select {
+            min-width: 0;
         }
 
-        .supplement-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
-            border-radius: 50%;
+        /* Date Navigation */
+        .date-nav {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
         }
 
-        .supplement-info {
-            flex: 1;
-        }
-
-        .supplement-name {
+        .date-nav button {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
             font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-nav button:hover {
+            background: rgba(0, 217, 255, 0.3);
+        }
+
+        .date-display {
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .date-display .day {
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .date-display .full-date {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .date-display .today-badge {
+            display: inline-block;
+            background: #00ff88;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
             font-weight: 600;
+            margin-left: 8px;
         }
 
-        .supplement-dose {
-            color: #00ff88;
-            font-weight: 500;
-        }
-
-        .supplement-reason {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 4px;
-        }
-
+        /* Time Selector */
         .time-selector {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
         .time-btn {
-            flex: 1;
-            padding: 12px;
+            padding: 8px 20px;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid transparent;
+            border-radius: 20px;
             color: #fff;
+            font-size: 0.9em;
         }
 
         .time-btn.active {
@@ -200,408 +220,1069 @@
             background: rgba(0, 217, 255, 0.2);
         }
 
-        .triggers {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
+        /* Main Dispenser Layout */
+        .dispenser-layout {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
         }
 
-        .trigger-tag {
-            background: rgba(255, 170, 0, 0.2);
-            border: 1px solid rgba(255, 170, 0, 0.5);
-            padding: 4px 12px;
+        /* AI Recommendation - Center */
+        .ai-recommendation {
+            grid-column: 2;
+            grid-row: 1;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(0, 217, 255, 0.3) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.5);
             border-radius: 20px;
-            font-size: 0.85em;
-            color: #ffaa00;
-        }
-
-        .reasoning {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 16px;
-            font-style: italic;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .warnings-section {
-            margin-top: 16px;
-            margin-bottom: 16px;
-        }
-
-        .warning-card {
-            background: rgba(255, 100, 100, 0.15);
-            border: 1px solid rgba(255, 100, 100, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .warning-card.minor {
-            background: rgba(255, 200, 0, 0.15);
-            border-color: rgba(255, 200, 0, 0.3);
-        }
-
-        .warning-card.synergy {
-            background: rgba(0, 200, 100, 0.15);
-            border-color: rgba(0, 200, 100, 0.3);
-        }
-
-        .warning-header {
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 180px;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
+        }
+
+        .ai-recommendation:hover {
+            transform: scale(1.02);
+            border-color: #8a2be2;
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.4);
+        }
+
+        .ai-recommendation .ai-icon {
+            font-size: 2.5em;
             margin-bottom: 8px;
         }
 
-        .warning-icon {
-            font-size: 1.3em;
+        .ai-recommendation .ai-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, #8a2be2, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .warning-severity {
-            font-size: 0.75em;
+        .ai-recommendation .ai-subtitle {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.3;
+        }
+
+        .ai-recommendation.loading .ai-icon {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Daily Foundation - Below AI */
+        .daily-foundation {
+            grid-column: 2;
+            grid-row: 2;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 217, 255, 0.2) 100%);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .daily-foundation:hover {
+            transform: scale(1.02);
+            border-color: #00ff88;
+            box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .daily-foundation.taken {
+            opacity: 0.4;
+            cursor: default;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .daily-foundation.taken:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .daily-foundation.taken .df-name {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .daily-foundation .taken-badge {
+            display: none;
+            background: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
             padding: 2px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-top: 6px;
         }
 
-        .warning-severity.major {
-            background: rgba(255, 50, 50, 0.3);
-            color: #ff6666;
+        .daily-foundation.taken .taken-badge {
+            display: inline-block;
         }
 
-        .warning-severity.moderate {
-            background: rgba(255, 150, 0, 0.3);
-            color: #ffaa00;
-        }
-
-        .warning-severity.minor {
-            background: rgba(255, 200, 0, 0.3);
-            color: #ffcc00;
-        }
-
-        .warning-supplements {
-            font-weight: bold;
-            color: #fff;
+        .daily-foundation .df-icon {
+            font-size: 1.8em;
             margin-bottom: 6px;
         }
 
-        .warning-description {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9em;
-            margin-bottom: 8px;
+        .daily-foundation .df-name {
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #00ff88;
         }
 
-        .warning-recommendation {
-            font-size: 0.85em;
+        .daily-foundation .df-desc {
+            font-size: 0.75em;
             color: rgba(255, 255, 255, 0.6);
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .cycle-warning {
-            background: rgba(100, 150, 255, 0.15);
-            border: 1px solid rgba(100, 150, 255, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .dose-adjustment-note {
-            font-size: 0.8em;
-            color: rgba(0, 217, 255, 0.8);
-            margin-top: 4px;
-        }
-
-        .dispense-btn {
-            padding: 8px 16px;
-            font-size: 0.9em;
-            white-space: nowrap;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-            border: 2px solid transparent;
-        }
-
-        .tab-btn.active {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.2);
-            color: #fff;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 40px 20px;
+        /* Mix Cards */
+        .mix-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
-        .upload-area:hover {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.1);
+        .mix-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--mix-color, #00d9ff);
+            box-shadow: 0 8px 25px rgba(var(--mix-color-rgb, 0, 217, 255), 0.3);
         }
 
-        .upload-area.dragover {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
+        .mix-card .mix-icon {
+            font-size: 1.8em;
+            margin-bottom: 6px;
         }
 
-        .upload-icon {
+        .mix-card .mix-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .mix-card .mix-desc {
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.2;
+        }
+
+        .mix-card.custom-blend-mix {
+            position: relative;
+        }
+
+        .mix-card .custom-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(138, 43, 226, 0.9);
+            color: #fff;
+            font-size: 0.55em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Dispense Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
             font-size: 3em;
             margin-bottom: 12px;
         }
 
-        .dispense-btn.dispensed {
-            background: rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.5);
-            cursor: default;
+        .modal-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        .dispense-btn.dispensed:hover {
-            transform: none;
-            box-shadow: none;
+        .modal-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
         }
 
-        /* Dispenser Animation */
-        .dispenser-container {
-            margin-top: 24px;
-            display: none;
-        }
-
-        .dispenser-container.active {
-            display: block;
-        }
-
-        .dispenser {
-            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            border: 2px solid rgba(0, 217, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dispenser-title {
-            font-size: 1.1em;
+        .supplement-list {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 16px;
-            color: #00d9ff;
+        }
+
+        .supplement-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .supplement-item:last-child {
+            border-bottom: none;
+        }
+
+        .supplement-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .supplement-dose {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .modal-warning {
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid rgba(255, 170, 0, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 16px;
+            font-size: 0.85em;
+            color: #ffaa00;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 14px;
+            font-size: 1em;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-dispense {
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+        }
+
+        .btn-dispense.dispensing {
+            background: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        /* Dispense Animation */
+        .dispense-animation {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .glass-container {
+            position: relative;
+            width: 120px;
+            height: 160px;
+            margin: 0 auto 20px;
         }
 
         .glass {
-            width: 80px;
-            height: 120px;
-            margin: 0 auto;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px 5px 20px 20px;
-            position: relative;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 140px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 20px 20px;
+            border-top: none;
             overflow: hidden;
         }
 
-        .water {
+        .glass-water {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 0%;
-            background: linear-gradient(180deg, rgba(0, 217, 255, 0.6) 0%, rgba(0, 255, 136, 0.4) 100%);
-            transition: height 0.5s ease-out;
-            border-radius: 0 0 18px 18px;
+            background: linear-gradient(180deg, rgba(0, 217, 255, 0.6) 0%, rgba(0, 255, 136, 0.8) 100%);
+            height: 0;
+            transition: height 2s ease-out;
+            border-radius: 0 0 16px 16px;
         }
 
-        .water.filling {
-            animation: fill 3s ease-out forwards;
+        .glass-water.filling {
+            height: 85%;
         }
 
-        @keyframes fill {
-            0% { height: 0%; }
-            100% { height: 85%; }
-        }
-
-        .droplet {
+        .dropping-supplements {
             position: absolute;
-            width: 8px;
-            height: 12px;
-            background: linear-gradient(180deg, #00d9ff 0%, #00ff88 100%);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            top: -30px;
+            top: 0;
             left: 50%;
             transform: translateX(-50%);
-            opacity: 0;
-        }
-
-        .droplet.dropping {
-            animation: drop 0.4s ease-in forwards;
-        }
-
-        @keyframes drop {
-            0% { top: -30px; opacity: 1; }
-            100% { top: 20px; opacity: 0; }
-        }
-
-        .supplements-dropping {
             display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 16px;
-            min-height: 30px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .dropping-pill {
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid rgba(0, 255, 136, 0.5);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            color: #00ff88;
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dispense-complete {
-            margin-top: 16px;
-            color: #00ff88;
-            font-weight: 600;
+            font-size: 1.2em;
+            animation: dropPill 1s ease-in forwards;
             opacity: 0;
         }
 
-        .dispense-complete.show {
-            animation: fadeIn 0.5s ease-out forwards;
+        @keyframes dropPill {
+            0% { transform: translateY(-20px); opacity: 1; }
+            100% { transform: translateY(100px); opacity: 0; }
         }
 
-        .status {
+        .dispense-message {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .dispense-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+        }
+
+        .dispensed-list {
+            margin-top: 16px;
             padding: 12px;
+            background: rgba(0, 255, 136, 0.1);
             border-radius: 8px;
-            margin-bottom: 16px;
-            display: none;
+            text-align: left;
         }
 
-        .status.success {
-            display: block;
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid rgba(0, 255, 136, 0.5);
+        .dispensed-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85em;
+        }
+
+        /* Tracking Section */
+        .tracking-section {
+            margin-top: 20px;
+        }
+
+        .tracking-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tracking-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .tracking-tab.active {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .tracking-content {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .tracking-item {
+            margin-bottom: 16px;
+        }
+
+        .tracking-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .tracking-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .tracking-values {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .tracking-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .tracking-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+
+        .tracking-fill.warning {
+            background: linear-gradient(90deg, #ffaa00, #ff6600);
+        }
+
+        .tracking-fill.danger {
+            background: linear-gradient(90deg, #ff4444, #ff0000);
+        }
+
+        /* Saturation Gauge */
+        .saturation-gauge {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .saturation-title {
+            font-size: 0.9em;
+            color: #00d9ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .saturation-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .saturation-ring {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .saturation-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .saturation-ring circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .saturation-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .saturation-ring .progress {
+            stroke: #00ff88;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-out;
+        }
+
+        .saturation-ring .progress.building {
+            stroke: #ffaa00;
+        }
+
+        .saturation-ring .progress.decaying {
+            stroke: #ff6666;
+        }
+
+        .saturation-pct {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .saturation-info {
+            flex: 1;
+        }
+
+        .saturation-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .saturation-status {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .saturation-status.saturated {
             color: #00ff88;
         }
 
-        .status.error {
-            display: block;
-            background: rgba(255, 68, 68, 0.2);
-            border: 1px solid rgba(255, 68, 68, 0.5);
-            color: #ff4444;
+        .saturation-status.building {
+            color: #ffaa00;
         }
 
-        .hidden {
-            display: none;
+        .saturation-status.decaying {
+            color: #ff6666;
+        }
+
+        /* User header */
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
         .user-info {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            border-radius: 8px;
-            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .dispenser-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-recommendation {
+                grid-column: 1 / span 2;
+                grid-row: auto;
+            }
+
+            .daily-foundation {
+                grid-column: 1 / span 2;
+                grid-row: auto;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .dispenser-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-recommendation, .daily-foundation {
+                grid-column: 1;
+            }
+        }
+
+        /* Settings panel */
+        .settings-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-panel {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 280px;
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-panel h3 {
             margin-bottom: 16px;
+            font-size: 1em;
+            color: #00d9ff;
+        }
+
+        .setting-row {
+            margin-bottom: 12px;
+        }
+
+        .setting-row label {
+            display: block;
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .setting-row select {
+            width: 100%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state .emoji {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+
+        /* Custom Blends Section */
+        .custom-blends-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .custom-blends-header h2 {
+            margin: 0;
+        }
+
+        .btn-create-blend {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #8a2be2, #00d9ff);
+        }
+
+        .custom-blend-card {
+            background: rgba(138, 43, 226, 0.15);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .user-info span {
+        .custom-blend-card:hover {
+            border-color: #8a2be2;
+            background: rgba(138, 43, 226, 0.25);
+        }
+
+        .custom-blend-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .custom-blend-icon {
+            font-size: 1.5em;
+        }
+
+        .custom-blend-name {
+            font-weight: 600;
+        }
+
+        .custom-blend-count {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .custom-blend-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-delete-blend {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete-blend:hover {
+            background: rgba(255, 68, 68, 0.4);
+        }
+
+        /* Blend Builder Modal */
+        .blend-builder {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .blend-builder-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .blend-builder-header input {
+            flex: 1;
+        }
+
+        .icon-picker {
+            width: 50px;
+            text-align: center;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .supplement-categories {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .category-btn {
+            padding: 6px 12px;
+            font-size: 0.8em;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .category-btn.active {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .supplement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .supplement-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .supplement-card:hover {
+            border-color: rgba(0, 217, 255, 0.5);
+        }
+
+        .supplement-card.selected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .supplement-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .supplement-card-name {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .supplement-card-dose {
+            font-size: 0.8em;
             color: #00d9ff;
         }
 
-        /* Oura Integration Styles */
-        .oura-status-card {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            border-radius: 12px;
-            padding: 20px;
+        .supplement-card-desc {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.3;
+            margin-bottom: 8px;
         }
 
-        .oura-status-header {
+        .supplement-card-benefits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .benefit-tag {
+            padding: 2px 6px;
+            font-size: 0.65em;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            border-radius: 4px;
+        }
+
+        .supplement-card-links {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pubmed-link {
+            display: block;
+            font-size: 0.7em;
+            color: #8a2be2;
+            text-decoration: none;
+            padding: 2px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pubmed-link:hover {
+            color: #00d9ff;
+            text-decoration: underline;
+        }
+
+        .selected-supplements {
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .selected-supplements-title {
+            font-size: 0.85em;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .selected-supp-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selected-supp-item:last-child {
+            border-bottom: none;
+        }
+
+        .selected-supp-name {
+            font-size: 0.9em;
+        }
+
+        .selected-supp-dose {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dose-input {
+            width: 70px;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .dose-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dose-unit {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.6);
+            min-width: 30px;
+        }
+
+        .dose-range {
+            font-size: 0.65em;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* AI Blend Assistant */
+        .ai-blend-section {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(0, 217, 255, 0.1));
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ai-blend-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 600;
-            font-size: 1.1em;
+            margin-bottom: 12px;
         }
 
-        .oura-status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #666;
+        .ai-blend-header .ai-icon {
+            font-size: 1.5em;
         }
 
-        .oura-status-indicator.connected {
-            background: #00ff88;
-            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+        .ai-blend-header h3 {
+            margin: 0;
+            font-size: 1em;
+            color: #fff;
         }
 
-        .oura-status-indicator.disconnected {
-            background: #ff4444;
+        .ai-blend-header span {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .oura-history-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+        .ai-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-input-row textarea {
+            flex: 1;
+            min-height: 60px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .ai-input-row button {
+            align-self: flex-end;
+            white-space: nowrap;
+        }
+
+        .ai-suggestions {
             margin-top: 12px;
-        }
-
-        .oura-day {
+            padding: 12px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            padding: 12px 8px;
-            text-align: center;
-            font-size: 0.85em;
+            display: none;
         }
 
-        .oura-day-date {
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 8px;
-            font-size: 0.75em;
+        .ai-suggestions.visible {
+            display: block;
         }
 
-        .oura-day-score {
-            font-size: 1.4em;
-            font-weight: bold;
+        .ai-suggestions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ai-suggestions-title {
+            font-size: 0.9em;
+            color: #00d9ff;
+        }
+
+        .ai-suggestion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .ai-suggestion-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .ai-suggestion-name {
+            font-size: 0.9em;
+        }
+
+        .ai-suggestion-dose {
+            font-size: 0.8em;
             color: #00ff88;
         }
 
-        .oura-day-score.warning {
-            color: #ffaa00;
-        }
-
-        .oura-day-score.danger {
-            color: #ff4444;
-        }
-
-        .oura-day-label {
+        .ai-suggestion-reason {
+            font-size: 0.75em;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 0.7em;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        .oura-loading {
+        .ai-loading {
             text-align: center;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        .oura-loading::after {
+        .ai-loading::after {
             content: '';
             animation: dots 1.5s infinite;
         }
@@ -612,937 +1293,448 @@
             60%, 100% { content: '...'; }
         }
 
-        /* Expandable Explanation Styles */
-        .supplement-expandable {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .supplement-main {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            cursor: pointer;
-        }
-
-        .expand-indicator {
-            margin-left: auto;
-            color: rgba(255, 255, 255, 0.5);
-            transition: transform 0.2s;
-            font-size: 0.9em;
-        }
-
-        .supplement-expandable.expanded .expand-indicator {
-            transform: rotate(180deg);
-        }
-
-        .supplement-explanation {
-            display: none;
-            padding-top: 16px;
-            margin-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .supplement-expandable.expanded .supplement-explanation {
-            display: block;
-        }
-
-        .explanation-section {
-            margin-bottom: 12px;
-        }
-
-        .explanation-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .explanation-label {
-            font-size: 0.75em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        .trigger-detail {
-            background: rgba(255, 170, 0, 0.1);
-            border: 1px solid rgba(255, 170, 0, 0.3);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-
-        .trigger-detail:last-child {
-            margin-bottom: 0;
-        }
-
-        .trigger-metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .trigger-name {
-            color: #ffaa00;
-            font-weight: 500;
-        }
-
-        .trigger-values {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85em;
-        }
-
-        .trigger-description {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85em;
-            margin-top: 4px;
-        }
-
-        .evidence-box {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.4;
-        }
-
-        .dose-info {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .dose-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85em;
-        }
-
-        .dose-item-label {
-            color: rgba(255, 255, 255, 0.5);
-            margin-right: 4px;
-        }
-
-        .dose-item-value {
-            color: #00ff88;
-            font-weight: 500;
-        }
-
-        /* Progress Dashboard Styles */
-        .dashboard-section {
-            margin-top: 24px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .metric-toggle {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .metric-toggle-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85em;
-            cursor: pointer;
-        }
-
-        .metric-toggle-btn.active {
-            background: rgba(0, 217, 255, 0.2);
-            border-color: #00d9ff;
-            color: #00d9ff;
-        }
-
-        .correlation-card {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .correlation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .correlation-supplement {
-            font-size: 1.1em;
-            font-weight: 600;
-        }
-
-        .correlation-score {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .correlation-score.positive {
+        .btn-add-all {
+            padding: 6px 12px;
+            font-size: 0.8em;
             background: rgba(0, 255, 136, 0.2);
             color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
         }
 
-        .correlation-score.neutral {
-            background: rgba(255, 170, 0, 0.2);
-            color: #ffaa00;
+        .btn-add-all:hover {
+            background: rgba(0, 255, 136, 0.3);
         }
 
-        .correlation-score.negative {
+        .btn-remove-supp {
+            width: 24px;
+            height: 24px;
+            padding: 0;
             background: rgba(255, 68, 68, 0.2);
             color: #ff4444;
+            border-radius: 50%;
+            font-size: 0.8em;
         }
 
-        .correlation-detail {
-            color: rgba(255, 255, 255, 0.7);
+        /* Supplement Info Modal */
+        .supp-info-modal {
+            max-width: 450px;
+        }
+
+        .supp-info-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .supp-info-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .supp-info-dose {
+            color: #00d9ff;
+            font-size: 0.9em;
+        }
+
+        .supp-info-desc {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
             font-size: 0.9em;
             line-height: 1.5;
         }
 
-        .dispense-markers {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
-        .dispense-marker {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00ff88;
-        }
-
-        .no-data-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #00d9ff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Mix Selection Styles */
-        .mixes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+        .supp-info-benefits {
             margin-bottom: 16px;
         }
 
-        .mix-card {
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .mix-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--mix-color, rgba(0, 217, 255, 0.5));
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .mix-card.selected {
-            border-color: var(--mix-color, #00d9ff);
-            background: rgba(var(--mix-color-rgb, 0, 217, 255), 0.15);
-            box-shadow: 0 4px 20px rgba(var(--mix-color-rgb, 0, 217, 255), 0.2);
-        }
-
-        .mix-card.unavailable {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .mix-icon {
-            font-size: 2.2em;
-            margin-bottom: 8px;
-        }
-
-        .mix-name {
-            font-weight: 600;
-            font-size: 0.95em;
-            margin-bottom: 4px;
-            color: #fff;
-        }
-
-        .mix-description {
-            font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.3;
-        }
-
-        .mix-category {
-            display: inline-block;
-            font-size: 0.65em;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-        }
-
-        .smart-recommendation {
-            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 255, 136, 0.15));
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .smart-recommendation h3 {
-            color: #00d9ff;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }
-
-        .smart-recommendation .reason {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 12px;
-        }
-
-        .mix-preview {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 16px;
-        }
-
-        .mix-preview-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .mix-preview-icon {
-            font-size: 2em;
-        }
-
-        .mix-preview-supplements {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .mix-supplement-chip {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 6px 12px;
+        .supp-info-benefits-title {
             font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .supp-info-benefits-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .supp-info-benefit {
+            padding: 4px 10px;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .supp-info-studies {
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .supp-info-studies-title {
+            font-size: 0.85em;
+            color: #8a2be2;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .mix-supplement-dose {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85em;
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .profile-field {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .profile-field label {
-            font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .profile-field input, .profile-field select {
-            padding: 8px 12px;
-            font-size: 0.9em;
-        }
-
-        .connect-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .connect-option {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .connect-option:hover:not(.disabled) {
-            border-color: rgba(0, 217, 255, 0.5);
-            background: rgba(0, 217, 255, 0.1);
-        }
-
-        .connect-option.connected {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
-        }
-
-        .connect-option.disabled {
-            cursor: not-allowed;
-        }
-
-        .connect-icon {
-            font-size: 2em;
-        }
-
-        .connect-info {
-            flex: 1;
-        }
-
-        .connect-name {
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .connect-desc {
-            font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .connect-status {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            background: rgba(0, 217, 255, 0.2);
-            color: #00d9ff;
-        }
-
-        .connect-option.connected .connect-status {
-            background: rgba(0, 255, 136, 0.2);
-            color: #00ff88;
-        }
-
-        .baseline-status {
+        .study-link {
+            display: block;
+            padding: 8px;
+            margin-bottom: 6px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 0.9em;
+            text-decoration: none;
+            transition: background 0.2s;
         }
 
-        .baseline-status.calculated {
-            border-left: 3px solid #00ff88;
+        .study-link:last-child {
+            margin-bottom: 0;
         }
 
-        .baseline-status.pending {
-            border-left: 3px solid #ffaa00;
+        .study-link:hover {
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .study-title {
+            color: #fff;
+            font-size: 0.85em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .study-pmid {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75em;
         }
     </style>
 </head>
 <body>
+    <div id="status" class="hidden"></div>
+
     <div class="container">
-        <h1>Health Platform</h1>
+        <h1>Supplement Dispenser</h1>
 
-        <!-- User Setup -->
-        <div class="card" id="user-setup">
-            <h2>1. User Setup</h2>
-            <div id="status" class="status"></div>
+        <!-- Not logged in -->
+        <div id="no-user">
+            <div class="card onboarding-step" id="onboarding-step-1">
+                <h2>Create Your Profile</h2>
+                <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7); font-size: 0.9em;">
+                    We need a few details to personalize your supplement doses.
+                </p>
 
-            <div id="no-user">
-                <!-- Sign In Form -->
-                <div id="signin-form">
-                    <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Already have an account?</p>
+                <div class="form-row">
+                    <input type="text" id="user-name" placeholder="Your name" required>
+                    <input type="email" id="user-email" placeholder="Email address" required>
+                </div>
+
+                <div class="onboard-grid">
+                    <input type="number" id="onboard-age" placeholder="Age" min="18" max="100" required>
+                    <select id="onboard-sex" required>
+                        <option value="">Sex</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <input type="number" id="onboard-height" placeholder="Height (cm)" step="0.1" required>
+                    <input type="number" id="onboard-weight" placeholder="Weight (kg)" step="0.1" required>
+                </div>
+
+                <button onclick="createAccount()" style="width: 100%; margin-top: 16px;">
+                    Create Account
+                </button>
+
+                <div style="text-align: center; margin-top: 16px;">
+                    <span style="color: rgba(255,255,255,0.5);">Already have an account?</span>
+                    <a href="#" onclick="toggleSignIn(event)" style="color: #00d9ff; margin-left: 8px;">Sign in</a>
+                </div>
+
+                <div id="signin-form" class="hidden" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
                     <div class="form-row">
                         <input type="email" id="signin-email" placeholder="Email address">
                         <button onclick="signIn()">Sign In</button>
                     </div>
-                    <p style="margin-top: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-size: 0.9em;">— or create a new account —</p>
-                </div>
-
-                <!-- Multi-Step Onboarding -->
-                <div id="onboarding-step-1">
-                    <h3 style="color: #00d9ff; margin-bottom: 16px;">Create Your Profile</h3>
-                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px; font-size: 0.9em;">
-                        We need this info to personalize your supplement doses.
-                    </p>
-
-                    <div class="form-row">
-                        <input type="text" id="user-name" placeholder="Your name" required>
-                        <input type="email" id="user-email" placeholder="Email address" required>
-                    </div>
-
-                    <div class="profile-grid" style="margin-top: 12px;">
-                        <div class="profile-field">
-                            <label>Age <span style="color: #ff6b6b;">*</span></label>
-                            <input type="number" id="onboard-age" placeholder="28" min="18" max="120" required>
-                        </div>
-                        <div class="profile-field">
-                            <label>Sex <span style="color: #ff6b6b;">*</span></label>
-                            <select id="onboard-sex" required>
-                                <option value="">Select...</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="profile-field">
-                            <label>Height (cm) <span style="color: #ff6b6b;">*</span></label>
-                            <input type="number" id="onboard-height" placeholder="175" min="100" max="250" required>
-                        </div>
-                        <div class="profile-field">
-                            <label>Weight (kg) <span style="color: #ff6b6b;">*</span></label>
-                            <input type="number" id="onboard-weight" placeholder="70" min="30" max="300" required>
-                        </div>
-                    </div>
-
-                    <button onclick="proceedToStep2()" style="width: 100%; margin-top: 16px;">
-                        Continue
-                    </button>
-                </div>
-
-                <!-- Step 2: Connect Health Data (Optional) -->
-                <div id="onboarding-step-2" class="hidden">
-                    <h3 style="color: #00d9ff; margin-bottom: 16px;">Connect Health Data</h3>
-                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px; font-size: 0.9em;">
-                        Connect your wearable for smart recommendations based on your sleep, HRV, and recovery.
-                    </p>
-
-                    <div class="connect-options">
-                        <div class="connect-option" onclick="connectOuraOnboarding()">
-                            <div class="connect-icon">💍</div>
-                            <div class="connect-info">
-                                <div class="connect-name">Oura Ring</div>
-                                <div class="connect-desc">Sleep, HRV, readiness</div>
-                            </div>
-                            <div class="connect-status" id="oura-connect-status">Connect</div>
-                        </div>
-
-                        <div class="connect-option disabled" style="opacity: 0.5;">
-                            <div class="connect-icon">⌚</div>
-                            <div class="connect-info">
-                                <div class="connect-name">WHOOP</div>
-                                <div class="connect-desc">Coming soon</div>
-                            </div>
-                            <div class="connect-status">Soon</div>
-                        </div>
-
-                        <div class="connect-option disabled" style="opacity: 0.5;">
-                            <div class="connect-icon">⌚</div>
-                            <div class="connect-info">
-                                <div class="connect-name">Apple Watch</div>
-                                <div class="connect-desc">Coming soon</div>
-                            </div>
-                            <div class="connect-status">Soon</div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 12px; margin-top: 20px;">
-                        <button class="btn-secondary" onclick="skipHealthConnect()" style="flex: 1;">
-                            Skip for Now
-                        </button>
-                        <button onclick="completeOnboarding()" style="flex: 1;">
-                            Complete Setup
-                        </button>
-                    </div>
                 </div>
             </div>
+        </div>
 
-            <div id="has-user" class="hidden">
+        <!-- Logged in -->
+        <div id="has-user" class="hidden">
+            <div class="user-header">
                 <div class="user-info">
-                    <div>Logged in as: <span id="display-name"></span></div>
-                    <button class="btn-secondary" onclick="toggleProfile()">Edit Profile</button>
-                    <button class="btn-secondary" onclick="logout()">Switch User</button>
+                    <div class="user-avatar" id="user-avatar">?</div>
+                    <span class="user-name" id="display-name">User</span>
                 </div>
-
-                <!-- Profile Editor (hidden by default) -->
-                <div id="profile-editor" class="hidden" style="margin-top: 16px;">
-                    <div class="profile-grid">
-                        <div class="profile-field">
-                            <label>Age</label>
-                            <input type="number" id="profile-age" placeholder="Age">
-                        </div>
-                        <div class="profile-field">
-                            <label>Sex</label>
-                            <select id="profile-sex">
-                                <option value="">Select...</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="profile-field">
-                            <label>Height (cm)</label>
-                            <input type="number" id="profile-height" placeholder="180">
-                        </div>
-                        <div class="profile-field">
-                            <label>Weight (kg)</label>
-                            <input type="number" id="profile-weight" placeholder="75">
-                        </div>
-                    </div>
-                    <button onclick="saveProfile()" style="margin-top: 12px;">Save Profile</button>
-
-                    <div id="baseline-status" class="baseline-status pending">
-                        <strong>Baseline Status:</strong> <span id="baseline-text">Not calculated yet</span>
-                        <button class="btn-secondary" onclick="calculateBaseline()" style="margin-left: 12px; padding: 6px 12px; font-size: 0.85em;">Calculate Baseline</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Mix Selection -->
-        <div class="card" id="mixes-section">
-            <h2>Quick Mixes</h2>
-            <p style="margin-bottom: 16px; color: rgba(255,255,255,0.6); font-size: 0.9em;">Select a pre-made blend for your current needs, or get a smart recommendation based on your health data.</p>
-
-            <!-- Smart Recommendation (if health data available) -->
-            <div id="smart-recommendation" class="smart-recommendation hidden">
-                <h3>🤖 Smart Recommendation</h3>
-                <div class="reason" id="smart-reason"></div>
-                <button onclick="selectSmartMix()" id="smart-mix-btn" style="width: 100%;">
-                    <span id="smart-mix-icon"></span> <span id="smart-mix-name"></span>
-                </button>
+                <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
 
-            <!-- Mix Grid -->
-            <div class="mixes-grid" id="mixes-grid">
-                <!-- Populated by JavaScript -->
+            <!-- Date Navigation -->
+            <div class="date-nav">
+                <button onclick="changeDate(-1)" title="Previous day">&#8592;</button>
+                <div class="date-display">
+                    <div class="day" id="date-day">Today</div>
+                    <div class="full-date" id="date-full">January 15, 2026</div>
+                </div>
+                <button onclick="changeDate(1)" title="Next day">&#8594;</button>
             </div>
 
-            <!-- Selected Mix Preview -->
-            <div class="mix-preview hidden" id="mix-preview">
-                <div class="mix-preview-header">
-                    <span class="mix-preview-icon" id="preview-icon"></span>
-                    <div>
-                        <div style="font-weight: 600; font-size: 1.1em;" id="preview-name"></div>
-                        <div style="font-size: 0.85em; color: rgba(255,255,255,0.6);" id="preview-description"></div>
-                    </div>
-                </div>
-                <div class="mix-preview-supplements" id="preview-supplements">
-                    <!-- Populated by JavaScript -->
-                </div>
-                <div id="preview-warnings" style="margin-top: 12px;"></div>
-                <button onclick="dispenseMix()" style="width: 100%; margin-top: 16px;" id="dispense-mix-btn">
-                    Dispense Mix
-                </button>
-            </div>
-        </div>
-
-        <!-- Health Data -->
-        <div class="card" id="health-section">
-            <h2>2. Health Data</h2>
-
-            <!-- Tab selector -->
-            <div class="tab-selector" style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button class="tab-btn" onclick="selectTab('oura')" id="tab-btn-oura">Connect Oura</button>
-                <button class="tab-btn active" onclick="selectTab('mock')" id="tab-btn-mock">Simulate Data</button>
-                <button class="tab-btn" onclick="selectTab('csv')" id="tab-btn-csv">Upload CSV</button>
-            </div>
-
-            <!-- Oura connection tab -->
-            <div id="tab-oura" class="hidden">
-                <div id="oura-not-connected">
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 3em; margin-bottom: 16px;">💍</div>
-                        <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7);">Connect your Oura Ring to sync real health data</p>
-                        <button onclick="connectOura()" style="padding: 16px 32px; font-size: 1.1em;">
-                            Connect Oura Ring
-                        </button>
-                        <p style="margin-top: 16px; font-size: 0.85em; color: rgba(255,255,255,0.5);">
-                            You'll be redirected to Oura to authorize access
-                        </p>
-                    </div>
-                </div>
-                <div id="oura-connected" class="hidden">
-                    <div class="oura-status-card">
-                        <div class="oura-status-header">
-                            <span class="oura-status-indicator connected"></span>
-                            <span>Connected to Oura</span>
-                        </div>
-                        <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button onclick="syncOuraData()" id="sync-oura-btn">Sync Latest Data</button>
-                            <button onclick="fetchOuraHistory()" class="btn-secondary">Load 7-Day History</button>
-                            <button onclick="disconnectOura()" class="btn-secondary" style="background: rgba(255,68,68,0.2); border: 1px solid rgba(255,68,68,0.5);">Disconnect</button>
-                        </div>
-                    </div>
-                    <div id="oura-history" class="hidden" style="margin-top: 16px;">
-                        <h3 style="font-size: 1em; margin-bottom: 12px; color: #00d9ff;">Last 7 Days</h3>
-                        <div id="oura-history-chart"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mock data tab -->
-            <div id="tab-mock">
-                <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Test with simulated health scenarios:</p>
-                <div class="form-row">
-                    <select id="scenario">
-                        <option value="average">Average Day</option>
-                        <option value="poor_sleep">Poor Sleep</option>
-                        <option value="high_strain">High Strain (Workout)</option>
-                        <option value="stressed">Stressed</option>
-                        <option value="recovering">Recovering Well</option>
-                        <option value="random">Random</option>
-                    </select>
-                    <button onclick="loadHealthData()">Load Scenario</button>
-                </div>
-            </div>
-
-            <!-- CSV upload tab -->
-            <div id="tab-csv" class="hidden">
-                <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Upload your Oura Ring data export:</p>
-                <div class="upload-area" id="upload-area" onclick="document.getElementById('csv-file').click()">
-                    <div class="upload-icon">📁</div>
-                    <div>Click or drag CSV file here</div>
-                    <div style="font-size: 0.85em; margin-top: 8px; color: rgba(255,255,255,0.5);">
-                        Export from: Oura Web → Profile → Download My Data
-                    </div>
-                </div>
-                <input type="file" id="csv-file" accept=".csv" style="display: none;" onchange="handleCSVUpload(this)">
-                <div id="upload-status" class="hidden" style="margin-top: 12px; padding: 12px; border-radius: 8px;"></div>
-            </div>
-
-            <div id="health-metrics" class="health-metrics hidden">
-                <div class="metric">
-                    <div class="metric-value" id="sleep-score">--</div>
-                    <div class="metric-label">Sleep Score</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="hrv-score">--</div>
-                    <div class="metric-label">HRV Score</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="recovery-score">--</div>
-                    <div class="metric-label">Recovery</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="strain-score">--</div>
-                    <div class="metric-label">Strain</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="sleep-hours">--</div>
-                    <div class="metric-label">Hours Slept</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="resting-hr">--</div>
-                    <div class="metric-label">Resting HR</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recommendations -->
-        <div class="card" id="recommendations-section">
-            <h2>3. Supplement Recommendations</h2>
-
+            <!-- Time Selector -->
             <div class="time-selector">
-                <button class="time-btn active" data-time="8" onclick="selectTime(this, 8)">Morning</button>
-                <button class="time-btn" data-time="14" onclick="selectTime(this, 14)">Afternoon</button>
-                <button class="time-btn" data-time="21" onclick="selectTime(this, 21)">Evening</button>
+                <button class="time-btn" onclick="setTime(7)" id="time-btn-morning">Morning</button>
+                <button class="time-btn active" onclick="setTime(14)" id="time-btn-afternoon">Afternoon</button>
+                <button class="time-btn" onclick="setTime(21)" id="time-btn-evening">Evening</button>
             </div>
 
-            <button onclick="getRecommendations()" style="width: 100%; margin-bottom: 16px;">Get Recommendations</button>
+            <!-- Dispenser Card -->
+            <div class="card">
+                <h2>What do you need today?</h2>
 
-            <div id="recommendations-content">
-                <p style="color: rgba(255,255,255,0.5); text-align: center;">Load health data and click "Get Recommendations"</p>
-            </div>
-
-            <!-- Dispenser Animation -->
-            <div class="dispenser-container" id="dispenser-container">
-                <div class="dispenser">
-                    <div class="dispenser-title">Dispensing Your Supplements</div>
-                    <div class="glass">
-                        <div class="droplet" id="droplet"></div>
-                        <div class="water" id="water"></div>
+                <div class="dispenser-layout" id="dispenser-layout">
+                    <!-- AI Recommendation -->
+                    <div class="ai-recommendation" onclick="getAIRecommendation()" id="ai-recommendation">
+                        <div class="ai-icon">🤖</div>
+                        <div class="ai-title">AI Recommendation</div>
+                        <div class="ai-subtitle">Personalized based on your health data</div>
                     </div>
-                    <div class="supplements-dropping" id="supplements-dropping"></div>
-                    <div class="dispense-complete" id="dispense-complete">Ready to drink!</div>
+
+                    <!-- Daily Foundation - Always visible below AI -->
+                    <div class="daily-foundation" onclick="selectDailyFoundation()" id="daily-foundation">
+                        <div class="df-icon">💎</div>
+                        <div class="df-name">Daily Foundation</div>
+                        <div class="df-desc">Essential daily nutrients</div>
+                        <div class="taken-badge">✓ Taken Today</div>
+                    </div>
+
+                    <!-- Mix cards populated by JS -->
                 </div>
             </div>
-        </div>
 
-        <!-- Progress Dashboard -->
-        <div class="card" id="progress-section">
-            <h2>4. Progress Dashboard</h2>
+            <!-- Tracking Card -->
+            <div class="card" id="tracking-card">
+                <h2>Your Supplement Intake</h2>
 
-            <div class="metric-toggle">
-                <button class="metric-toggle-btn active" data-metric="sleep_score" onclick="toggleMetric(this)">Sleep</button>
-                <button class="metric-toggle-btn" data-metric="hrv_score" onclick="toggleMetric(this)">HRV</button>
-                <button class="metric-toggle-btn" data-metric="recovery_score" onclick="toggleMetric(this)">Recovery</button>
-                <button class="metric-toggle-btn" data-metric="strain_score" onclick="toggleMetric(this)">Strain</button>
+                <div class="tracking-tabs">
+                    <button class="tracking-tab active" onclick="switchTrackingTab('daily')" id="tab-daily">Today</button>
+                    <button class="tracking-tab" onclick="switchTrackingTab('weekly')" id="tab-weekly">This Week</button>
+                </div>
+
+                <div class="tracking-content" id="tracking-content">
+                    <div class="empty-state">
+                        <div class="emoji">💊</div>
+                        <div>No supplements taken yet</div>
+                    </div>
+                </div>
+
+                <!-- Saturation Gauge -->
+                <div class="saturation-gauge" id="saturation-gauge">
+                    <div class="saturation-title">
+                        <span>⚡</span> Saturation Tracking
+                    </div>
+                    <div id="saturation-content">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
             </div>
 
-            <div class="chart-container">
-                <canvas id="progress-chart"></canvas>
-            </div>
-
-            <button onclick="loadProgressData()" style="width: 100%; margin-bottom: 16px;">
-                Load 14-Day Progress
-            </button>
-
-            <div id="correlation-section" class="hidden">
-                <h3 style="font-size: 1em; margin-bottom: 12px; color: #00d9ff;">Supplement Correlations</h3>
-                <p style="font-size: 0.85em; color: rgba(255,255,255,0.6); margin-bottom: 16px;">
-                    How your health metrics changed after taking supplements
-                </p>
-                <div id="correlation-cards"></div>
+            <!-- Custom Blends Card -->
+            <div class="card" id="custom-blends-card">
+                <div class="custom-blends-header">
+                    <h2>Your Custom Blends</h2>
+                    <button class="btn-create-blend" onclick="openBlendBuilder()">+ Create Blend</button>
+                </div>
+                <div id="custom-blends-list">
+                    <div class="empty-state">
+                        <div class="emoji">🧪</div>
+                        <div>No custom blends yet</div>
+                        <div style="font-size: 0.8em; color: rgba(255,255,255,0.4); margin-top: 4px;">
+                            Create your own supplement combinations
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Blend Builder Modal -->
+    <div class="modal-overlay hidden" id="blend-builder-modal">
+        <div class="modal-content blend-builder" id="blend-builder-content">
+            <div class="modal-header" style="text-align: left; margin-bottom: 16px;">
+                <div class="modal-title">Create Custom Blend</div>
+                <div class="modal-subtitle">Select supplements and customize doses</div>
+            </div>
+
+            <div class="blend-builder-header">
+                <input type="text" id="blend-name" placeholder="Blend name (e.g. My Morning Stack)">
+                <input type="text" id="blend-icon" class="icon-picker" value="🧪" maxlength="2" onclick="this.select()">
+            </div>
+
+            <!-- AI Assistant Section -->
+            <div class="ai-blend-section">
+                <div class="ai-blend-header">
+                    <span class="ai-icon">🤖</span>
+                    <div>
+                        <h3>AI Blend Assistant</h3>
+                        <span>Describe what you want and I'll suggest supplements</span>
+                    </div>
+                </div>
+                <div class="ai-input-row">
+                    <textarea id="ai-blend-input" placeholder="Example: I want better sleep and less stress, but I also need energy in the morning without feeling jittery..."></textarea>
+                    <button onclick="getAIBlendSuggestion()">Suggest</button>
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <div class="ai-suggestions-header">
+                        <span class="ai-suggestions-title">Suggested Supplements</span>
+                        <button class="btn-add-all" onclick="addAllSuggestions()">+ Add All</button>
+                    </div>
+                    <div id="ai-suggestions-list"></div>
+                </div>
+            </div>
+
+            <div class="supplement-categories" id="supplement-categories">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="supplement-grid" id="supplement-grid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="selected-supplements" id="selected-supplements" style="display: none;">
+                <div class="selected-supplements-title">Selected Supplements</div>
+                <div id="selected-supplements-list"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeBlendBuilder()">Cancel</button>
+                <button class="btn-dispense" onclick="saveCustomBlend()" id="save-blend-btn">
+                    Save Blend
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplement Info Modal -->
+    <div class="modal-overlay hidden" id="supp-info-modal">
+        <div class="modal-content supp-info-modal" id="supp-info-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Dispense Modal -->
+    <div class="modal-overlay hidden" id="dispense-modal">
+        <div class="modal-content" id="modal-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Settings Toggle -->
+    <button class="settings-toggle" onclick="toggleSettings()" title="Settings">
+        <span>⚙️</span>
+    </button>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel hidden" id="settings-panel">
+        <h3>Settings</h3>
+        <div class="setting-row">
+            <label>Simulate Health Data</label>
+            <select id="scenario" onchange="loadScenario()">
+                <option value="none">-- Select scenario --</option>
+                <option value="average">Average Day</option>
+                <option value="poor_sleep">Poor Sleep</option>
+                <option value="high_strain">High Strain</option>
+                <option value="stressed">Stressed</option>
+                <option value="recovering">Recovering Well</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <label>Connect Wearable</label>
+            <button onclick="connectOura()" class="btn-secondary" style="width: 100%; margin-top: 4px;">
+                Connect Oura Ring
+            </button>
+        </div>
+    </div>
+
     <script>
+        // State
         let currentUserId = localStorage.getItem('userId');
-        let currentTime = 8;
+        let currentDate = new Date();
+        let currentTime = 14;
+        let availableMixes = [];
+        let customBlends = [];
+        let currentMixData = null;
+        let isDispensing = false;
+        let trackingTab = 'daily';
 
-        // Check for existing user on load
-        if (currentUserId) {
-            checkUser();
-        }
-
-        // Setup drag and drop for CSV upload
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            const uploadArea = document.getElementById('upload-area');
-            if (uploadArea) {
-                uploadArea.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.add('dragover');
-                });
-                uploadArea.addEventListener('dragleave', () => {
-                    uploadArea.classList.remove('dragover');
-                });
-                uploadArea.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.remove('dragover');
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.name.endsWith('.csv')) {
-                        uploadCSVFile(file);
-                    } else {
-                        showStatus('Please upload a CSV file', 'error');
-                    }
-                });
+            if (currentUserId) {
+                loadUserAndShow();
             }
+            updateDateDisplay();
+            updateTimeButtons();
         });
 
-        function selectTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('tab-btn-' + tab).classList.add('active');
-
-            document.getElementById('tab-mock').classList.add('hidden');
-            document.getElementById('tab-csv').classList.add('hidden');
-            document.getElementById('tab-oura').classList.add('hidden');
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-
-            // Check Oura status when tab is selected
-            if (tab === 'oura' && currentUserId) {
-                checkOuraStatus();
-            }
+        // Status messages
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 4000);
         }
 
-        function handleCSVUpload(input) {
-            const file = input.files[0];
-            if (file) {
-                uploadCSVFile(file);
-            }
+        // Toggle sign in form
+        function toggleSignIn(e) {
+            e.preventDefault();
+            document.getElementById('signin-form').classList.toggle('hidden');
         }
 
-        async function uploadCSVFile(file) {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
+        // Create account
+        async function createAccount() {
+            const name = document.getElementById('user-name').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const age = parseInt(document.getElementById('onboard-age').value);
+            const sex = document.getElementById('onboard-sex').value;
+            const height_cm = parseFloat(document.getElementById('onboard-height').value);
+            const weight_kg = parseFloat(document.getElementById('onboard-weight').value);
+
+            if (!name || !email || !age || !sex || !height_cm || !weight_kg) {
+                showStatus('Please fill in all fields', 'error');
                 return;
             }
 
-            const statusEl = document.getElementById('upload-status');
-            statusEl.classList.remove('hidden');
-            statusEl.style.background = 'rgba(0, 217, 255, 0.2)';
-            statusEl.style.color = '#00d9ff';
-            statusEl.textContent = 'Uploading and processing...';
-
-            const formData = new FormData();
-            formData.append('file', file);
-
             try {
-                const res = await fetch(`/upload/${currentUserId}/oura-csv`, {
+                const res = await fetch('/users', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, age, sex, height_cm, weight_kg })
                 });
 
                 if (res.ok) {
-                    const result = await res.json();
-                    statusEl.style.background = 'rgba(0, 255, 136, 0.2)';
-                    statusEl.style.color = '#00ff88';
-                    statusEl.textContent = `Success! Imported ${result.records_imported} records.`;
-
-                    // Display the latest health data
-                    if (result.latest_data) {
-                        displayHealthMetrics(result.latest_data);
-                    }
-                    showStatus(`Imported ${result.records_imported} health records from CSV`, 'success');
+                    const user = await res.json();
+                    currentUserId = user.id;
+                    localStorage.setItem('userId', user.id);
+                    showLoggedIn(user);
+                    loadAllData();
+                    showStatus('Account created!', 'success');
                 } else {
                     const err = await res.json();
-                    statusEl.style.background = 'rgba(255, 68, 68, 0.2)';
-                    statusEl.style.color = '#ff4444';
-                    statusEl.textContent = err.detail || 'Error processing CSV';
+                    showStatus(err.detail || 'Error creating account', 'error');
                 }
             } catch (e) {
-                statusEl.style.background = 'rgba(255, 68, 68, 0.2)';
-                statusEl.style.color = '#ff4444';
-                statusEl.textContent = 'Upload failed: ' + e.message;
+                showStatus('Error: ' + e.message, 'error');
             }
         }
 
-        async function checkUser() {
-            try {
-                const res = await fetch(`/users/${currentUserId}`);
-                if (res.ok) {
-                    const user = await res.json();
-                    showLoggedIn(user);
-                    loadMixes();  // Load available mixes
-                } else {
-                    localStorage.removeItem('userId');
-                    currentUserId = null;
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
+        // Sign in
         async function signIn() {
-            const email = document.getElementById('signin-email').value;
-
+            const email = document.getElementById('signin-email').value.trim();
             if (!email) {
                 showStatus('Please enter your email', 'error');
                 return;
@@ -1560,864 +1752,224 @@
                     currentUserId = user.id;
                     localStorage.setItem('userId', user.id);
                     showLoggedIn(user);
-                    showStatus('Welcome back, ' + user.name + '!', 'success');
-                    loadMixes();  // Load available mixes
+                    loadAllData();
+                    showStatus('Welcome back!', 'success');
                 } else {
                     const err = await res.json();
-                    showStatus(err.detail || 'Sign in failed', 'error');
+                    showStatus(err.detail || 'Error signing in', 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
         }
 
-        // Onboarding data storage
-        let onboardingData = {};
-
-        function proceedToStep2() {
-            const name = document.getElementById('user-name').value;
-            const email = document.getElementById('user-email').value;
-            const age = document.getElementById('onboard-age').value;
-            const sex = document.getElementById('onboard-sex').value;
-            const height = document.getElementById('onboard-height').value;
-            const weight = document.getElementById('onboard-weight').value;
-
-            // Validate all required fields
-            if (!name || !email || !age || !sex || !height || !weight) {
-                showStatus('Please fill in all required fields', 'error');
-                return;
-            }
-
-            if (parseInt(age) < 18 || parseInt(age) > 120) {
-                showStatus('Please enter a valid age (18-120)', 'error');
-                return;
-            }
-
-            if (parseFloat(height) < 100 || parseFloat(height) > 250) {
-                showStatus('Please enter a valid height in cm (100-250)', 'error');
-                return;
-            }
-
-            if (parseFloat(weight) < 30 || parseFloat(weight) > 300) {
-                showStatus('Please enter a valid weight in kg (30-300)', 'error');
-                return;
-            }
-
-            // Store onboarding data
-            onboardingData = {
-                name,
-                email,
-                age: parseInt(age),
-                sex,
-                height_cm: parseFloat(height),
-                weight_kg: parseFloat(weight),
-                goals: ['general_wellness']
-            };
-
-            // Show step 2
-            document.getElementById('onboarding-step-1').classList.add('hidden');
-            document.getElementById('onboarding-step-2').classList.remove('hidden');
-            document.getElementById('signin-form').classList.add('hidden');
-        }
-
-        async function connectOuraOnboarding() {
-            // First create the user account
-            if (!currentUserId) {
-                const created = await createUserAccount();
-                if (!created) return;
-            }
-
-            // Then redirect to Oura OAuth
-            window.location.href = `/integrations/${currentUserId}/oura/authorize`;
-        }
-
-        async function createUserAccount() {
-            try {
-                const res = await fetch('/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(onboardingData)
-                });
-
-                if (res.ok) {
-                    const user = await res.json();
-                    currentUserId = user.id;
-                    localStorage.setItem('userId', user.id);
-                    return true;
-                } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error creating account', 'error');
-                    return false;
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-                return false;
-            }
-        }
-
-        async function skipHealthConnect() {
-            await completeOnboarding();
-        }
-
-        async function completeOnboarding() {
-            // Create user if not already created
-            if (!currentUserId) {
-                const created = await createUserAccount();
-                if (!created) return;
-            }
-
-            // Fetch user to get full data
+        // Load user and show UI
+        async function loadUserAndShow() {
             try {
                 const res = await fetch(`/users/${currentUserId}`);
                 if (res.ok) {
                     const user = await res.json();
                     showLoggedIn(user);
-                    showStatus('Account created! Your supplements will be personalized for you.', 'success');
-                    loadMixes();
+                    loadAllData();
+                } else {
+                    localStorage.removeItem('userId');
+                    currentUserId = null;
                 }
             } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
+                console.error('Error loading user:', e);
             }
         }
 
-        // Legacy createUser for backward compatibility
-        async function createUser() {
-            proceedToStep2();
+        // Load all data
+        function loadAllData() {
+            loadMixes();
+            loadTracking();
+            loadSaturation();
+            checkDailyFoundationTaken();
         }
 
+        // Check if Daily Foundation was already taken today
+        async function checkDailyFoundationTaken() {
+            if (!currentUserId) return;
+
+            try {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    // Check if any Daily Foundation supplements were taken
+                    // Daily Foundation contains: vitamin_d3, vitamin_k2, omega_3, magnesium_glycinate
+                    const dfSupplements = ['vitamin_d3', 'vitamin_k2', 'omega_3'];
+                    const takenSupps = data.supplements.map(s => s.supplement_id);
+
+                    // Consider it taken if at least 2 of the foundation supplements were taken
+                    const foundationTaken = dfSupplements.filter(s => takenSupps.includes(s)).length >= 2;
+
+                    const dfElement = document.getElementById('daily-foundation');
+                    if (foundationTaken) {
+                        dfElement.classList.add('taken');
+                    } else {
+                        dfElement.classList.remove('taken');
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking daily foundation:', e);
+            }
+        }
+
+        // Select Daily Foundation (with taken check)
+        function selectDailyFoundation() {
+            const dfElement = document.getElementById('daily-foundation');
+            if (dfElement.classList.contains('taken')) {
+                showStatus('Daily Foundation already taken today', 'success');
+                return;
+            }
+            selectMix('daily_foundation');
+        }
+
+        // Show logged in state
         function showLoggedIn(user) {
             document.getElementById('no-user').classList.add('hidden');
             document.getElementById('has-user').classList.remove('hidden');
             document.getElementById('display-name').textContent = user.name;
+            document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
         }
 
+        // Logout
         function logout() {
             localStorage.removeItem('userId');
             currentUserId = null;
-            onboardingData = {};
-
-            // Reset onboarding UI
             document.getElementById('no-user').classList.remove('hidden');
             document.getElementById('has-user').classList.add('hidden');
-            document.getElementById('health-metrics').classList.add('hidden');
-            document.getElementById('onboarding-step-1').classList.remove('hidden');
-            document.getElementById('onboarding-step-2').classList.add('hidden');
-            document.getElementById('signin-form').classList.remove('hidden');
-
-            // Clear form fields
             document.getElementById('user-name').value = '';
             document.getElementById('user-email').value = '';
             document.getElementById('onboard-age').value = '';
             document.getElementById('onboard-sex').value = '';
             document.getElementById('onboard-height').value = '';
             document.getElementById('onboard-weight').value = '';
-
-            document.getElementById('recommendations-content').innerHTML =
-                '<p style="color: rgba(255,255,255,0.5); text-align: center;">Load health data and click "Get Recommendations"</p>';
-
-            // Clear mixes
-            document.getElementById('mixes-grid').innerHTML = '';
-            document.getElementById('mix-preview').classList.add('hidden');
-            document.getElementById('smart-recommendation').classList.add('hidden');
         }
 
-        async function loadHealthData() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
-                return;
+        // Date navigation
+        function changeDate(delta) {
+            currentDate.setDate(currentDate.getDate() + delta);
+            updateDateDisplay();
+            loadAllData();
+        }
+
+        function updateDateDisplay() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const current = new Date(currentDate);
+            current.setHours(0, 0, 0, 0);
+
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            const diff = Math.round((current - today) / (1000 * 60 * 60 * 24));
+
+            let dayText = dayNames[currentDate.getDay()];
+            let badge = '';
+
+            if (diff === 0) {
+                dayText = 'Today';
+                badge = '<span class="today-badge">TODAY</span>';
+            } else if (diff === -1) {
+                dayText = 'Yesterday';
+            } else if (diff === 1) {
+                dayText = 'Tomorrow';
             }
 
-            const scenario = document.getElementById('scenario').value;
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/mock?scenario=${scenario}`, {
-                    method: 'POST'
-                });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    displayHealthMetrics(result.data);
-                    showStatus(`Loaded "${scenario}" health scenario`, 'success');
-                } else {
-                    showStatus('Error loading health data', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
+            document.getElementById('date-day').innerHTML = dayText + badge;
+            document.getElementById('date-full').textContent =
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
         }
 
-        function displayHealthMetrics(data) {
-            document.getElementById('health-metrics').classList.remove('hidden');
-
-            setMetric('sleep-score', data.sleep_score);
-            setMetric('hrv-score', data.hrv_score);
-            setMetric('recovery-score', data.recovery_score);
-            setMetric('strain-score', data.strain_score, true);
-            document.getElementById('sleep-hours').textContent = data.sleep_duration_hrs + 'h';
-            document.getElementById('resting-hr').textContent = data.resting_hr;
+        function getDateString() {
+            return currentDate.toISOString().split('T')[0];
         }
 
-        function setMetric(id, value, invertColors = false) {
-            const el = document.getElementById(id);
-            el.textContent = Math.round(value);
-            el.className = 'metric-value';
+        // Time selection
+        function setTime(hour) {
+            currentTime = hour;
+            updateTimeButtons();
+            loadMixes();
+        }
 
-            if (invertColors) {
-                // High strain = warning/danger
-                if (value > 75) el.classList.add('danger');
-                else if (value > 60) el.classList.add('warning');
+        function updateTimeButtons() {
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (currentTime >= 5 && currentTime < 12) {
+                document.getElementById('time-btn-morning').classList.add('active');
+            } else if (currentTime >= 12 && currentTime < 18) {
+                document.getElementById('time-btn-afternoon').classList.add('active');
             } else {
-                // Low score = warning/danger
-                if (value < 50) el.classList.add('danger');
-                else if (value < 65) el.classList.add('warning');
+                document.getElementById('time-btn-evening').classList.add('active');
             }
         }
 
-        function selectTime(btn, time) {
-            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentTime = time;
-
-            // Reload mixes for new time
-            loadMixes();
-
-            // Clear current mix selection
-            document.getElementById('mix-preview').classList.add('hidden');
-            selectedMixId = null;
-            selectedMixData = null;
-        }
-
-        async function getRecommendations() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch(`/dispense/${currentUserId}?time_override=${currentTime}`);
-
-                if (res.ok) {
-                    const result = await res.json();
-                    displayRecommendations(result);
-                } else {
-                    showStatus('Error getting recommendations', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        function displayRecommendations(data) {
-            const container = document.getElementById('recommendations-content');
-
-            if (data.recommendations.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">No supplements recommended for this time period.</p>';
-                return;
-            }
-
-            const icons = {
-                'vitamin_d3': '☀️',
-                'vitamin_b12': '⚡',
-                'vitamin_c': '🍊',
-                'magnesium_glycinate': '😴',
-                'magnesium_l_threonate': '🧠',
-                'omega_3': '🐟',
-                'zinc': '🛡️',
-                'electrolytes': '💧',
-                'l_theanine': '🧘',
-                'melatonin': '🌙',
-                'blackseed_oil': '🌿',
-                'caffeine': '☕',
-                'creatine': '💪',
-                'glycine': '😌',
-                'ashwagandha': '🌱',
-                'coq10': '⚡',
-                'l_citrulline': '🏃',
-                'lions_mane': '🦁',
-                'nac': '🧬',
-                'vitamin_k2': '🦴',
-                'apigenin': '🌼'
-            };
-
-            // Store recommendations for dispensing
-            window.currentRecommendations = data.recommendations;
-            window.supplementIcons = icons;
-
-            let html = '<div class="recommendations">';
-
-            for (const rec of data.recommendations) {
-                const explanation = rec.explanation || {};
-                const triggers = explanation.matched_triggers || [];
-
-                html += `
-                    <div class="supplement supplement-expandable" id="supp-${rec.supplement_id}" onclick="toggleExplanation(event, this)">
-                        <div class="supplement-main">
-                            <div class="supplement-icon">${icons[rec.supplement_id] || '💊'}</div>
-                            <div class="supplement-info">
-                                <div class="supplement-name">${rec.name}</div>
-                                <div class="supplement-dose">${rec.dose} ${rec.unit}</div>
-                                <div class="supplement-reason">${rec.reason}</div>
-                            </div>
-                            <span class="expand-indicator">▼</span>
-                            <button class="dispense-btn" onclick="event.stopPropagation(); dispenseSingle('${rec.supplement_id}', ${rec.dose}, this)">
-                                Dispense
-                            </button>
-                        </div>
-                        <div class="supplement-explanation">
-                            ${triggers.length > 0 ? `
-                            <div class="explanation-section">
-                                <div class="explanation-label">Why this supplement?</div>
-                                ${triggers.map(t => `
-                                    <div class="trigger-detail">
-                                        <div class="trigger-metric">
-                                            <span class="trigger-name">${t.trigger.replace(/_/g, ' ')}</span>
-                                            ${t.actual_value !== null ? `
-                                            <span class="trigger-values">
-                                                Your value: <strong>${t.actual_value}</strong>
-                                                ${t.comparison ? `${t.comparison} threshold: ${t.threshold}` : ''}
-                                            </span>
-                                            ` : ''}
-                                        </div>
-                                        <div class="trigger-description">${t.description}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            ` : ''}
-
-                            ${explanation.evidence ? `
-                            <div class="explanation-section">
-                                <div class="explanation-label">Research & Evidence</div>
-                                <div class="evidence-box">${explanation.evidence}</div>
-                            </div>
-                            ` : ''}
-
-                            <div class="explanation-section">
-                                <div class="explanation-label">Dosing Information</div>
-                                <div class="dose-info">
-                                    <div class="dose-item">
-                                        <span class="dose-item-label">Standard:</span>
-                                        <span class="dose-item-value">${explanation.standard_dose || rec.dose} ${rec.unit}</span>
-                                    </div>
-                                    <div class="dose-item">
-                                        <span class="dose-item-label">Max Daily:</span>
-                                        <span class="dose-item-value">${explanation.max_daily_dose || 'N/A'} ${rec.unit}</span>
-                                    </div>
-                                    <div class="dose-item">
-                                        <span class="dose-item-label">Best Time:</span>
-                                        <span class="dose-item-value">${(explanation.time_windows || []).join(', ') || 'Anytime'}</span>
-                                    </div>
-                                </div>
-                                ${explanation.dose_adjustment ? `
-                                <div class="dose-adjustment-note">
-                                    ✨ Dose personalized: ${explanation.dose_adjustment.reasoning}
-                                </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            html += '</div>';
-
-            // Display interaction warnings
-            const interactions = data.interaction_warnings || [];
-            const cycleWarnings = data.cycle_warnings || [];
-
-            if (interactions.length > 0 || cycleWarnings.length > 0) {
-                html += '<div class="warnings-section">';
-                html += '<h3 style="color: #ffaa00; margin-bottom: 12px;">⚠️ Safety Notices</h3>';
-
-                // Interaction warnings
-                for (const warning of interactions) {
-                    const severityClass = warning.severity === 'major' ? '' : (warning.type === 'synergy' ? 'synergy' : 'minor');
-                    const icon = warning.type === 'synergy' ? '✨' : '⚠️';
-
-                    html += `
-                        <div class="warning-card ${severityClass}">
-                            <div class="warning-header">
-                                <span class="warning-icon">${icon}</span>
-                                <span class="warning-severity ${warning.severity}">${warning.severity}</span>
-                                <span style="color: rgba(255,255,255,0.6); font-size: 0.85em;">${warning.type}</span>
-                            </div>
-                            <div class="warning-supplements">${warning.supplements.join(' + ')}</div>
-                            <div class="warning-description">${warning.description}</div>
-                            <div class="warning-recommendation"><strong>Recommendation:</strong> ${warning.recommendation}</div>
-                        </div>
-                    `;
-                }
-
-                // Cycle warnings
-                for (const warning of cycleWarnings) {
-                    const supplementName = data.recommendations.find(r => r.supplement_id === warning.supplement_id)?.name || warning.supplement_id;
-                    const icon = warning.status === 'cycle_now' ? '🔄' : '📅';
-
-                    html += `
-                        <div class="cycle-warning">
-                            <div class="warning-header">
-                                <span class="warning-icon">${icon}</span>
-                                <span style="font-weight: bold; color: #fff;">${supplementName}</span>
-                            </div>
-                            <div class="warning-description">${warning.message}</div>
-                            ${warning.reason ? `<div class="warning-recommendation"><strong>Why:</strong> ${warning.reason}</div>` : ''}
-                        </div>
-                    `;
-                }
-
-                html += '</div>';
-            }
-
-            // Add Dispense All button
-            html += `
-                <button onclick="dispenseAll()" style="width: 100%; margin-top: 16px; padding: 16px; font-size: 1.1em;">
-                    Dispense All Supplements
-                </button>
-            `;
-
-            // Active triggers
-            if (data.active_triggers && data.active_triggers.length > 0) {
-                html += '<div class="triggers">';
-                for (const trigger of data.active_triggers) {
-                    html += `<span class="trigger-tag">${trigger.replace(/_/g, ' ')}</span>`;
-                }
-                html += '</div>';
-            }
-
-            // Reasoning
-            if (data.reasoning) {
-                html += `<div class="reasoning">"${data.reasoning}"</div>`;
-            }
-
-            container.innerHTML = html;
-        }
-
-        function toggleExplanation(event, element) {
-            // Don't toggle if clicking on the dispense button
-            if (event.target.classList.contains('dispense-btn')) return;
-            element.classList.toggle('expanded');
-        }
-
-        function showStatus(message, type) {
-            const el = document.getElementById('status');
-            el.textContent = message;
-            el.className = 'status ' + type;
-
-            setTimeout(() => {
-                el.className = 'status';
-            }, 5000);
-        }
-
-        async function dispenseSingle(supplementId, dose, btn) {
-            if (btn.classList.contains('dispensed')) return;
-
-            btn.disabled = true;
-            btn.textContent = 'Dispensing...';
-
-            try {
-                const res = await fetch(`/dispense/${currentUserId}/confirm`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ supplement_id: supplementId, dose: dose })
-                });
-
-                if (res.ok) {
-                    btn.textContent = '✓ Dispensed';
-                    btn.classList.add('dispensed');
-
-                    // Quick animation
-                    showMiniDispense(supplementId);
-                } else {
-                    btn.textContent = 'Error';
-                    btn.disabled = false;
-                }
-            } catch (e) {
-                btn.textContent = 'Error';
-                btn.disabled = false;
-            }
-        }
-
-        function showMiniDispense(supplementId) {
-            const container = document.getElementById('dispenser-container');
-            const dropping = document.getElementById('supplements-dropping');
-            const water = document.getElementById('water');
-            const droplet = document.getElementById('droplet');
-            const complete = document.getElementById('dispense-complete');
-
-            container.classList.add('active');
-
-            // Find the supplement name
-            const rec = window.currentRecommendations.find(r => r.supplement_id === supplementId);
-            const icon = window.supplementIcons[supplementId] || '💊';
-
-            // Add pill to dropping area
-            const pill = document.createElement('span');
-            pill.className = 'dropping-pill';
-            pill.innerHTML = `${icon} ${rec ? rec.name : supplementId}`;
-            dropping.appendChild(pill);
-
-            // Animate droplet
-            droplet.classList.remove('dropping');
-            void droplet.offsetWidth; // Trigger reflow
-            droplet.classList.add('dropping');
-
-            // Increase water level
-            const currentHeight = parseFloat(water.style.height) || 0;
-            const newHeight = Math.min(85, currentHeight + 15);
-            water.style.height = newHeight + '%';
-        }
-
-        async function dispenseAll() {
-            if (!window.currentRecommendations || window.currentRecommendations.length === 0) {
-                showStatus('No supplements to dispense', 'error');
-                return;
-            }
-
-            const container = document.getElementById('dispenser-container');
-            const dropping = document.getElementById('supplements-dropping');
-            const water = document.getElementById('water');
-            const droplet = document.getElementById('droplet');
-            const complete = document.getElementById('dispense-complete');
-
-            // Reset animation
-            container.classList.add('active');
-            dropping.innerHTML = '';
-            water.style.height = '0%';
-            water.classList.remove('filling');
-            complete.classList.remove('show');
-
-            // Disable all individual buttons
-            document.querySelectorAll('.dispense-btn').forEach(btn => {
-                btn.disabled = true;
-            });
-
-            // Start water filling
-            setTimeout(() => {
-                water.classList.add('filling');
-            }, 100);
-
-            // Dispense each supplement with delay
-            for (let i = 0; i < window.currentRecommendations.length; i++) {
-                const rec = window.currentRecommendations[i];
-
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // Animate droplet
-                droplet.classList.remove('dropping');
-                void droplet.offsetWidth;
-                droplet.classList.add('dropping');
-
-                // Add pill badge
-                const icon = window.supplementIcons[rec.supplement_id] || '💊';
-                const pill = document.createElement('span');
-                pill.className = 'dropping-pill';
-                pill.innerHTML = `${icon} ${rec.name}`;
-                dropping.appendChild(pill);
-
-                // Call API
-                try {
-                    await fetch(`/dispense/${currentUserId}/confirm`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ supplement_id: rec.supplement_id, dose: rec.dose })
-                    });
-
-                    // Update button
-                    const btn = document.querySelector(`#supp-${rec.supplement_id} .dispense-btn`);
-                    if (btn) {
-                        btn.textContent = '✓ Dispensed';
-                        btn.classList.add('dispensed');
-                    }
-                } catch (e) {
-                    console.error('Dispense error:', e);
-                }
-            }
-
-            // Show complete message
-            setTimeout(() => {
-                complete.classList.add('show');
-            }, 500);
-        }
-
-        // --- Oura Integration Functions ---
-
-        async function checkOuraStatus() {
-            if (!currentUserId) return;
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/oura/status`);
-                if (res.ok) {
-                    const status = await res.json();
-                    if (status.connected) {
-                        showOuraConnected();
-                    } else {
-                        showOuraNotConnected();
-                    }
-                } else {
-                    showOuraNotConnected();
-                }
-            } catch (e) {
-                console.error('Error checking Oura status:', e);
-                showOuraNotConnected();
-            }
-        }
-
-        function showOuraConnected() {
-            document.getElementById('oura-not-connected').classList.add('hidden');
-            document.getElementById('oura-connected').classList.remove('hidden');
-        }
-
-        function showOuraNotConnected() {
-            document.getElementById('oura-not-connected').classList.remove('hidden');
-            document.getElementById('oura-connected').classList.add('hidden');
-            document.getElementById('oura-history').classList.add('hidden');
-        }
-
-        async function connectOura() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/oura/auth`);
-
-                if (res.ok) {
-                    const data = await res.json();
-                    // Redirect to Oura authorization page
-                    window.location.href = data.auth_url;
-                } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Failed to start Oura connection', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        async function syncOuraData() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
-                return;
-            }
-
-            const btn = document.getElementById('sync-oura-btn');
-            btn.disabled = true;
-            btn.textContent = 'Syncing...';
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/sync`, {
-                    method: 'POST'
-                });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    displayHealthMetrics(result.data);
-                    showStatus('Synced latest data from Oura', 'success');
-                } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error syncing Oura data', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sync Latest Data';
-            }
-        }
-
-        async function fetchOuraHistory() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
-                return;
-            }
-
-            const historyDiv = document.getElementById('oura-history');
-            const chartDiv = document.getElementById('oura-history-chart');
-
-            historyDiv.classList.remove('hidden');
-            chartDiv.innerHTML = '<div class="oura-loading">Loading 7-day history</div>';
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
-
-                if (res.ok) {
-                    const result = await res.json();
-                    displayOuraHistory(result.data);
-
-                    // Also update current metrics with latest data
-                    if (result.data && result.data.length > 0) {
-                        const latest = result.data[result.data.length - 1];
-                        displayHealthMetrics(latest);
-                    }
-                } else {
-                    const err = await res.json();
-                    chartDiv.innerHTML = `<p style="color: #ff4444; text-align: center;">${err.detail || 'Error loading history'}</p>`;
-                }
-            } catch (e) {
-                chartDiv.innerHTML = `<p style="color: #ff4444; text-align: center;">Error: ${e.message}</p>`;
-            }
-        }
-
-        function displayOuraHistory(data) {
-            const chartDiv = document.getElementById('oura-history-chart');
-
-            if (!data || data.length === 0) {
-                chartDiv.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No historical data available</p>';
-                return;
-            }
-
-            let html = '<div class="oura-history-grid">';
-
-            for (const day of data) {
-                const date = new Date(day.date);
-                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-                const dayNum = date.getDate();
-
-                const sleepScore = day.sleep_score || '--';
-                const sleepClass = getSleepScoreClass(day.sleep_score);
-
-                html += `
-                    <div class="oura-day">
-                        <div class="oura-day-date">${dayName} ${dayNum}</div>
-                        <div class="oura-day-score ${sleepClass}">${sleepScore}</div>
-                        <div class="oura-day-label">Sleep</div>
-                    </div>
-                `;
-            }
-
-            html += '</div>';
-
-            // Add summary stats
-            const avgSleep = data.reduce((sum, d) => sum + (d.sleep_score || 0), 0) / data.filter(d => d.sleep_score).length;
-            const avgHRV = data.reduce((sum, d) => sum + (d.hrv_score || 0), 0) / data.filter(d => d.hrv_score).length;
-            const avgRecovery = data.reduce((sum, d) => sum + (d.recovery_score || 0), 0) / data.filter(d => d.recovery_score).length;
-
-            html += `
-                <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                    <div class="metric">
-                        <div class="metric-value ${getSleepScoreClass(avgSleep)}">${Math.round(avgSleep)}</div>
-                        <div class="metric-label">Avg Sleep</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value ${getSleepScoreClass(avgHRV)}">${Math.round(avgHRV) || '--'}</div>
-                        <div class="metric-label">Avg HRV</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value ${getSleepScoreClass(avgRecovery)}">${Math.round(avgRecovery) || '--'}</div>
-                        <div class="metric-label">Avg Recovery</div>
-                    </div>
-                </div>
-            `;
-
-            chartDiv.innerHTML = html;
-        }
-
-        function getSleepScoreClass(score) {
-            if (!score) return '';
-            if (score < 50) return 'danger';
-            if (score < 65) return 'warning';
-            return '';
-        }
-
-        async function disconnectOura() {
-            if (!currentUserId) return;
-
-            if (!confirm('Are you sure you want to disconnect Oura?')) {
-                return;
-            }
-
-            try {
-                const res = await fetch(`/integrations/${currentUserId}/oura`, {
-                    method: 'DELETE'
-                });
-
-                if (res.ok) {
-                    showOuraNotConnected();
-                    showStatus('Oura disconnected', 'success');
-                } else {
-                    showStatus('Error disconnecting Oura', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        // Check for OAuth callback result on page load
-        function checkOAuthCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const ouraConnected = urlParams.get('oura_connected');
-
-            if (ouraConnected === 'true') {
-                showStatus('Successfully connected to Oura!', 'success');
-                // Clean up URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-                // Switch to Oura tab
-                selectTab('oura');
-            } else if (ouraConnected === 'false') {
-                const error = urlParams.get('error') || 'Unknown error';
-                showStatus('Oura connection failed: ' + error, 'error');
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // Run on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            checkOAuthCallback();
-            loadMixes();
-        });
-
-        // --- Mix Selection Functions ---
-
-        let availableMixes = [];
-        let selectedMixId = null;
-        let selectedMixData = null;
-        let smartRecommendedMix = null;
-
+        // Load available mixes
         async function loadMixes() {
             if (!currentUserId) return;
 
             try {
-                // Load available mixes for current time
-                const mixesRes = await fetch(`/mixes/available?time_override=${currentTime}`);
+                // Load both preset mixes and custom blends
+                const [mixesRes, blendsRes] = await Promise.all([
+                    fetch(`/mixes/available?time_override=${currentTime}`),
+                    fetch(`/mixes/blends/${currentUserId}`)
+                ]);
+
                 if (mixesRes.ok) {
                     availableMixes = await mixesRes.json();
-                    renderMixesGrid();
+                }
+                if (blendsRes.ok) {
+                    customBlends = await blendsRes.json();
                 }
 
-                // Load smart recommendation
-                const smartRes = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentTime}`);
-                if (smartRes.ok) {
-                    const smart = await smartRes.json();
-                    if (smart.recommended_mix_id) {
-                        smartRecommendedMix = smart;
-                        showSmartRecommendation(smart);
-                    }
-                }
+                renderMixCards();
             } catch (e) {
                 console.error('Error loading mixes:', e);
             }
         }
 
-        function renderMixesGrid() {
-            const grid = document.getElementById('mixes-grid');
-            const allMixIds = availableMixes.map(m => m.id);
+        // Render mix cards
+        function renderMixCards() {
+            const layout = document.getElementById('dispenser-layout');
 
-            let html = '';
-            for (const mix of availableMixes) {
-                html += `
-                    <div class="mix-card"
-                         data-mix-id="${mix.id}"
-                         style="--mix-color: ${mix.color}; --mix-color-rgb: ${hexToRgb(mix.color)}"
-                         onclick="selectMix('${mix.id}')">
-                        <div class="mix-icon">${mix.icon}</div>
-                        <div class="mix-name">${mix.name}</div>
-                        <div class="mix-description">${mix.description}</div>
-                        <span class="mix-category">${mix.category}</span>
-                    </div>
+            // Remove existing mix cards (but keep AI and Daily Foundation)
+            layout.querySelectorAll('.mix-card').forEach(card => card.remove());
+
+            // Filter out daily_foundation from available mixes (it's always shown separately)
+            const otherMixes = availableMixes.filter(m => m.id !== 'daily_foundation');
+
+            // Add preset mix cards
+            for (const mix of otherMixes) {
+                const card = document.createElement('div');
+                card.className = 'mix-card';
+                card.style.cssText = `--mix-color: ${mix.color}; --mix-color-rgb: ${hexToRgb(mix.color)}`;
+                card.onclick = () => selectMix(mix.id);
+                card.innerHTML = `
+                    <div class="mix-icon">${mix.icon}</div>
+                    <div class="mix-name">${mix.name}</div>
+                    <div class="mix-desc">${mix.description}</div>
                 `;
+                layout.appendChild(card);
             }
 
-            grid.innerHTML = html;
+            // Add custom blend cards
+            for (const blend of customBlends) {
+                const card = document.createElement('div');
+                card.className = 'mix-card custom-blend-mix';
+                card.style.cssText = `--mix-color: #8a2be2; --mix-color-rgb: 138, 43, 226`;
+                card.onclick = () => selectCustomBlend(blend.id);
+                card.innerHTML = `
+                    <div class="mix-icon">${blend.icon}</div>
+                    <div class="mix-name">${blend.name}</div>
+                    <div class="mix-desc">${blend.components.length} supplements</div>
+                    <div class="custom-badge">Custom</div>
+                `;
+                layout.appendChild(card);
+            }
         }
 
         function hexToRgb(hex) {
@@ -2427,40 +1979,19 @@
                 : '0, 217, 255';
         }
 
-        function showSmartRecommendation(smart) {
-            const container = document.getElementById('smart-recommendation');
-            const mix = availableMixes.find(m => m.id === smart.recommended_mix_id);
-
-            if (mix) {
-                document.getElementById('smart-reason').textContent = smart.reason;
-                document.getElementById('smart-mix-icon').textContent = mix.icon;
-                document.getElementById('smart-mix-name').textContent = `Get ${mix.name}`;
-                container.classList.remove('hidden');
-            }
-        }
-
+        // Select a mix
         async function selectMix(mixId) {
             if (!currentUserId) {
                 showStatus('Please sign in first', 'error');
                 return;
             }
 
-            selectedMixId = mixId;
-
-            // Update visual selection
-            document.querySelectorAll('.mix-card').forEach(card => {
-                card.classList.remove('selected');
-                if (card.dataset.mixId === mixId) {
-                    card.classList.add('selected');
-                }
-            });
-
-            // Load mix details
             try {
-                const res = await fetch(`/mixes/${currentUserId}/${mixId}`);
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/${mixId}?time_override=${currentTime}&date_override=${dateStr}`);
                 if (res.ok) {
-                    selectedMixData = await res.json();
-                    showMixPreview(selectedMixData);
+                    currentMixData = await res.json();
+                    showDispenseModal(currentMixData);
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error loading mix', 'error');
@@ -2470,441 +2001,385 @@
             }
         }
 
-        function selectSmartMix() {
-            if (smartRecommendedMix && smartRecommendedMix.recommended_mix_id) {
-                selectMix(smartRecommendedMix.recommended_mix_id);
+        // Get AI recommendation
+        async function getAIRecommendation() {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+
+            const aiCard = document.getElementById('ai-recommendation');
+            aiCard.classList.add('loading');
+
+            try {
+                const dateStr = getDateString();
+                const smartRes = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentTime}`);
+
+                if (smartRes.ok) {
+                    const smart = await smartRes.json();
+
+                    if (smart.recommended_mix_id) {
+                        const mixRes = await fetch(`/mixes/${currentUserId}/${smart.recommended_mix_id}?time_override=${currentTime}&date_override=${dateStr}`);
+
+                        if (mixRes.ok) {
+                            currentMixData = await mixRes.json();
+                            currentMixData.ai_reason = smart.reason;
+                            showDispenseModal(currentMixData, true);
+                        }
+                    } else {
+                        showStatus('No recommendation available. Load health data first.', 'error');
+                    }
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            } finally {
+                aiCard.classList.remove('loading');
             }
         }
 
-        function showMixPreview(data) {
-            const preview = document.getElementById('mix-preview');
-            document.getElementById('preview-icon').textContent = data.mix_icon;
-            document.getElementById('preview-name').textContent = data.mix_name;
-            document.getElementById('preview-description').textContent = data.mix_description;
+        // Show dispense modal
+        function showDispenseModal(mixData, isAI = false) {
+            const modal = document.getElementById('dispense-modal');
+            const content = document.getElementById('modal-content');
 
-            // Show supplements
-            const supplementsContainer = document.getElementById('preview-supplements');
             let supplementsHtml = '';
-            for (const supp of data.supplements) {
-                const adjusted = supp.adjusted_from ? ` (adjusted from ${supp.adjusted_from})` : '';
+            for (const supp of mixData.supplements) {
+                const adjusted = supp.adjusted_from ? ' <span style="color: rgba(255,255,255,0.5); font-size: 0.75em;">(adjusted)</span>' : '';
                 supplementsHtml += `
-                    <div class="mix-supplement-chip">
-                        <span>${supp.name}</span>
-                        <span class="mix-supplement-dose">${supp.dose} ${supp.unit}${adjusted}</span>
+                    <div class="supplement-item">
+                        <span class="supplement-name">${supp.name}${adjusted}</span>
+                        <span class="supplement-dose">${supp.dose} ${supp.unit}</span>
                     </div>
                 `;
             }
-            supplementsContainer.innerHTML = supplementsHtml;
 
-            // Show warnings if any
-            const warningsContainer = document.getElementById('preview-warnings');
             let warningsHtml = '';
-
-            if (data.skipped && data.skipped.length > 0) {
-                warningsHtml += '<div style="color: #ffaa00; font-size: 0.85em; margin-bottom: 8px;">';
-                warningsHtml += '<strong>Skipped:</strong> ';
-                warningsHtml += data.skipped.map(s => `${s.name || s.supplement_id} (${s.reason})`).join(', ');
-                warningsHtml += '</div>';
+            if (mixData.skipped && mixData.skipped.length > 0) {
+                const skippedNames = mixData.skipped.map(s => s.name || s.supplement_id).join(', ');
+                warningsHtml += `<div class="modal-warning">Skipped (daily limit): ${skippedNames}</div>`;
             }
 
-            if (data.warnings && data.warnings.length > 0) {
-                warningsHtml += '<div style="color: #ffaa00; font-size: 0.85em;">';
-                warningsHtml += '<strong>Note:</strong> ';
-                warningsHtml += data.warnings.map(w => w.message).join(', ');
-                warningsHtml += '</div>';
-            }
-
-            if (data.interaction_warnings && data.interaction_warnings.length > 0) {
-                for (const w of data.interaction_warnings) {
-                    const color = w.severity === 'major' ? '#ff6666' : '#ffaa00';
-                    warningsHtml += `<div style="color: ${color}; font-size: 0.85em; margin-top: 8px;">`;
-                    warningsHtml += `<strong>⚠️ ${w.severity}:</strong> ${w.description}`;
-                    warningsHtml += '</div>';
+            if (mixData.interaction_warnings && mixData.interaction_warnings.length > 0) {
+                for (const w of mixData.interaction_warnings) {
+                    warningsHtml += `<div class="modal-warning">${w.description}</div>`;
                 }
             }
 
-            warningsContainer.innerHTML = warningsHtml;
+            const aiReasonHtml = isAI && mixData.ai_reason
+                ? `<div style="background: rgba(138, 43, 226, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.85em;">
+                     <strong style="color: #8a2be2;">Why:</strong> ${mixData.ai_reason}
+                   </div>`
+                : '';
 
-            preview.classList.remove('hidden');
+            content.innerHTML = `
+                <div class="modal-header">
+                    <div class="modal-icon">${mixData.mix_icon}</div>
+                    <div class="modal-title">${mixData.mix_name}</div>
+                    <div class="modal-subtitle">${mixData.mix_description}</div>
+                </div>
+
+                ${aiReasonHtml}
+
+                <div class="supplement-list">
+                    ${supplementsHtml}
+                </div>
+
+                ${warningsHtml}
+
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button class="btn-dispense" onclick="dispense()" id="dispense-btn">
+                        Dispense Now
+                    </button>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
         }
 
-        async function dispenseMix() {
-            if (!currentUserId || !selectedMixId) {
-                showStatus('Please select a mix first', 'error');
-                return;
-            }
+        // Close modal
+        function closeModal() {
+            document.getElementById('dispense-modal').classList.add('hidden');
+            currentMixData = null;
+            isDispensing = false;
+        }
 
-            const btn = document.getElementById('dispense-mix-btn');
-            btn.disabled = true;
+        // Handle backdrop click
+        document.getElementById('dispense-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'dispense-modal' && !isDispensing) {
+                closeModal();
+            }
+        });
+
+        // Dispense
+        async function dispense() {
+            if (!currentMixData || !currentUserId || isDispensing) return;
+
+            isDispensing = true;
+            const btn = document.getElementById('dispense-btn');
+            btn.classList.add('dispensing');
             btn.textContent = 'Dispensing...';
 
             try {
-                const res = await fetch(`/mixes/${currentUserId}/${selectedMixId}/dispense`, {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
                     method: 'POST'
                 });
 
                 if (res.ok) {
                     const result = await res.json();
-                    btn.textContent = '✓ Dispensed!';
-                    btn.classList.add('dispensed');
-
-                    // Show animation
-                    showMixDispenseAnimation(result);
-
-                    // Reset after delay
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.textContent = 'Dispense Mix';
-                        btn.classList.remove('dispensed');
-                        document.getElementById('mix-preview').classList.add('hidden');
-                        document.querySelectorAll('.mix-card').forEach(c => c.classList.remove('selected'));
-                        selectedMixId = null;
-                        selectedMixData = null;
-
-                        // Reload mixes to update available doses
-                        loadMixes();
-                    }, 3000);
+                    showDispenseAnimation(result);
                 } else {
                     const err = await res.json();
-                    showStatus(err.detail || 'Error dispensing mix', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Dispense Mix';
+                    showStatus(err.detail || 'Error dispensing', 'error');
+                    btn.classList.remove('dispensing');
+                    btn.textContent = 'Dispense Now';
+                    isDispensing = false;
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
-                btn.disabled = false;
-                btn.textContent = 'Dispense Mix';
+                btn.classList.remove('dispensing');
+                btn.textContent = 'Dispense Now';
+                isDispensing = false;
             }
         }
 
-        function showMixDispenseAnimation(result) {
-            const container = document.getElementById('dispenser-container');
-            const dropping = document.getElementById('supplements-dropping');
-            const water = document.getElementById('water');
+        // Show dispense animation
+        function showDispenseAnimation(result) {
+            const content = document.getElementById('modal-content');
 
-            container.classList.add('active');
-
-            // Show all supplements dropping
-            let droppingHtml = '';
+            // Build list of dispensed supplements
+            let dispensedHtml = '';
             for (const supp of result.supplements_dispensed) {
-                droppingHtml += `<div class="dropping-supplement">${supp.name}</div>`;
+                dispensedHtml += `
+                    <div class="dispensed-item">
+                        <span>${supp.name}</span>
+                        <span style="color: #00ff88;">${supp.dose} ${supp.unit}</span>
+                    </div>
+                `;
             }
-            dropping.innerHTML = droppingHtml;
-            dropping.classList.add('active');
 
-            // Animate water fill
+            // Build dropping pills HTML
+            const pills = result.supplements_dispensed.slice(0, 5).map((_, i) =>
+                `<div class="dropping-pill" style="animation-delay: ${i * 0.2}s">💊</div>`
+            ).join('');
+
+            content.innerHTML = `
+                <div class="dispense-animation">
+                    <div class="glass-container">
+                        <div class="dropping-supplements">${pills}</div>
+                        <div class="glass">
+                            <div class="glass-water" id="glass-water"></div>
+                        </div>
+                    </div>
+                    <div class="dispense-message">${result.mix_name} Dispensed!</div>
+                    <div class="dispense-details">${result.total_dispensed} supplements added</div>
+                    <div class="dispensed-list">
+                        ${dispensedHtml}
+                    </div>
+                </div>
+            `;
+
+            // Trigger water fill animation
             setTimeout(() => {
-                water.classList.add('filling');
-            }, 800);
+                document.getElementById('glass-water').classList.add('filling');
+            }, 100);
 
-            // Complete
+            // Close and refresh after animation
             setTimeout(() => {
-                showStatus(`${result.mix_name} dispensed! ${result.total_dispensed} supplements.`, 'success');
-                container.classList.remove('active');
-                dropping.classList.remove('active');
-                water.classList.remove('filling');
-            }, 2500);
+                closeModal();
+                loadAllData();
+            }, 3500);
         }
 
-        // --- Profile Functions ---
-
-        function toggleProfile() {
-            const editor = document.getElementById('profile-editor');
-            editor.classList.toggle('hidden');
-            if (!editor.classList.contains('hidden')) {
-                loadProfile();
-            }
-        }
-
-        async function loadProfile() {
+        // Load tracking data
+        async function loadTracking() {
             if (!currentUserId) return;
 
-            try {
-                const res = await fetch(`/users/${currentUserId}`);
-                if (res.ok) {
-                    const user = await res.json();
-                    document.getElementById('profile-age').value = user.age || '';
-                    document.getElementById('profile-sex').value = user.sex || '';
-                    document.getElementById('profile-height').value = user.height_cm || '';
-                    document.getElementById('profile-weight').value = user.weight_kg || '';
-
-                    // Update baseline status
-                    updateBaselineStatus(user.has_baseline);
-                }
-            } catch (e) {
-                console.error('Error loading profile:', e);
-            }
-        }
-
-        function updateBaselineStatus(hasBaseline) {
-            const statusEl = document.getElementById('baseline-status');
-            const textEl = document.getElementById('baseline-text');
-
-            if (hasBaseline) {
-                statusEl.classList.remove('pending');
-                statusEl.classList.add('calculated');
-                textEl.textContent = 'Calculated - using personalized thresholds';
+            if (trackingTab === 'daily') {
+                await loadDailyTracking();
             } else {
-                statusEl.classList.remove('calculated');
-                statusEl.classList.add('pending');
-                textEl.textContent = 'Not calculated - add more health data first';
+                await loadWeeklyTracking();
             }
         }
 
-        async function saveProfile() {
-            if (!currentUserId) return;
-
-            const data = {
-                age: parseInt(document.getElementById('profile-age').value) || null,
-                sex: document.getElementById('profile-sex').value || null,
-                height_cm: parseFloat(document.getElementById('profile-height').value) || null,
-                weight_kg: parseFloat(document.getElementById('profile-weight').value) || null
-            };
-
+        async function loadDailyTracking() {
             try {
-                const res = await fetch(`/users/${currentUserId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`);
 
                 if (res.ok) {
-                    showStatus('Profile saved!', 'success');
-                } else {
-                    showStatus('Error saving profile', 'error');
+                    const data = await res.json();
+                    renderDailyTracking(data.supplements);
                 }
             } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
+                console.error('Error loading daily tracking:', e);
             }
         }
 
-        async function calculateBaseline() {
-            if (!currentUserId) return;
-
+        async function loadWeeklyTracking() {
             try {
-                const res = await fetch(`/checkins/${currentUserId}/baseline/calculate`, {
-                    method: 'POST'
-                });
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/tracking/weekly?end_date_str=${dateStr}`);
 
                 if (res.ok) {
-                    const result = await res.json();
-                    updateBaselineStatus(true);
-                    showStatus(`Baseline calculated from ${result.data_points} data points!`, 'success');
-                } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error calculating baseline', 'error');
+                    const data = await res.json();
+                    renderWeeklyTracking(data.supplements);
                 }
             } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
+                console.error('Error loading weekly tracking:', e);
             }
         }
 
-        // --- Progress Dashboard Functions ---
+        function renderDailyTracking(supplements) {
+            const container = document.getElementById('tracking-content');
 
-        let progressChart = null;
-        let progressData = null;
-        let activeMetrics = ['sleep_score'];
-
-        function toggleMetric(btn) {
-            const metric = btn.dataset.metric;
-
-            if (btn.classList.contains('active')) {
-                // Don't allow deselecting all metrics
-                if (activeMetrics.length === 1) return;
-                btn.classList.remove('active');
-                activeMetrics = activeMetrics.filter(m => m !== metric);
-            } else {
-                btn.classList.add('active');
-                activeMetrics.push(metric);
-            }
-
-            if (progressData) {
-                updateChart();
-            }
-        }
-
-        async function loadProgressData() {
-            if (!currentUserId) {
-                showStatus('Please create a user first', 'error');
+            if (!supplements || supplements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">💊</div>
+                        <div>No supplements taken on this day</div>
+                    </div>
+                `;
                 return;
             }
-
-            try {
-                const res = await fetch(`/users/${currentUserId}/progress?days=14`);
-
-                if (res.ok) {
-                    progressData = await res.json();
-                    updateChart();
-                    displayCorrelations(progressData.correlations);
-                    showStatus('Loaded 14-day progress data', 'success');
-                } else {
-                    showStatus('Error loading progress data', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
-
-        function updateChart() {
-            if (!progressData || !progressData.timeline) return;
-
-            const labels = progressData.timeline.map(d => {
-                const date = new Date(d.date);
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            });
-
-            const metricColors = {
-                'sleep_score': { line: '#00d9ff', fill: 'rgba(0, 217, 255, 0.1)' },
-                'hrv_score': { line: '#00ff88', fill: 'rgba(0, 255, 136, 0.1)' },
-                'recovery_score': { line: '#ffaa00', fill: 'rgba(255, 170, 0, 0.1)' },
-                'strain_score': { line: '#ff4444', fill: 'rgba(255, 68, 68, 0.1)' }
-            };
-
-            const metricLabels = {
-                'sleep_score': 'Sleep',
-                'hrv_score': 'HRV',
-                'recovery_score': 'Recovery',
-                'strain_score': 'Strain'
-            };
-
-            const datasets = activeMetrics.map(metric => ({
-                label: metricLabels[metric],
-                data: progressData.timeline.map(d => d[metric]),
-                borderColor: metricColors[metric].line,
-                backgroundColor: metricColors[metric].fill,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }));
-
-            // Find days with supplements
-            const supplementAnnotations = {};
-            progressData.timeline.forEach((day, index) => {
-                if (day.supplements_taken && day.supplements_taken.length > 0) {
-                    supplementAnnotations[`supp-${index}`] = {
-                        type: 'line',
-                        xMin: index,
-                        xMax: index,
-                        borderColor: 'rgba(0, 255, 136, 0.3)',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        label: {
-                            enabled: false
-                        }
-                    };
-                }
-            });
-
-            const ctx = document.getElementById('progress-chart').getContext('2d');
-
-            if (progressChart) {
-                progressChart.destroy();
-            }
-
-            progressChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 0,
-                            max: 100,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.9)'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                afterBody: function(context) {
-                                    const index = context[0].dataIndex;
-                                    const day = progressData.timeline[index];
-                                    if (day.supplements_taken && day.supplements_taken.length > 0) {
-                                        const supps = day.supplements_taken.map(s => s.supplement.replace(/_/g, ' ')).join(', ');
-                                        return [`\nSupplements: ${supps}`];
-                                    }
-                                    return [];
-                                }
-                            }
-                        },
-                        annotation: {
-                            annotations: supplementAnnotations
-                        }
-                    }
-                }
-            });
-        }
-
-        function displayCorrelations(correlations) {
-            const container = document.getElementById('correlation-cards');
-            const section = document.getElementById('correlation-section');
-
-            if (!correlations || correlations.length === 0) {
-                section.classList.add('hidden');
-                return;
-            }
-
-            section.classList.remove('hidden');
 
             let html = '';
-            for (const corr of correlations) {
-                const scoreClass = corr.overall_score > 2 ? 'positive' : (corr.overall_score < -2 ? 'negative' : 'neutral');
-                const scoreText = corr.overall_score > 0 ? `+${corr.overall_score}` : corr.overall_score;
-
-                const formatDelta = (delta) => {
-                    if (delta > 0) return `<span style="color: #00ff88;">+${delta}</span>`;
-                    if (delta < 0) return `<span style="color: #ff4444;">${delta}</span>`;
-                    return `<span style="color: rgba(255,255,255,0.5);">0</span>`;
-                };
+            for (const supp of supplements) {
+                let fillClass = '';
+                if (supp.percentage >= 100) fillClass = 'danger';
+                else if (supp.percentage >= 80) fillClass = 'warning';
 
                 html += `
-                    <div class="correlation-card">
-                        <div class="correlation-header">
-                            <span class="correlation-supplement">${corr.supplement.replace(/_/g, ' ')}</span>
-                            <span class="correlation-score ${scoreClass}">${scoreText}</span>
+                    <div class="tracking-item">
+                        <div class="tracking-header">
+                            <span class="tracking-name">${supp.name}</span>
+                            <span class="tracking-values">${supp.taken} / ${supp.max_daily} ${supp.unit}</span>
                         </div>
-                        <div class="correlation-detail">
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
-                                <div>
-                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">Sleep</div>
-                                    <div>${formatDelta(corr.sleep_delta)}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">Recovery</div>
-                                    <div>${formatDelta(corr.recovery_delta)}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.75em; color: rgba(255,255,255,0.5);">HRV</div>
-                                    <div>${formatDelta(corr.hrv_delta)}</div>
-                                </div>
-                            </div>
-                            <div style="margin-top: 8px; font-size: 0.8em; color: rgba(255,255,255,0.5);">
-                                Taken ${corr.days_taken} times in the past 14 days
+                        <div class="tracking-bar">
+                            <div class="tracking-fill ${fillClass}" style="width: ${supp.percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderWeeklyTracking(supplements) {
+            const container = document.getElementById('tracking-content');
+
+            if (!supplements || supplements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">📊</div>
+                        <div>No supplements taken this week</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const supp of supplements) {
+                const pct = Math.min(100, Math.round((supp.weekly_total / supp.weekly_max) * 100));
+                let fillClass = '';
+                if (pct >= 100) fillClass = 'danger';
+                else if (pct >= 80) fillClass = 'warning';
+
+                html += `
+                    <div class="tracking-item">
+                        <div class="tracking-header">
+                            <span class="tracking-name">${supp.name}</span>
+                            <span class="tracking-values">${supp.weekly_total} ${supp.unit} (${supp.days_taken} days)</span>
+                        </div>
+                        <div class="tracking-bar">
+                            <div class="tracking-fill ${fillClass}" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function switchTrackingTab(tab) {
+            trackingTab = tab;
+            document.querySelectorAll('.tracking-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            loadTracking();
+        }
+
+        // Load saturation data
+        async function loadSaturation() {
+            if (!currentUserId) return;
+
+            try {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/tracking/saturation?as_of_date=${dateStr}`);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    renderSaturation(data.supplements);
+                }
+            } catch (e) {
+                console.error('Error loading saturation:', e);
+            }
+        }
+
+        function renderSaturation(supplements) {
+            const container = document.getElementById('saturation-content');
+
+            if (!supplements || supplements.length === 0) {
+                document.getElementById('saturation-gauge').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('saturation-gauge').classList.remove('hidden');
+
+            let html = '';
+            for (const supp of supplements) {
+                const circumference = 2 * Math.PI * 32;
+                const offset = circumference - (supp.saturation_percentage / 100) * circumference;
+
+                let progressClass = '';
+                let statusText = '';
+
+                switch (supp.status) {
+                    case 'saturated':
+                        statusText = 'Fully saturated';
+                        break;
+                    case 'building':
+                        progressClass = 'building';
+                        statusText = `Building (${supp.consecutive_days}/${supp.days_to_saturate} days)`;
+                        break;
+                    case 'starting':
+                        progressClass = 'building';
+                        statusText = `Just starting (${supp.consecutive_days} days)`;
+                        break;
+                    case 'decaying':
+                        progressClass = 'decaying';
+                        statusText = `Decaying (${supp.days_since_last_intake} days since last)`;
+                        break;
+                    default:
+                        statusText = 'Not started';
+                }
+
+                html += `
+                    <div class="saturation-item">
+                        <div class="saturation-ring">
+                            <svg width="80" height="80">
+                                <circle class="bg" cx="40" cy="40" r="32"></circle>
+                                <circle class="progress ${progressClass}" cx="40" cy="40" r="32"
+                                    stroke-dasharray="${circumference}"
+                                    stroke-dashoffset="${offset}"></circle>
+                            </svg>
+                            <div class="saturation-pct">${supp.saturation_percentage}%</div>
+                        </div>
+                        <div class="saturation-info">
+                            <div class="saturation-name">${supp.name}</div>
+                            <div class="saturation-status ${supp.status}">${statusText}</div>
+                            <div style="font-size: 0.8em; color: rgba(255,255,255,0.5); margin-top: 4px;">
+                                Maintenance: ${supp.maintenance_dose}${supp.unit}/day
                             </div>
                         </div>
                     </div>
@@ -2913,6 +2388,621 @@
 
             container.innerHTML = html;
         }
+
+        // Settings
+        function toggleSettings() {
+            document.getElementById('settings-panel').classList.toggle('hidden');
+        }
+
+        async function loadScenario() {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+
+            const scenario = document.getElementById('scenario').value;
+            if (scenario === 'none') return;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/mock?scenario=${scenario}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    showStatus(`Loaded ${scenario.replace('_', ' ')} scenario`, 'success');
+                    document.getElementById('scenario').value = 'none';
+                }
+            } catch (e) {
+                showStatus('Error loading scenario', 'error');
+            }
+        }
+
+        function connectOura() {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+            window.location.href = `/integrations/${currentUserId}/oura/authorize`;
+        }
+
+        // Close settings when clicking outside
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('settings-panel');
+            const toggle = document.querySelector('.settings-toggle');
+
+            if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
+        // ===== CUSTOM BLENDS =====
+        let supplementCatalog = [];
+        let selectedSupplements = {};
+        let activeCategory = 'all';
+
+        // Load supplement catalog
+        async function loadSupplementCatalog() {
+            try {
+                const res = await fetch('/mixes/catalog');
+                if (res.ok) {
+                    const data = await res.json();
+                    supplementCatalog = data.supplements;
+                }
+            } catch (e) {
+                console.error('Error loading supplement catalog:', e);
+            }
+        }
+
+        // Load custom blends
+        async function loadCustomBlends() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/mixes/blends/${currentUserId}`);
+                if (res.ok) {
+                    customBlends = await res.json();
+                    renderCustomBlends();
+                }
+            } catch (e) {
+                console.error('Error loading custom blends:', e);
+            }
+        }
+
+        // Render custom blends list
+        function renderCustomBlends() {
+            const container = document.getElementById('custom-blends-list');
+
+            if (!customBlends || customBlends.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">🧪</div>
+                        <div>No custom blends yet</div>
+                        <div style="font-size: 0.8em; color: rgba(255,255,255,0.4); margin-top: 4px;">
+                            Create your own supplement combinations
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const blend of customBlends) {
+                html += `
+                    <div class="custom-blend-card" onclick="selectCustomBlend('${blend.id}')">
+                        <div class="custom-blend-info">
+                            <div class="custom-blend-icon">${blend.icon}</div>
+                            <div>
+                                <div class="custom-blend-name">${blend.name}</div>
+                                <div class="custom-blend-count">${blend.components.length} supplements</div>
+                            </div>
+                        </div>
+                        <div class="custom-blend-actions">
+                            <button class="btn-delete-blend" onclick="event.stopPropagation(); deleteCustomBlend('${blend.id}')" title="Delete blend">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // Open blend builder
+        async function openBlendBuilder() {
+            if (supplementCatalog.length === 0) {
+                await loadSupplementCatalog();
+            }
+
+            selectedSupplements = {};
+            document.getElementById('blend-name').value = '';
+            document.getElementById('blend-icon').value = '🧪';
+
+            renderSupplementCategories();
+            renderSupplementGrid();
+            updateSelectedSupplementsUI();
+
+            document.getElementById('blend-builder-modal').classList.remove('hidden');
+        }
+
+        // Close blend builder
+        function closeBlendBuilder() {
+            document.getElementById('blend-builder-modal').classList.add('hidden');
+        }
+
+        // Render supplement categories
+        function renderSupplementCategories() {
+            const categories = ['all', ...new Set(supplementCatalog.map(s => s.category))];
+            const categoryLabels = {
+                'all': 'All',
+                'vitamins': 'Vitamins',
+                'minerals': 'Minerals',
+                'amino_acids': 'Amino Acids',
+                'performance': 'Performance',
+                'adaptogens': 'Adaptogens',
+                'nootropics': 'Nootropics',
+                'antioxidants': 'Antioxidants',
+                'sleep': 'Sleep',
+                'fatty_acids': 'Fatty Acids',
+                'herbals': 'Herbals'
+            };
+
+            const container = document.getElementById('supplement-categories');
+            let html = '';
+            for (const cat of categories) {
+                const label = categoryLabels[cat] || cat;
+                const active = cat === activeCategory ? 'active' : '';
+                html += `<button class="category-btn ${active}" onclick="filterByCategory('${cat}')">${label}</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            activeCategory = category;
+            renderSupplementCategories();
+            renderSupplementGrid();
+        }
+
+        // Render supplement grid
+        function renderSupplementGrid() {
+            const container = document.getElementById('supplement-grid');
+            let filtered = supplementCatalog;
+
+            if (activeCategory !== 'all') {
+                filtered = supplementCatalog.filter(s => s.category === activeCategory);
+            }
+
+            let html = '';
+            for (const supp of filtered) {
+                const selected = selectedSupplements[supp.id] ? 'selected' : '';
+                const benefitsHtml = supp.benefits.slice(0, 3).map(b => `<span class="benefit-tag">${b}</span>`).join('');
+
+                const pubmedHtml = supp.pubmed_studies.length > 0
+                    ? `<div class="supplement-card-links">
+                         ${supp.pubmed_studies.slice(0, 2).map(s => `<a href="${s.url}" target="_blank" class="pubmed-link" onclick="event.stopPropagation()">📄 ${s.title}</a>`).join('')}
+                       </div>`
+                    : '';
+
+                html += `
+                    <div class="supplement-card ${selected}" onclick="toggleSupplement('${supp.id}')">
+                        <div class="supplement-card-header">
+                            <div>
+                                <div class="supplement-card-name">${supp.name}</div>
+                                <div class="supplement-card-dose">${supp.standard_dose} ${supp.unit}</div>
+                            </div>
+                            <button style="padding: 4px 8px; font-size: 0.7em;" onclick="event.stopPropagation(); showSupplementInfo('${supp.id}')">ℹ️</button>
+                        </div>
+                        <div class="supplement-card-desc">${supp.description}</div>
+                        <div class="supplement-card-benefits">${benefitsHtml}</div>
+                        ${pubmedHtml}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // Toggle supplement selection
+        function toggleSupplement(suppId) {
+            if (selectedSupplements[suppId]) {
+                delete selectedSupplements[suppId];
+            } else {
+                const supp = supplementCatalog.find(s => s.id === suppId);
+                if (supp) {
+                    selectedSupplements[suppId] = {
+                        supplement_id: suppId,
+                        dose_multiplier: 1.0,
+                        dose: supp.standard_dose,
+                        name: supp.name,
+                        standard_dose: supp.standard_dose,
+                        max_daily_dose: supp.max_daily_dose,
+                        unit: supp.unit
+                    };
+                }
+            }
+            renderSupplementGrid();
+            updateSelectedSupplementsUI();
+        }
+
+        // Update selected supplements UI
+        function updateSelectedSupplementsUI() {
+            const container = document.getElementById('selected-supplements');
+            const list = document.getElementById('selected-supplements-list');
+            const keys = Object.keys(selectedSupplements);
+
+            if (keys.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            let html = '';
+            for (const suppId of keys) {
+                const s = selectedSupplements[suppId];
+                const currentDose = s.dose || s.standard_dose;
+                const maxDose = s.max_daily_dose;
+                html += `
+                    <div class="selected-supp-item">
+                        <div>
+                            <span class="selected-supp-name">${s.name}</span>
+                            <div class="dose-range">Range: 0 - ${maxDose} ${s.unit}</div>
+                        </div>
+                        <div class="dose-controls">
+                            <input type="number" class="dose-input" value="${currentDose}"
+                                step="${s.unit === 'g' ? '0.5' : (s.unit === 'IU' ? '500' : '25')}"
+                                min="0" max="${maxDose}"
+                                onchange="updateDose('${suppId}', this.value)">
+                            <span class="dose-unit">${s.unit}</span>
+                            <button class="btn-remove-supp" onclick="toggleSupplement('${suppId}')">×</button>
+                        </div>
+                    </div>
+                `;
+            }
+            list.innerHTML = html;
+        }
+
+        // Update dose (actual value)
+        function updateDose(suppId, value) {
+            if (selectedSupplements[suppId]) {
+                const dose = parseFloat(value) || 0;
+                const s = selectedSupplements[suppId];
+                // Clamp to max
+                selectedSupplements[suppId].dose = Math.min(dose, s.max_daily_dose);
+                // Calculate multiplier for backend
+                selectedSupplements[suppId].dose_multiplier = selectedSupplements[suppId].dose / s.standard_dose;
+            }
+        }
+
+        // Save custom blend
+        async function saveCustomBlend() {
+            const name = document.getElementById('blend-name').value.trim();
+            const icon = document.getElementById('blend-icon').value.trim() || '🧪';
+
+            if (!name) {
+                showStatus('Please enter a blend name', 'error');
+                return;
+            }
+
+            const components = Object.values(selectedSupplements).map(s => ({
+                supplement_id: s.supplement_id,
+                dose_multiplier: s.dose_multiplier
+            }));
+
+            if (components.length === 0) {
+                showStatus('Please select at least one supplement', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/mixes/blends/${currentUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, icon, components })
+                });
+
+                if (res.ok) {
+                    showStatus('Custom blend created!', 'success');
+                    closeBlendBuilder();
+                    loadCustomBlends();
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error creating blend', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Delete custom blend
+        async function deleteCustomBlend(blendId) {
+            if (!confirm('Delete this custom blend?')) return;
+
+            try {
+                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showStatus('Blend deleted', 'success');
+                    loadCustomBlends();
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Select custom blend (show dispense modal)
+        async function selectCustomBlend(blendId) {
+            try {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/${currentUserId}/custom/${blendId}/preview?date_override=${dateStr}`);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentMixData = {
+                        mix_id: `custom/${blendId}`,
+                        mix_name: data.blend_name,
+                        mix_icon: data.blend_icon,
+                        mix_description: 'Your custom blend',
+                        supplements: data.supplements,
+                        skipped: data.skipped,
+                        warnings: data.warnings,
+                        interaction_warnings: data.interaction_warnings,
+                        is_custom: true,
+                        custom_blend_id: blendId
+                    };
+                    showDispenseModal(currentMixData);
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Show supplement info modal
+        function showSupplementInfo(suppId) {
+            const supp = supplementCatalog.find(s => s.id === suppId);
+            if (!supp) return;
+
+            const benefitsHtml = supp.benefits.map(b => `<span class="supp-info-benefit">${b}</span>`).join('');
+
+            const studiesHtml = supp.pubmed_studies.length > 0
+                ? supp.pubmed_studies.map(s => `
+                    <a href="${s.url}" target="_blank" class="study-link">
+                        <span class="study-title">${s.title}</span>
+                        <span class="study-pmid">PMID: ${s.pmid}</span>
+                    </a>
+                  `).join('')
+                : '<div style="color: rgba(255,255,255,0.5); font-size: 0.85em;">No studies linked yet</div>';
+
+            const content = document.getElementById('supp-info-content');
+            content.innerHTML = `
+                <div class="supp-info-header">
+                    <div class="supp-info-name">${supp.name}</div>
+                    <div class="supp-info-dose">Standard dose: ${supp.standard_dose} ${supp.unit} (max: ${supp.max_daily_dose} ${supp.unit}/day)</div>
+                </div>
+
+                <div class="supp-info-desc">${supp.description}</div>
+
+                <div class="supp-info-benefits">
+                    <div class="supp-info-benefits-title">Key Benefits</div>
+                    <div class="supp-info-benefits-list">${benefitsHtml}</div>
+                </div>
+
+                <div class="supp-info-studies">
+                    <div class="supp-info-studies-title">
+                        <span>📚</span> PubMed Studies
+                    </div>
+                    ${studiesHtml}
+                </div>
+
+                <div class="modal-actions" style="margin-top: 16px;">
+                    <button class="btn-cancel" onclick="closeSuppInfo()">Close</button>
+                    <button class="btn-dispense" onclick="closeSuppInfo(); toggleSupplement('${suppId}')">
+                        ${selectedSupplements[suppId] ? 'Remove from Blend' : 'Add to Blend'}
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('supp-info-modal').classList.remove('hidden');
+        }
+
+        // Close supplement info modal
+        function closeSuppInfo() {
+            document.getElementById('supp-info-modal').classList.add('hidden');
+        }
+
+        // Handle modal backdrop clicks
+        document.getElementById('blend-builder-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'blend-builder-modal') closeBlendBuilder();
+        });
+
+        document.getElementById('supp-info-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'supp-info-modal') closeSuppInfo();
+        });
+
+        // Override dispense for custom blends
+        const originalDispense = dispense;
+        dispense = async function() {
+            if (currentMixData && currentMixData.is_custom) {
+                await dispenseCustomBlend();
+            } else {
+                await originalDispense();
+            }
+        };
+
+        async function dispenseCustomBlend() {
+            if (!currentMixData || !currentUserId || isDispensing) return;
+
+            isDispensing = true;
+            const btn = document.getElementById('dispense-btn');
+            btn.classList.add('dispensing');
+            btn.textContent = 'Dispensing...';
+
+            try {
+                const dateStr = getDateString();
+                const res = await fetch(`/mixes/blends/${currentUserId}/${currentMixData.custom_blend_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    result.mix_name = currentMixData.mix_name;
+                    showDispenseAnimation(result);
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error dispensing', 'error');
+                    btn.classList.remove('dispensing');
+                    btn.textContent = 'Dispense Now';
+                    isDispensing = false;
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+                btn.classList.remove('dispensing');
+                btn.textContent = 'Dispense Now';
+                isDispensing = false;
+            }
+        }
+
+        // Update loadAllData to include custom blends
+        const originalLoadAllData = loadAllData;
+        loadAllData = function() {
+            originalLoadAllData();
+            loadCustomBlends();
+        };
+
+        // ===== AI BLEND ASSISTANT =====
+        let aiSuggestions = [];
+
+        async function getAIBlendSuggestion() {
+            const input = document.getElementById('ai-blend-input').value.trim();
+            if (!input) {
+                showStatus('Please describe what you want from your blend', 'error');
+                return;
+            }
+
+            const suggestionsDiv = document.getElementById('ai-suggestions');
+            const listDiv = document.getElementById('ai-suggestions-list');
+
+            // Show loading state
+            suggestionsDiv.classList.add('visible');
+            listDiv.innerHTML = '<div class="ai-loading">Analyzing your request</div>';
+
+            try {
+                const res = await fetch('/mixes/suggest-blend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_request: input,
+                        user_id: currentUserId
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    aiSuggestions = data.supplements || [];
+                    window.lastAIResponse = data;
+
+                    // Auto-fill blend name and icon if empty
+                    const nameInput = document.getElementById('blend-name');
+                    const iconInput = document.getElementById('blend-icon');
+                    if (!nameInput.value && data.blend_name) {
+                        nameInput.value = data.blend_name;
+                    }
+                    if (data.blend_icon) {
+                        iconInput.value = data.blend_icon;
+                    }
+
+                    // Render suggestions
+                    renderAISuggestions(data);
+                } else {
+                    const err = await res.json();
+                    listDiv.innerHTML = `<div style="color: #ff6b6b; padding: 10px;">${err.detail || 'Error getting suggestions'}</div>`;
+                }
+            } catch (e) {
+                listDiv.innerHTML = `<div style="color: #ff6b6b; padding: 10px;">Error: ${e.message}</div>`;
+            }
+        }
+
+        function renderAISuggestions(data) {
+            const listDiv = document.getElementById('ai-suggestions-list');
+
+            if (!data.supplements || data.supplements.length === 0) {
+                listDiv.innerHTML = '<div style="color: rgba(255,255,255,0.5); padding: 10px;">No supplements suggested. Try a different description.</div>';
+                return;
+            }
+
+            let html = '';
+
+            // Show summary if available
+            if (data.summary) {
+                html += `<div style="margin-bottom: 12px; padding: 10px; background: rgba(138, 43, 226, 0.15); border-radius: 8px; font-size: 0.85em;">
+                    <strong style="color: #8a2be2;">AI Says:</strong> ${data.summary}
+                    ${data.timing ? `<br><span style="color: rgba(255,255,255,0.6);">Best taken: ${data.timing}</span>` : ''}
+                </div>`;
+            }
+
+            for (const supp of data.supplements) {
+                const catalogSupp = supplementCatalog.find(s => s.id === supp.supplement_id);
+                if (!catalogSupp) continue;
+
+                const isSelected = selectedSupplements[supp.supplement_id];
+                html += `
+                    <div class="ai-suggestion-item">
+                        <div>
+                            <div class="ai-suggestion-name">${catalogSupp.name}</div>
+                            <div class="ai-suggestion-reason">${supp.reason || ''}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="ai-suggestion-dose">${supp.dose} ${catalogSupp.unit}</span>
+                            <button style="padding: 4px 10px; font-size: 0.8em; ${isSelected ? 'background: rgba(0,255,136,0.3);' : ''}"
+                                onclick="addAISuggestion('${supp.supplement_id}', ${supp.dose})">
+                                ${isSelected ? '✓' : '+ Add'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            listDiv.innerHTML = html;
+        }
+
+        function addAISuggestion(suppId, dose) {
+            const supp = supplementCatalog.find(s => s.id === suppId);
+            if (!supp) return;
+
+            if (selectedSupplements[suppId]) {
+                // Already selected, just update the dose
+                selectedSupplements[suppId].dose = dose;
+                selectedSupplements[suppId].dose_multiplier = dose / supp.standard_dose;
+            } else {
+                // Add new
+                selectedSupplements[suppId] = {
+                    supplement_id: suppId,
+                    dose_multiplier: dose / supp.standard_dose,
+                    dose: dose,
+                    name: supp.name,
+                    standard_dose: supp.standard_dose,
+                    max_daily_dose: supp.max_daily_dose,
+                    unit: supp.unit
+                };
+            }
+
+            renderSupplementGrid();
+            updateSelectedSupplementsUI();
+            // Re-render AI suggestions to update button states
+            if (window.lastAIResponse) {
+                renderAISuggestions(window.lastAIResponse);
+            }
+        }
+
+        function addAllSuggestions() {
+            for (const supp of aiSuggestions) {
+                addAISuggestion(supp.supplement_id, supp.dose);
+            }
+            showStatus('All suggestions added!', 'success');
+        }
+
+        // Load supplement catalog on page load
+        loadSupplementCatalog();
     </script>
 </body>
 </html>

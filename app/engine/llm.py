@@ -146,3 +146,157 @@ Based on this health data and available supplements, recommend which supplements
             "recommendations": recommendations,
             "reasoning": "Rule-based recommendations (LLM unavailable)"
         }
+
+    BLEND_SYSTEM_PROMPT = """You are an AI supplement expert helping users create custom supplement blends.
+
+Your role is to suggest supplements based on the user's goals and needs. You must:
+1. Only recommend supplements from the provided catalog
+2. Suggest appropriate doses within safe limits (never exceed max_daily_dose)
+3. Provide clear reasoning for each supplement choice
+4. Consider synergies between supplements (e.g., D3+K2, caffeine+L-theanine)
+5. Warn about any timing considerations (e.g., caffeine only in morning)
+
+You are NOT a doctor. These are general wellness suggestions, not medical advice.
+
+Respond in JSON format with this structure:
+{
+    "blend_name": "suggested name for this blend",
+    "blend_icon": "single emoji that represents this blend",
+    "supplements": [
+        {
+            "supplement_id": "string (must match catalog id)",
+            "dose": number (within max_daily_dose),
+            "reason": "brief explanation of why this supplement helps"
+        }
+    ],
+    "summary": "1-2 sentence summary of what this blend is designed for",
+    "timing": "when to take this blend (morning/afternoon/evening)"
+}"""
+
+    async def suggest_blend(
+        self,
+        user_request: str,
+        supplement_catalog: List[dict],
+        user_profile: Optional[dict] = None
+    ) -> dict:
+        """Use LLM to suggest a custom blend based on user's description."""
+        if self.client is None:
+            return self._fallback_blend_suggestion(user_request, supplement_catalog)
+
+        # Build the prompt
+        user_message = self._build_blend_prompt(user_request, supplement_catalog, user_profile)
+
+        try:
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": self.BLEND_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_message}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.5,
+                max_tokens=1500
+            )
+
+            result = json.loads(response.choices[0].message.content)
+            return result
+
+        except Exception as e:
+            print(f"LLM error in blend suggestion: {e}")
+            return self._fallback_blend_suggestion(user_request, supplement_catalog)
+
+    def _build_blend_prompt(
+        self,
+        user_request: str,
+        supplement_catalog: List[dict],
+        user_profile: Optional[dict]
+    ) -> str:
+        """Build prompt for blend suggestion."""
+        prompt = f"""## User's Request
+"{user_request}"
+"""
+
+        if user_profile:
+            prompt += f"""
+## User Profile
+- Age: {user_profile.get('age', 'Unknown')}
+- Sex: {user_profile.get('sex', 'Unknown')}
+- Weight: {user_profile.get('weight_kg', 'Unknown')} kg
+"""
+
+        prompt += """
+## Available Supplement Catalog
+"""
+        for supp in supplement_catalog:
+            benefits = ', '.join(supp.get('benefits', [])[:3])
+            prompt += f"""
+### {supp['name']} (id: {supp['id']})
+- Standard dose: {supp['standard_dose']} {supp['unit']}
+- Max daily: {supp['max_daily_dose']} {supp['unit']}
+- Best time: {', '.join(supp.get('time_windows', ['any']))}
+- Benefits: {benefits}
+- Description: {supp.get('description', 'N/A')}
+"""
+
+        prompt += """
+Based on the user's request, suggest 3-6 supplements that would create an effective blend. Consider supplement synergies and timing. Provide a suggested blend name and icon emoji."""
+
+        return prompt
+
+    def _fallback_blend_suggestion(
+        self,
+        user_request: str,
+        supplement_catalog: List[dict]
+    ) -> dict:
+        """Simple keyword-based fallback for blend suggestions."""
+        request_lower = user_request.lower()
+        suggestions = []
+
+        # Simple keyword matching
+        keyword_map = {
+            "sleep": ["magnesium_glycinate", "glycine", "melatonin", "apigenin", "l_theanine"],
+            "energy": ["caffeine", "vitamin_b12", "coq10", "creatine"],
+            "focus": ["caffeine", "l_theanine", "lions_mane", "creatine"],
+            "stress": ["ashwagandha", "l_theanine", "magnesium_glycinate"],
+            "recovery": ["creatine", "omega_3", "magnesium_glycinate", "zinc"],
+            "immune": ["vitamin_c", "zinc", "vitamin_d3", "blackseed_oil"],
+            "workout": ["creatine", "l_citrulline", "caffeine", "electrolytes"],
+            "mood": ["omega_3", "vitamin_d3", "ashwagandha", "magnesium_glycinate"],
+        }
+
+        matched_ids = set()
+        for keyword, supp_ids in keyword_map.items():
+            if keyword in request_lower:
+                matched_ids.update(supp_ids)
+
+        # Build suggestions from matched supplements
+        for supp in supplement_catalog:
+            if supp['id'] in matched_ids and len(suggestions) < 5:
+                suggestions.append({
+                    "supplement_id": supp['id'],
+                    "dose": supp['standard_dose'],
+                    "reason": f"Supports {supp.get('benefits', ['general wellness'])[0].lower()}"
+                })
+
+        # Default to basic stack if no matches
+        if not suggestions:
+            defaults = ["vitamin_d3", "omega_3", "magnesium_glycinate"]
+            for supp in supplement_catalog:
+                if supp['id'] in defaults:
+                    suggestions.append({
+                        "supplement_id": supp['id'],
+                        "dose": supp['standard_dose'],
+                        "reason": "Essential daily nutrient"
+                    })
+
+        return {
+            "blend_name": "Custom Blend",
+            "blend_icon": "🧪",
+            "supplements": suggestions,
+            "summary": "A blend suggested based on your goals (AI unavailable for detailed analysis)",
+            "timing": "morning"
+        }
+
+
+# Singleton instance
+llm_personalizer = LLMPersonalizer()

@@ -236,12 +236,13 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Daily Foundation",
         icon="💎",
         description="Essential daily nutrients for overall health",
-        time_windows=["morning"],
+        time_windows=["morning", "afternoon", "evening"],
         components=[
             MixComponent("vitamin_d3", 1.0),
             MixComponent("vitamin_k2", 1.0),
             MixComponent("omega_3", 1.0),
             MixComponent("magnesium_glycinate", 0.5),
+            MixComponent("creatine", 1.0),
         ],
         category="wellness",
         color="#34495E"
