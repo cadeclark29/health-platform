@@ -13,6 +13,32 @@ from datetime import datetime
 from app.engine.intelligence import dosing_intelligence
 
 
+# Supplement descriptions for UI display
+SUPPLEMENT_DESCRIPTIONS: Dict[str, str] = {
+    "vitamin_d3": "The sunshine vitamin - essential for bone health, immune function, and mood regulation.",
+    "magnesium_glycinate": "Highly absorbable magnesium bound to glycine - great for sleep, stress, and muscle recovery.",
+    "vitamin_b12": "Essential for energy production, nerve function, and red blood cell formation.",
+    "omega_3": "EPA and DHA fatty acids - supports heart, brain, and reduces inflammation.",
+    "creatine": "Most researched sports supplement - enhances strength, power, and cognitive function.",
+    "l_theanine": "Amino acid from tea - promotes calm focus without drowsiness.",
+    "caffeine": "Natural stimulant - improves alertness, focus, and exercise performance.",
+    "ashwagandha": "Adaptogenic herb - helps body manage stress and supports hormonal balance.",
+    "melatonin": "Sleep hormone - helps regulate circadian rhythm and improve sleep onset.",
+    "glycine": "Amino acid - improves sleep quality and supports collagen production.",
+    "vitamin_c": "Powerful antioxidant - supports immune function and collagen synthesis.",
+    "zinc": "Essential mineral - crucial for immune function, wound healing, and protein synthesis.",
+    "coq10": "Cellular energy producer - supports heart health and energy metabolism.",
+    "lions_mane": "Medicinal mushroom - supports cognitive function and nerve growth factor.",
+    "nac": "Precursor to glutathione - powerful antioxidant and liver support.",
+    "vitamin_k2": "Directs calcium to bones - works synergistically with Vitamin D3.",
+    "l_citrulline": "Amino acid - boosts nitric oxide for improved blood flow and performance.",
+    "electrolytes": "Essential minerals - maintain hydration and support muscle function.",
+    "blackseed_oil": "Traditional remedy - supports immune function with thymoquinone.",
+    "apigenin": "Flavonoid from chamomile - promotes relaxation and sleep.",
+    "magnesium_l_threonate": "Brain-penetrating magnesium - supports cognitive function and memory.",
+}
+
+
 @dataclass
 class MixComponent:
     """A supplement in a mix with its dose multiplier."""
@@ -538,6 +564,7 @@ class MixEngine:
             supplements.append({
                 "supplement_id": component.supplement_id,
                 "name": config.name,
+                "description": SUPPLEMENT_DESCRIPTIONS.get(component.supplement_id, "A dietary supplement for health optimization."),
                 "dose": round(final_dose, 1),
                 "unit": config.unit,
                 "standard_dose": config.standard_dose,

@@ -522,13 +522,21 @@
         .supplement-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
+            align-items: flex-start;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 12px;
         }
 
         .supplement-item:last-child {
             border-bottom: none;
+        }
+
+        .supplement-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
         }
 
         .supplement-name {
@@ -537,9 +545,18 @@
             color: #E8E8E8;
         }
 
+        .supplement-description {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
         .supplement-dose {
             color: #A78BFA;
             font-weight: 600;
+            white-space: nowrap;
+            padding-top: 2px;
         }
 
         .modal-warning {
@@ -2333,7 +2350,10 @@
                 <div class="supplement-list">
                     ${supplements.map(s => `
                         <div class="supplement-item">
-                            <span class="supplement-name">${s.name}</span>
+                            <div class="supplement-info">
+                                <span class="supplement-name">${s.name}</span>
+                                <span class="supplement-description">${s.description || ''}</span>
+                            </div>
                             <span class="supplement-dose">${s.dose}${s.unit}</span>
                         </div>
                         ${s.intelligence_notes && s.intelligence_notes.length > 0 ? `
@@ -2549,19 +2569,23 @@
             }
 
             content.innerHTML = items.map(s => {
+                const pct = s.saturation_percentage || 0;
                 const circumference = 2 * Math.PI * 32;
-                const offset = circumference - (s.saturation_pct / 100) * circumference;
+                const offset = circumference - (pct / 100) * circumference;
                 let progressClass = '';
                 let statusClass = '';
                 let statusText = '';
 
-                if (s.saturation_pct >= 100) {
+                if (pct >= 100) {
                     statusClass = 'saturated';
                     statusText = 'Fully saturated';
-                } else if (s.trend === 'building') {
+                } else if (s.status === 'building' || s.consecutive_days > 0) {
                     progressClass = 'building';
                     statusClass = 'building';
-                    statusText = `Building (${s.days_consistent} days consistent)`;
+                    statusText = `Building (${s.consecutive_days} days) - ${s.days_to_saturate - s.consecutive_days} days to full`;
+                } else if (s.status === 'not_started') {
+                    statusClass = '';
+                    statusText = `Not started - ${s.days_to_saturate} days to saturate`;
                 } else {
                     progressClass = 'decaying';
                     statusClass = 'decaying';
@@ -2577,7 +2601,7 @@
                                     stroke-dasharray="${circumference}"
                                     stroke-dashoffset="${offset}"></circle>
                             </svg>
-                            <div class="saturation-pct">${Math.round(s.saturation_pct)}%</div>
+                            <div class="saturation-pct">${Math.round(pct)}%</div>
                         </div>
                         <div class="saturation-info">
                             <div class="saturation-name">${s.name}</div>

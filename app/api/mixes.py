@@ -20,6 +20,7 @@ rules = RulesEngine()
 class MixSupplement(BaseModel):
     supplement_id: str
     name: str
+    description: Optional[str] = None
     dose: float
     unit: str
     standard_dose: float
