@@ -229,6 +229,43 @@
             white-space: nowrap;
         }
 
+        .tab-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            border: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.2);
+            color: #fff;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+        }
+
         .dispense-btn.dispensed {
             background: rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.5);
@@ -424,18 +461,41 @@
         <!-- Health Data -->
         <div class="card" id="health-section">
             <h2>2. Health Data</h2>
-            <p style="margin-bottom: 16px; color: rgba(255,255,255,0.7);">Simulate different health scenarios:</p>
 
-            <div class="form-row">
-                <select id="scenario">
-                    <option value="average">Average Day</option>
-                    <option value="poor_sleep">Poor Sleep</option>
-                    <option value="high_strain">High Strain (Workout)</option>
-                    <option value="stressed">Stressed</option>
-                    <option value="recovering">Recovering Well</option>
-                    <option value="random">Random</option>
-                </select>
-                <button onclick="loadHealthData()">Load Scenario</button>
+            <!-- Tab selector -->
+            <div class="tab-selector" style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <button class="tab-btn active" onclick="selectTab('mock')">Simulate Data</button>
+                <button class="tab-btn" onclick="selectTab('csv')">Upload Oura CSV</button>
+            </div>
+
+            <!-- Mock data tab -->
+            <div id="tab-mock">
+                <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Test with simulated health scenarios:</p>
+                <div class="form-row">
+                    <select id="scenario">
+                        <option value="average">Average Day</option>
+                        <option value="poor_sleep">Poor Sleep</option>
+                        <option value="high_strain">High Strain (Workout)</option>
+                        <option value="stressed">Stressed</option>
+                        <option value="recovering">Recovering Well</option>
+                        <option value="random">Random</option>
+                    </select>
+                    <button onclick="loadHealthData()">Load Scenario</button>
+                </div>
+            </div>
+
+            <!-- CSV upload tab -->
+            <div id="tab-csv" class="hidden">
+                <p style="margin-bottom: 12px; color: rgba(255,255,255,0.7);">Upload your Oura Ring data export:</p>
+                <div class="upload-area" id="upload-area" onclick="document.getElementById('csv-file').click()">
+                    <div class="upload-icon">📁</div>
+                    <div>Click or drag CSV file here</div>
+                    <div style="font-size: 0.85em; margin-top: 8px; color: rgba(255,255,255,0.5);">
+                        Export from: Oura Web → Profile → Download My Data
+                    </div>
+                </div>
+                <input type="file" id="csv-file" accept=".csv" style="display: none;" onchange="handleCSVUpload(this)">
+                <div id="upload-status" class="hidden" style="margin-top: 12px; padding: 12px; border-radius: 8px;"></div>
             </div>
 
             <div id="health-metrics" class="health-metrics hidden">
@@ -504,6 +564,91 @@
         // Check for existing user on load
         if (currentUserId) {
             checkUser();
+        }
+
+        // Setup drag and drop for CSV upload
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadArea = document.getElementById('upload-area');
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if (file && file.name.endsWith('.csv')) {
+                        uploadCSVFile(file);
+                    } else {
+                        showStatus('Please upload a CSV file', 'error');
+                    }
+                });
+            }
+        });
+
+        function selectTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('tab-mock').classList.add('hidden');
+            document.getElementById('tab-csv').classList.add('hidden');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+        }
+
+        function handleCSVUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                uploadCSVFile(file);
+            }
+        }
+
+        async function uploadCSVFile(file) {
+            if (!currentUserId) {
+                showStatus('Please create a user first', 'error');
+                return;
+            }
+
+            const statusEl = document.getElementById('upload-status');
+            statusEl.classList.remove('hidden');
+            statusEl.style.background = 'rgba(0, 217, 255, 0.2)';
+            statusEl.style.color = '#00d9ff';
+            statusEl.textContent = 'Uploading and processing...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`/upload/${currentUserId}/oura-csv`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    statusEl.style.background = 'rgba(0, 255, 136, 0.2)';
+                    statusEl.style.color = '#00ff88';
+                    statusEl.textContent = `Success! Imported ${result.records_imported} records.`;
+
+                    // Display the latest health data
+                    if (result.latest_data) {
+                        displayHealthMetrics(result.latest_data);
+                    }
+                    showStatus(`Imported ${result.records_imported} health records from CSV`, 'success');
+                } else {
+                    const err = await res.json();
+                    statusEl.style.background = 'rgba(255, 68, 68, 0.2)';
+                    statusEl.style.color = '#ff4444';
+                    statusEl.textContent = err.detail || 'Error processing CSV';
+                }
+            } catch (e) {
+                statusEl.style.background = 'rgba(255, 68, 68, 0.2)';
+                statusEl.style.color = '#ff4444';
+                statusEl.textContent = 'Upload failed: ' + e.message;
+            }
         }
 
         async function checkUser() {

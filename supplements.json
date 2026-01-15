@@ -9,9 +9,11 @@
       "time_windows": ["morning"],
       "triggers": {
         "low_energy": true,
-        "low_sunlight": true
+        "low_sunlight": true,
+        "immune_support": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "Examine.com: 1000-5000 IU/day for most adults. Higher end for deficiency."
     },
     {
       "id": "magnesium_glycinate",
@@ -23,9 +25,11 @@
       "triggers": {
         "poor_sleep": true,
         "high_stress": true,
-        "low_hrv": true
+        "low_hrv": true,
+        "muscle_recovery": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "NIH RDA: 400-420mg men, 310-320mg women. Glycinate form best for sleep/absorption."
     },
     {
       "id": "vitamin_b12",
@@ -38,115 +42,131 @@
         "low_energy": true,
         "high_strain": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "NIH RDA: 2.4mcg. Supplemental doses 500-1000mcg for absorption efficiency."
     },
     {
       "id": "omega_3",
-      "name": "Omega-3",
+      "name": "Omega-3 (EPA/DHA)",
       "unit": "mg",
-      "max_daily_dose": 2000,
-      "standard_dose": 1000,
+      "max_daily_dose": 3000,
+      "standard_dose": 2000,
       "time_windows": ["morning"],
       "triggers": {
-        "high_inflammation": true
+        "high_inflammation": true,
+        "high_strain": true,
+        "low_hrv": true
       },
-      "contraindications": ["fish_allergy"]
+      "contraindications": ["fish_allergy", "blood_thinners"],
+      "evidence": "AHA: 1000mg EPA+DHA for heart health. Studies show 2-3g for inflammation."
     },
     {
       "id": "vitamin_c",
       "name": "Vitamin C",
       "unit": "mg",
-      "max_daily_dose": 1000,
-      "standard_dose": 500,
+      "max_daily_dose": 2000,
+      "standard_dose": 1000,
       "time_windows": ["morning", "afternoon", "evening"],
       "triggers": {
         "high_strain": true,
         "recovery_needed": true,
-        "illness": true
+        "illness": true,
+        "immune_support": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "NIH RDA: 90mg men, 75mg women. Upper limit 2000mg. Higher doses for illness."
     },
     {
       "id": "zinc",
       "name": "Zinc",
       "unit": "mg",
-      "max_daily_dose": 30,
+      "max_daily_dose": 40,
       "standard_dose": 15,
       "time_windows": ["evening"],
       "triggers": {
         "poor_recovery": true,
-        "illness": true
+        "illness": true,
+        "immune_support": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "NIH RDA: 11mg men, 8mg women. Upper limit 40mg. Don't combine with copper."
     },
     {
       "id": "electrolytes",
       "name": "Electrolytes",
       "unit": "serving",
-      "max_daily_dose": 2,
+      "max_daily_dose": 3,
       "standard_dose": 1,
       "time_windows": ["morning", "afternoon"],
       "triggers": {
         "high_strain": true,
         "dehydration": true
       },
-      "contraindications": []
+      "contraindications": ["kidney_disease"],
+      "evidence": "Replace sodium/potassium/magnesium lost through sweat during exercise."
     },
     {
       "id": "l_theanine",
       "name": "L-Theanine",
       "unit": "mg",
-      "max_daily_dose": 200,
-      "standard_dose": 100,
-      "time_windows": ["morning"],
+      "max_daily_dose": 400,
+      "standard_dose": 200,
+      "time_windows": ["morning", "afternoon", "evening"],
       "triggers": {
         "high_stress": true,
-        "low_hrv": true
+        "low_hrv": true,
+        "poor_sleep": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "Examine.com: 100-200mg for relaxation. Synergistic with caffeine for focus."
     },
     {
       "id": "melatonin",
       "name": "Melatonin",
       "unit": "mg",
-      "max_daily_dose": 3,
-      "standard_dose": 1,
+      "max_daily_dose": 5,
+      "standard_dose": 0.5,
       "time_windows": ["evening"],
       "triggers": {
         "poor_sleep_onset": true,
         "poor_sleep": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "Research shows 0.3-1mg often more effective than higher doses. Start low."
     },
     {
       "id": "blackseed_oil",
-      "name": "Blackseed Oil",
+      "name": "Blackseed Oil (Nigella Sativa)",
       "unit": "mg",
-      "max_daily_dose": 1000,
-      "standard_dose": 500,
+      "max_daily_dose": 3000,
+      "standard_dose": 1000,
       "time_windows": ["morning", "afternoon", "evening"],
       "triggers": {
         "illness": true,
-        "immune_support": true
+        "immune_support": true,
+        "high_inflammation": true
       },
-      "contraindications": []
+      "contraindications": ["blood_thinners"],
+      "evidence": "Studies: 1-3g/day for immune support. Active compound thymoquinone."
     },
     {
       "id": "caffeine",
       "name": "Caffeine",
       "unit": "mg",
-      "max_daily_dose": 200,
+      "max_daily_dose": 400,
       "standard_dose": 100,
       "time_windows": ["morning"],
       "triggers": {
         "low_sleep_score": true,
-        "fatigue": true
+        "fatigue": true,
+        "low_energy": true
       },
-      "contraindications": ["caffeine_sensitivity"]
+      "contraindications": ["caffeine_sensitivity", "anxiety"],
+      "evidence": "FDA: Up to 400mg/day safe for adults. Avoid within 6hrs of sleep."
     },
     {
       "id": "creatine",
-      "name": "Creatine",
+      "name": "Creatine Monohydrate",
       "unit": "g",
       "max_daily_dose": 5,
       "standard_dose": 5,
@@ -155,20 +175,141 @@
         "high_strain": true,
         "muscle_recovery": true
       },
-      "contraindications": []
+      "contraindications": ["kidney_disease"],
+      "evidence": "Most studied supplement. 3-5g/day for saturation. No loading needed."
     },
     {
       "id": "glycine",
       "name": "Glycine",
       "unit": "g",
-      "max_daily_dose": 3,
+      "max_daily_dose": 5,
       "standard_dose": 3,
       "time_windows": ["evening"],
       "triggers": {
         "poor_sleep_quality": true,
         "sleep_optimization": true
       },
-      "contraindications": []
+      "contraindications": [],
+      "evidence": "Studies: 3g before bed improves sleep quality and reduces fatigue."
+    },
+    {
+      "id": "ashwagandha",
+      "name": "Ashwagandha (KSM-66)",
+      "unit": "mg",
+      "max_daily_dose": 600,
+      "standard_dose": 300,
+      "time_windows": ["morning", "evening"],
+      "triggers": {
+        "high_stress": true,
+        "low_hrv": true,
+        "poor_recovery": true,
+        "fatigue": true
+      },
+      "contraindications": ["thyroid_medication", "autoimmune"],
+      "evidence": "Meta-analysis: 300-600mg/day reduces cortisol 14-28%. KSM-66 most studied."
+    },
+    {
+      "id": "coq10",
+      "name": "CoQ10 (Ubiquinol)",
+      "unit": "mg",
+      "max_daily_dose": 300,
+      "standard_dose": 100,
+      "time_windows": ["morning"],
+      "triggers": {
+        "low_energy": true,
+        "high_strain": true,
+        "muscle_recovery": true
+      },
+      "contraindications": ["blood_thinners"],
+      "evidence": "Examine.com: 100-200mg/day. Ubiquinol form better absorbed than ubiquinone."
+    },
+    {
+      "id": "l_citrulline",
+      "name": "L-Citrulline",
+      "unit": "g",
+      "max_daily_dose": 10,
+      "standard_dose": 6,
+      "time_windows": ["morning", "afternoon"],
+      "triggers": {
+        "high_strain": true,
+        "muscle_recovery": true,
+        "dehydration": true
+      },
+      "contraindications": ["blood_pressure_medication"],
+      "evidence": "Studies: 6-8g for exercise performance. Converts to arginine for NO production."
+    },
+    {
+      "id": "lions_mane",
+      "name": "Lion's Mane",
+      "unit": "mg",
+      "max_daily_dose": 3000,
+      "standard_dose": 1000,
+      "time_windows": ["morning", "afternoon"],
+      "triggers": {
+        "low_energy": true,
+        "high_stress": true
+      },
+      "contraindications": [],
+      "evidence": "Studies: 500-3000mg/day for cognitive support. NGF stimulation."
+    },
+    {
+      "id": "nac",
+      "name": "NAC (N-Acetyl Cysteine)",
+      "unit": "mg",
+      "max_daily_dose": 1800,
+      "standard_dose": 600,
+      "time_windows": ["morning", "evening"],
+      "triggers": {
+        "illness": true,
+        "immune_support": true,
+        "high_inflammation": true,
+        "poor_recovery": true
+      },
+      "contraindications": [],
+      "evidence": "Studies: 600-1800mg/day. Glutathione precursor. Take away from protein."
+    },
+    {
+      "id": "vitamin_k2",
+      "name": "Vitamin K2 (MK-7)",
+      "unit": "mcg",
+      "max_daily_dose": 200,
+      "standard_dose": 100,
+      "time_windows": ["morning"],
+      "triggers": {
+        "low_sunlight": true
+      },
+      "contraindications": ["blood_thinners"],
+      "evidence": "Synergistic with D3 for calcium metabolism. 100-200mcg MK-7 form."
+    },
+    {
+      "id": "magnesium_l_threonate",
+      "name": "Magnesium L-Threonate",
+      "unit": "mg",
+      "max_daily_dose": 2000,
+      "standard_dose": 1000,
+      "time_windows": ["evening"],
+      "triggers": {
+        "high_stress": true,
+        "poor_sleep": true,
+        "low_hrv": true
+      },
+      "contraindications": [],
+      "evidence": "MIT-developed form crosses blood-brain barrier. 1-2g for cognitive/sleep."
+    },
+    {
+      "id": "apigenin",
+      "name": "Apigenin",
+      "unit": "mg",
+      "max_daily_dose": 100,
+      "standard_dose": 50,
+      "time_windows": ["evening"],
+      "triggers": {
+        "poor_sleep": true,
+        "high_stress": true,
+        "sleep_optimization": true
+      },
+      "contraindications": [],
+      "evidence": "Huberman protocol: 50mg before bed. Natural compound from chamomile."
     }
   ]
 }
