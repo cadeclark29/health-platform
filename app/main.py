@@ -49,3 +49,14 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+@app.get("/debug/config")
+async def debug_config():
+    from app.config import get_settings
+    settings = get_settings()
+    return {
+        "openai_key_set": bool(settings.openai_api_key),
+        "openai_key_prefix": settings.openai_api_key[:10] + "..." if settings.openai_api_key else None,
+        "openai_key_length": len(settings.openai_api_key) if settings.openai_api_key else 0
+    }
