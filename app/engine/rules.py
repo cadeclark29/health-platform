@@ -154,8 +154,24 @@ class RulesEngine:
         "illness": {"metric": "user_reported", "threshold": None, "comparison": None, "description": "User-reported illness"},
     }
 
-    def analyze_health_triggers(self, health_data: dict) -> Dict[str, bool]:
-        """Analyze health data and determine which triggers are active."""
+    def analyze_health_triggers(
+        self,
+        health_data: dict,
+        baseline: Optional[dict] = None,
+        checkin: Optional[dict] = None
+    ) -> Dict[str, bool]:
+        """
+        Analyze health data and determine which triggers are active.
+
+        Args:
+            health_data: Current health metrics from wearables
+            baseline: User's personal baseline (if available)
+            checkin: Today's check-in data (subjective reports)
+
+        If baseline is provided, uses personalized thresholds based on
+        deviation from the user's normal. Otherwise falls back to
+        population-based fixed thresholds.
+        """
         triggers = {}
 
         sleep_score = health_data.get("sleep_score")
@@ -164,42 +180,176 @@ class RulesEngine:
         strain_score = health_data.get("strain_score")
         sleep_duration = health_data.get("sleep_duration_hrs")
 
-        # Sleep-related triggers
-        if sleep_score is not None:
-            triggers["poor_sleep"] = sleep_score < 60
-            triggers["poor_sleep_quality"] = sleep_score < 65
-            triggers["poor_sleep_onset"] = sleep_score < 55
-            triggers["low_sleep_score"] = sleep_score < 60
-            triggers["sleep_optimization"] = sleep_score < 80
+        # Use personalized thresholds if baseline available
+        if baseline:
+            triggers.update(self._analyze_with_baseline(health_data, baseline))
+        else:
+            # Fallback to fixed thresholds
+            # Sleep-related triggers
+            if sleep_score is not None:
+                triggers["poor_sleep"] = sleep_score < 60
+                triggers["poor_sleep_quality"] = sleep_score < 65
+                triggers["poor_sleep_onset"] = sleep_score < 55
+                triggers["low_sleep_score"] = sleep_score < 60
+                triggers["sleep_optimization"] = sleep_score < 80
 
-        if sleep_duration is not None:
-            triggers["fatigue"] = sleep_duration < 6
+            if sleep_duration is not None:
+                triggers["fatigue"] = sleep_duration < 6
 
-        # Stress/HRV triggers
-        if hrv_score is not None:
-            triggers["low_hrv"] = hrv_score < 50
-            triggers["high_stress"] = hrv_score < 45
+            # Stress/HRV triggers
+            if hrv_score is not None:
+                triggers["low_hrv"] = hrv_score < 50
+                triggers["high_stress"] = hrv_score < 45
 
-        # Recovery triggers
-        if recovery_score is not None:
-            triggers["poor_recovery"] = recovery_score < 55
-            triggers["recovery_needed"] = recovery_score < 60
-            triggers["muscle_recovery"] = recovery_score < 70
+            # Recovery triggers
+            if recovery_score is not None:
+                triggers["poor_recovery"] = recovery_score < 55
+                triggers["recovery_needed"] = recovery_score < 60
+                triggers["muscle_recovery"] = recovery_score < 70
 
-        # Strain triggers
-        if strain_score is not None:
-            triggers["high_strain"] = strain_score > 70
-            triggers["dehydration"] = strain_score > 75
+            # Strain triggers
+            if strain_score is not None:
+                triggers["high_strain"] = strain_score > 70
+                triggers["dehydration"] = strain_score > 75
 
-        # Energy triggers (composite)
-        if sleep_score is not None and recovery_score is not None:
-            triggers["low_energy"] = (sleep_score + recovery_score) / 2 < 60
+            # Energy triggers (composite)
+            if sleep_score is not None and recovery_score is not None:
+                triggers["low_energy"] = (sleep_score + recovery_score) / 2 < 60
+
+            triggers["high_inflammation"] = strain_score > 60 if strain_score else False
+
+        # Check-in based triggers (subjective reports override objective data)
+        if checkin:
+            stress_level = checkin.get("stress_level")
+            energy_level = checkin.get("energy_level")
+            sleep_quality = checkin.get("sleep_quality")
+
+            # User reports high stress (4 or 5) - trigger regardless of HRV
+            if stress_level is not None and stress_level >= 4:
+                triggers["high_stress"] = True
+                triggers["low_hrv"] = True  # Treat reported stress same as low HRV
+
+            # User reports low energy (1 or 2)
+            if energy_level is not None and energy_level <= 2:
+                triggers["low_energy"] = True
+                triggers["fatigue"] = True
+
+            # User reports poor sleep (1 or 2)
+            if sleep_quality is not None and sleep_quality <= 2:
+                triggers["poor_sleep"] = True
+                triggers["poor_sleep_quality"] = True
 
         # Default triggers (can be enabled by user or time-based)
         triggers["immune_support"] = False  # User can enable
         triggers["illness"] = False  # User can report
         triggers["low_sunlight"] = True  # Assume yes for supplement recommendation
-        triggers["high_inflammation"] = strain_score > 60 if strain_score else False
+
+        return triggers
+
+    def _analyze_with_baseline(self, health_data: dict, baseline: dict) -> Dict[str, bool]:
+        """
+        Analyze triggers using personal baseline instead of fixed thresholds.
+
+        A metric triggers an alert if it's significantly below the user's
+        personal average (more than 1 standard deviation).
+        """
+        triggers = {}
+
+        def is_significantly_low(current, mean, std, metric_name):
+            """Check if current value is significantly below personal baseline."""
+            if current is None or mean is None:
+                return False
+            if std is None or std == 0:
+                # No variance data, use 15% threshold
+                return current < (mean * 0.85)
+            # More than 1 std deviation below mean
+            return current < (mean - std)
+
+        def is_significantly_high(current, mean, std):
+            """Check if current value is significantly above personal baseline."""
+            if current is None or mean is None:
+                return False
+            if std is None or std == 0:
+                return current > (mean * 1.15)
+            return current > (mean + std)
+
+        sleep_score = health_data.get("sleep_score")
+        hrv_score = health_data.get("hrv_score")
+        recovery_score = health_data.get("recovery_score")
+        strain_score = health_data.get("strain_score")
+        sleep_duration = health_data.get("sleep_duration_hrs")
+
+        # Get baseline values
+        sleep_baseline = baseline.get("sleep_score", {})
+        hrv_baseline = baseline.get("hrv", {})
+        recovery_baseline = baseline.get("recovery_score", {})
+        strain_baseline = baseline.get("strain_score", {})
+        sleep_dur_baseline = baseline.get("sleep_duration", {})
+
+        # Sleep triggers - below personal baseline
+        if sleep_score is not None:
+            is_low = is_significantly_low(
+                sleep_score,
+                sleep_baseline.get("mean"),
+                sleep_baseline.get("std"),
+                "sleep"
+            )
+            triggers["poor_sleep"] = is_low
+            triggers["poor_sleep_quality"] = is_low
+            triggers["low_sleep_score"] = is_low
+            triggers["sleep_optimization"] = sleep_score < (sleep_baseline.get("mean", 80) * 0.95) if sleep_baseline.get("mean") else sleep_score < 80
+
+        # HRV triggers - below personal baseline indicates stress
+        if hrv_score is not None:
+            is_low = is_significantly_low(
+                hrv_score,
+                hrv_baseline.get("mean"),
+                hrv_baseline.get("std"),
+                "hrv"
+            )
+            triggers["low_hrv"] = is_low
+            triggers["high_stress"] = is_low
+
+        # Recovery triggers
+        if recovery_score is not None:
+            is_low = is_significantly_low(
+                recovery_score,
+                recovery_baseline.get("mean"),
+                recovery_baseline.get("std"),
+                "recovery"
+            )
+            triggers["poor_recovery"] = is_low
+            triggers["recovery_needed"] = is_low
+            triggers["muscle_recovery"] = is_low
+
+        # Strain triggers - above personal baseline
+        if strain_score is not None:
+            is_high = is_significantly_high(
+                strain_score,
+                strain_baseline.get("mean"),
+                strain_baseline.get("std")
+            )
+            triggers["high_strain"] = is_high
+            triggers["dehydration"] = is_high
+            triggers["high_inflammation"] = is_high
+
+        # Sleep duration
+        if sleep_duration is not None:
+            is_low = is_significantly_low(
+                sleep_duration,
+                sleep_dur_baseline.get("mean"),
+                sleep_dur_baseline.get("std"),
+                "sleep_duration"
+            )
+            triggers["fatigue"] = is_low
+
+        # Energy composite
+        if sleep_score is not None and recovery_score is not None:
+            sleep_mean = sleep_baseline.get("mean", 70)
+            recovery_mean = recovery_baseline.get("mean", 70)
+            personal_energy_baseline = (sleep_mean + recovery_mean) / 2
+            current_energy = (sleep_score + recovery_score) / 2
+            triggers["low_energy"] = current_energy < (personal_energy_baseline * 0.85)
 
         return triggers
 

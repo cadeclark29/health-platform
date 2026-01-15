@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, JSON
+from sqlalchemy import Column, String, DateTime, JSON, Integer, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -14,6 +14,12 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # Profile information for dosing
+    age = Column(Integer, nullable=True)
+    sex = Column(String, nullable=True)  # "male", "female", "other"
+    height_cm = Column(Float, nullable=True)
+    weight_kg = Column(Float, nullable=True)
+
     # User preferences and constraints
     allergies = Column(JSON, default=list)  # List of allergens
     medications = Column(JSON, default=list)  # Current medications
@@ -26,3 +32,5 @@ class User(Base):
     # Relationships
     health_data = relationship("HealthData", back_populates="user", cascade="all, delete-orphan")
     dispense_logs = relationship("DispenseLog", back_populates="user", cascade="all, delete-orphan")
+    check_ins = relationship("DailyCheckIn", back_populates="user", cascade="all, delete-orphan")
+    baseline = relationship("UserBaseline", back_populates="user", uselist=False, cascade="all, delete-orphan")

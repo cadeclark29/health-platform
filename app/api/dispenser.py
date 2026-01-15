@@ -44,6 +44,8 @@ class DispenseResponse(BaseModel):
     recommendations: List[SupplementRecommendation]
     reasoning: str
     active_triggers: List[str]
+    using_baseline: Optional[bool] = False
+    has_checkin: Optional[bool] = False
 
 
 class DispenseConfirm(BaseModel):
@@ -89,7 +91,9 @@ async def get_dispense_recommendation(
             SupplementRecommendation(**rec) for rec in result["recommendations"]
         ],
         reasoning=result.get("reasoning", ""),
-        active_triggers=result.get("active_triggers", [])
+        active_triggers=result.get("active_triggers", []),
+        using_baseline=result.get("using_baseline", False),
+        has_checkin=result.get("has_checkin", False)
     )
 
 

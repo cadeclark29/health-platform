@@ -15,6 +15,10 @@ router = APIRouter()
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
+    age: Optional[int] = None
+    sex: Optional[str] = None  # "male", "female", "other"
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
     allergies: List[str] = []
     medications: List[str] = []
     goals: List[str] = []
@@ -22,6 +26,10 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
+    age: Optional[int] = None
+    sex: Optional[str] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
     allergies: Optional[List[str]] = None
     medications: Optional[List[str]] = None
     goals: Optional[List[str]] = None
@@ -31,11 +39,16 @@ class UserResponse(BaseModel):
     id: str
     name: str
     email: str
+    age: Optional[int]
+    sex: Optional[str]
+    height_cm: Optional[float]
+    weight_kg: Optional[float]
     allergies: List[str]
     medications: List[str]
     goals: List[str]
     has_oura: bool
     has_whoop: bool
+    has_baseline: bool
 
     class Config:
         from_attributes = True
@@ -56,6 +69,10 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     user = User(
         name=user_data.name,
         email=user_data.email,
+        age=user_data.age,
+        sex=user_data.sex,
+        height_cm=user_data.height_cm,
+        weight_kg=user_data.weight_kg,
         allergies=user_data.allergies,
         medications=user_data.medications,
         goals=user_data.goals
@@ -96,6 +113,14 @@ def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_d
 
     if user_data.name is not None:
         user.name = user_data.name
+    if user_data.age is not None:
+        user.age = user_data.age
+    if user_data.sex is not None:
+        user.sex = user_data.sex
+    if user_data.height_cm is not None:
+        user.height_cm = user_data.height_cm
+    if user_data.weight_kg is not None:
+        user.weight_kg = user_data.weight_kg
     if user_data.allergies is not None:
         user.allergies = user_data.allergies
     if user_data.medications is not None:
@@ -127,11 +152,16 @@ def _user_to_response(user: User) -> UserResponse:
         id=user.id,
         name=user.name,
         email=user.email,
+        age=user.age,
+        sex=user.sex,
+        height_cm=user.height_cm,
+        weight_kg=user.weight_kg,
         allergies=user.allergies or [],
         medications=user.medications or [],
         goals=user.goals or [],
         has_oura=user.oura_token is not None,
-        has_whoop=user.whoop_token is not None
+        has_whoop=user.whoop_token is not None,
+        has_baseline=user.baseline is not None
     )
 
 

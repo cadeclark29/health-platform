@@ -1,7 +1,8 @@
 from datetime import datetime, date
+from typing import Optional, Dict
 from sqlalchemy.orm import Session
 
-from app.models import User, HealthData, DispenseLog
+from app.models import User, HealthData, DispenseLog, DailyCheckIn
 from .rules import RulesEngine
 from .llm import LLMPersonalizer
 
@@ -22,6 +23,9 @@ class RecommendationEngine:
         """
         Generate a personalized supplement recommendation for a user.
 
+        Uses personal baselines when available for more accurate triggers.
+        Incorporates daily check-in data (subjective reports).
+
         Args:
             user: The user to generate recommendations for
             db: Database session
@@ -36,10 +40,16 @@ class RecommendationEngine:
         # Step 2: Get user's latest health data
         health_data = self._get_latest_health_data(user.id, db)
 
-        # Step 3: Get what's been dispensed today
+        # Step 3: Get user's personal baseline (if calculated)
+        baseline = self._get_user_baseline(user, db)
+
+        # Step 4: Get today's check-in (subjective reports)
+        checkin = self._get_todays_checkin(user.id, db)
+
+        # Step 5: Get what's been dispensed today
         dispensed_today = self._get_dispensed_today(user.id, db)
 
-        # Step 4: Get available supplements (filtered by rules)
+        # Step 6: Get available supplements (filtered by rules)
         available = self.rules.get_available_supplements(
             time_of_day=time_of_day,
             user_allergies=user.allergies or [],
@@ -51,11 +61,16 @@ class RecommendationEngine:
                 "recommendations": [],
                 "reasoning": f"No supplements available for {time_of_day} (daily limits reached or time restrictions)",
                 "time_of_day": time_of_day,
-                "health_snapshot": health_data
+                "health_snapshot": health_data,
+                "using_baseline": baseline is not None
             }
 
-        # Step 5: Analyze health triggers
-        active_triggers = self.rules.analyze_health_triggers(health_data)
+        # Step 7: Analyze health triggers (using personal baseline if available)
+        active_triggers = self.rules.analyze_health_triggers(
+            health_data,
+            baseline=baseline,
+            checkin=checkin
+        )
 
         # Step 6: Prepare supplements with remaining doses for LLM
         supplements_for_llm = []
@@ -124,8 +139,30 @@ class RecommendationEngine:
             "reasoning": llm_result.get("reasoning", ""),
             "time_of_day": time_of_day,
             "health_snapshot": health_data,
-            "active_triggers": [k for k, v in active_triggers.items() if v]
+            "active_triggers": [k for k, v in active_triggers.items() if v],
+            "using_baseline": baseline is not None,
+            "has_checkin": checkin is not None
         }
+
+    def _get_user_baseline(self, user: User, db: Session) -> Optional[Dict]:
+        """Get user's personal baseline as a dict, if calculated."""
+        from app.models import UserBaseline
+        baseline = db.query(UserBaseline).filter(UserBaseline.user_id == user.id).first()
+        if baseline:
+            return baseline.to_dict()
+        return None
+
+    def _get_todays_checkin(self, user_id: str, db: Session) -> Optional[Dict]:
+        """Get today's check-in data for the user."""
+        today = date.today()
+        checkin = db.query(DailyCheckIn).filter(
+            DailyCheckIn.user_id == user_id,
+            DailyCheckIn.check_in_date == today
+        ).first()
+
+        if checkin:
+            return checkin.to_dict()
+        return None
 
     def _get_latest_health_data(self, user_id: str, db: Session) -> dict:
         """Get the most recent health data for a user."""

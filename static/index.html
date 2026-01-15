@@ -758,6 +758,92 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Check-in and Profile Styles */
+        .checkin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .checkin-item {
+            text-align: center;
+        }
+
+        .checkin-label {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .rating-buttons {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .rating-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.9em;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .rating-btn:hover {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: rgba(0, 217, 255, 0.5);
+        }
+
+        .rating-btn.selected {
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+            border-color: transparent;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .profile-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .profile-field label {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .profile-field input, .profile-field select {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .baseline-status {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .baseline-status.calculated {
+            border-left: 3px solid #00ff88;
+        }
+
+        .baseline-status.pending {
+            border-left: 3px solid #ffaa00;
+        }
     </style>
 </head>
 <body>
@@ -793,9 +879,104 @@
             <div id="has-user" class="hidden">
                 <div class="user-info">
                     <div>Logged in as: <span id="display-name"></span></div>
+                    <button class="btn-secondary" onclick="toggleProfile()">Edit Profile</button>
                     <button class="btn-secondary" onclick="logout()">Switch User</button>
                 </div>
+
+                <!-- Profile Editor (hidden by default) -->
+                <div id="profile-editor" class="hidden" style="margin-top: 16px;">
+                    <div class="profile-grid">
+                        <div class="profile-field">
+                            <label>Age</label>
+                            <input type="number" id="profile-age" placeholder="Age">
+                        </div>
+                        <div class="profile-field">
+                            <label>Sex</label>
+                            <select id="profile-sex">
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="profile-field">
+                            <label>Height (cm)</label>
+                            <input type="number" id="profile-height" placeholder="180">
+                        </div>
+                        <div class="profile-field">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="profile-weight" placeholder="75">
+                        </div>
+                    </div>
+                    <button onclick="saveProfile()" style="margin-top: 12px;">Save Profile</button>
+
+                    <div id="baseline-status" class="baseline-status pending">
+                        <strong>Baseline Status:</strong> <span id="baseline-text">Not calculated yet</span>
+                        <button class="btn-secondary" onclick="calculateBaseline()" style="margin-left: 12px; padding: 6px 12px; font-size: 0.85em;">Calculate Baseline</button>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Daily Check-in -->
+        <div class="card" id="checkin-section">
+            <h2>Daily Check-in</h2>
+            <p style="margin-bottom: 16px; color: rgba(255,255,255,0.6); font-size: 0.9em;">How are you feeling today? This helps personalize your recommendations.</p>
+
+            <div class="checkin-grid">
+                <div class="checkin-item">
+                    <div class="checkin-label">Energy</div>
+                    <div class="rating-buttons" data-field="energy">
+                        <button class="rating-btn" data-value="1">1</button>
+                        <button class="rating-btn" data-value="2">2</button>
+                        <button class="rating-btn" data-value="3">3</button>
+                        <button class="rating-btn" data-value="4">4</button>
+                        <button class="rating-btn" data-value="5">5</button>
+                    </div>
+                </div>
+                <div class="checkin-item">
+                    <div class="checkin-label">Stress</div>
+                    <div class="rating-buttons" data-field="stress">
+                        <button class="rating-btn" data-value="1">1</button>
+                        <button class="rating-btn" data-value="2">2</button>
+                        <button class="rating-btn" data-value="3">3</button>
+                        <button class="rating-btn" data-value="4">4</button>
+                        <button class="rating-btn" data-value="5">5</button>
+                    </div>
+                </div>
+                <div class="checkin-item">
+                    <div class="checkin-label">Sleep</div>
+                    <div class="rating-buttons" data-field="sleep">
+                        <button class="rating-btn" data-value="1">1</button>
+                        <button class="rating-btn" data-value="2">2</button>
+                        <button class="rating-btn" data-value="3">3</button>
+                        <button class="rating-btn" data-value="4">4</button>
+                        <button class="rating-btn" data-value="5">5</button>
+                    </div>
+                </div>
+                <div class="checkin-item">
+                    <div class="checkin-label">Mood</div>
+                    <div class="rating-buttons" data-field="mood">
+                        <button class="rating-btn" data-value="1">1</button>
+                        <button class="rating-btn" data-value="2">2</button>
+                        <button class="rating-btn" data-value="3">3</button>
+                        <button class="rating-btn" data-value="4">4</button>
+                        <button class="rating-btn" data-value="5">5</button>
+                    </div>
+                </div>
+                <div class="checkin-item">
+                    <div class="checkin-label">Focus</div>
+                    <div class="rating-buttons" data-field="focus">
+                        <button class="rating-btn" data-value="1">1</button>
+                        <button class="rating-btn" data-value="2">2</button>
+                        <button class="rating-btn" data-value="3">3</button>
+                        <button class="rating-btn" data-value="4">4</button>
+                        <button class="rating-btn" data-value="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="submitCheckin()" style="width: 100%;">Save Check-in</button>
         </div>
 
         <!-- Health Data -->
@@ -1733,7 +1914,164 @@
         // Run on page load
         document.addEventListener('DOMContentLoaded', () => {
             checkOAuthCallback();
+            setupRatingButtons();
         });
+
+        // --- Check-in Functions ---
+
+        let checkinData = {
+            energy: null,
+            stress: null,
+            sleep: null,
+            mood: null,
+            focus: null
+        };
+
+        function setupRatingButtons() {
+            document.querySelectorAll('.rating-buttons').forEach(container => {
+                const field = container.dataset.field;
+                container.querySelectorAll('.rating-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Remove selected from siblings
+                        container.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+                        // Add selected to clicked
+                        btn.classList.add('selected');
+                        // Store value
+                        checkinData[field] = parseInt(btn.dataset.value);
+                    });
+                });
+            });
+        }
+
+        async function submitCheckin() {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+
+            // Check if at least one rating is selected
+            const hasRating = Object.values(checkinData).some(v => v !== null);
+            if (!hasRating) {
+                showStatus('Please rate at least one category', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/checkins/${currentUserId}/checkin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        energy_level: checkinData.energy,
+                        stress_level: checkinData.stress,
+                        sleep_quality: checkinData.sleep,
+                        mood: checkinData.mood,
+                        focus: checkinData.focus
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus('Check-in saved! Your recommendations will reflect how you feel.', 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error saving check-in', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // --- Profile Functions ---
+
+        function toggleProfile() {
+            const editor = document.getElementById('profile-editor');
+            editor.classList.toggle('hidden');
+            if (!editor.classList.contains('hidden')) {
+                loadProfile();
+            }
+        }
+
+        async function loadProfile() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/users/${currentUserId}`);
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('profile-age').value = user.age || '';
+                    document.getElementById('profile-sex').value = user.sex || '';
+                    document.getElementById('profile-height').value = user.height_cm || '';
+                    document.getElementById('profile-weight').value = user.weight_kg || '';
+
+                    // Update baseline status
+                    updateBaselineStatus(user.has_baseline);
+                }
+            } catch (e) {
+                console.error('Error loading profile:', e);
+            }
+        }
+
+        function updateBaselineStatus(hasBaseline) {
+            const statusEl = document.getElementById('baseline-status');
+            const textEl = document.getElementById('baseline-text');
+
+            if (hasBaseline) {
+                statusEl.classList.remove('pending');
+                statusEl.classList.add('calculated');
+                textEl.textContent = 'Calculated - using personalized thresholds';
+            } else {
+                statusEl.classList.remove('calculated');
+                statusEl.classList.add('pending');
+                textEl.textContent = 'Not calculated - add more health data first';
+            }
+        }
+
+        async function saveProfile() {
+            if (!currentUserId) return;
+
+            const data = {
+                age: parseInt(document.getElementById('profile-age').value) || null,
+                sex: document.getElementById('profile-sex').value || null,
+                height_cm: parseFloat(document.getElementById('profile-height').value) || null,
+                weight_kg: parseFloat(document.getElementById('profile-weight').value) || null
+            };
+
+            try {
+                const res = await fetch(`/users/${currentUserId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    showStatus('Profile saved!', 'success');
+                } else {
+                    showStatus('Error saving profile', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function calculateBaseline() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/checkins/${currentUserId}/baseline/calculate`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    updateBaselineStatus(true);
+                    showStatus(`Baseline calculated from ${result.data_points} data points!`, 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error calculating baseline', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
 
         // --- Progress Dashboard Functions ---
 
