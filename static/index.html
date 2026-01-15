@@ -2127,7 +2127,7 @@
         // Load mixes
         async function loadMixes() {
             try {
-                const res = await fetch('/mixes');
+                const res = await fetch('/mixes/available');
                 if (res.ok) {
                     availableMixes = await res.json();
                     renderMixCards();
@@ -2177,7 +2177,7 @@
             if (!currentUserId) return;
 
             try {
-                const res = await fetch(`/mixes/${currentUserId}/custom-blends`);
+                const res = await fetch(`/mixes/blends/${currentUserId}`);
                 if (res.ok) {
                     customBlends = await res.json();
                     renderCustomBlends();
@@ -2248,7 +2248,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/calculate/${mixId}?hour=${currentTime}&date_str=${dateStr}`);
+                const res = await fetch(`/mixes/${currentUserId}/${mixId}?hour=${currentTime}&date_str=${dateStr}`);
 
                 if (res.ok) {
                     currentMixData = await res.json();
@@ -2271,7 +2271,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/custom-blends/${blendId}/calculate?hour=${currentTime}&date_str=${dateStr}`);
+                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}/preview?hour=${currentTime}&date_str=${dateStr}`);
 
                 if (res.ok) {
                     currentMixData = await res.json();
@@ -2298,7 +2298,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/ai-recommendation?hour=${currentTime}&date_str=${dateStr}`);
+                const res = await fetch(`/mixes/${currentUserId}/smart?hour=${currentTime}&date_str=${dateStr}`);
 
                 if (res.ok) {
                     currentMixData = await res.json();
@@ -2379,11 +2379,10 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/dispense`, {
+                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.id}/dispense`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        mix_id: currentMixData.id,
                         supplements: currentMixData.supplements,
                         date_str: dateStr,
                         hour: currentTime
@@ -2534,7 +2533,7 @@
             if (!currentUserId) return;
 
             try {
-                const res = await fetch(`/mixes/${currentUserId}/saturation`);
+                const res = await fetch(`/mixes/${currentUserId}/tracking/saturation`);
                 if (res.ok) {
                     const data = await res.json();
                     renderSaturation(data);
@@ -2605,8 +2604,10 @@
             if (!currentUserId || scenario === 'none') return;
 
             try {
-                const res = await fetch(`/users/${currentUserId}/simulate/${scenario}`, {
-                    method: 'POST'
+                const res = await fetch(`/integrations/${currentUserId}/mock`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scenario: scenario })
                 });
 
                 if (res.ok) {
@@ -2657,9 +2658,10 @@
         // Load all supplements
         async function loadSupplements() {
             try {
-                const res = await fetch('/supplements');
+                const res = await fetch('/mixes/catalog');
                 if (res.ok) {
-                    allSupplements = await res.json();
+                    const data = await res.json();
+                    allSupplements = data.supplements || [];
                     renderCategories();
                 }
             } catch (e) {
@@ -2669,13 +2671,13 @@
 
         // Render categories
         function renderCategories() {
-            const categories = [...new Set(allSupplements.flatMap(s => s.categories || []))];
+            const categories = [...new Set(allSupplements.map(s => s.category).filter(Boolean))];
             const container = document.getElementById('supplement-categories');
 
             container.innerHTML = `
                 <button class="category-btn active" onclick="filterCategory('all')">All</button>
                 ${categories.map(cat => `
-                    <button class="category-btn" onclick="filterCategory('${cat}')">${cat}</button>
+                    <button class="category-btn" onclick="filterCategory('${cat}')">${cat.replace('_', ' ')}</button>
                 `).join('')}
             `;
         }
@@ -2694,7 +2696,7 @@
             let supplements = allSupplements;
 
             if (category !== 'all') {
-                supplements = allSupplements.filter(s => s.categories && s.categories.includes(category));
+                supplements = allSupplements.filter(s => s.category === category);
             }
 
             grid.innerHTML = supplements.map(s => `
@@ -2702,15 +2704,15 @@
                      onclick="toggleSupplement('${s.id}')">
                     <div class="supplement-card-header">
                         <span class="supplement-card-name">${s.name}</span>
-                        <span class="supplement-card-dose">${s.default_dose_mg}${s.unit}</span>
+                        <span class="supplement-card-dose">${s.standard_dose}${s.unit}</span>
                     </div>
                     <div class="supplement-card-desc">${s.description}</div>
                     <div class="supplement-card-benefits">
                         ${(s.benefits || []).slice(0, 3).map(b => `<span class="benefit-tag">${b}</span>`).join('')}
                     </div>
-                    ${s.pubmed_links && s.pubmed_links.length > 0 ? `
+                    ${s.pubmed_studies && s.pubmed_studies.length > 0 ? `
                         <div class="supplement-card-links">
-                            ${s.pubmed_links.slice(0, 2).map(link => `
+                            ${s.pubmed_studies.slice(0, 2).map(link => `
                                 <a href="${link.url}" target="_blank" class="pubmed-link" onclick="event.stopPropagation()">
                                     ${link.title.substring(0, 50)}...
                                 </a>
@@ -2732,10 +2734,10 @@
                 selectedSupplements[id] = {
                     supplement_id: id,
                     name: supp.name,
-                    dose_mg: supp.default_dose_mg,
+                    dose_mg: supp.standard_dose,
                     unit: supp.unit,
-                    min_dose_mg: supp.min_dose_mg,
-                    max_dose_mg: supp.max_dose_mg
+                    min_dose_mg: supp.standard_dose * 0.5,
+                    max_dose_mg: supp.max_daily_dose
                 };
             }
 
@@ -2801,7 +2803,7 @@
             listDiv.innerHTML = '<div class="ai-loading">Thinking</div>';
 
             try {
-                const res = await fetch('/mixes/ai/suggest-blend', {
+                const res = await fetch('/mixes/suggest-blend', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description: input })
@@ -2846,8 +2848,8 @@
                 name: suggestion.name,
                 dose_mg: suggestion.dose_mg,
                 unit: suggestion.unit,
-                min_dose_mg: supp.min_dose_mg,
-                max_dose_mg: supp.max_dose_mg
+                min_dose_mg: supp.standard_dose * 0.5,
+                max_dose_mg: supp.max_daily_dose
             };
 
             renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
@@ -2865,8 +2867,8 @@
                         name: s.name,
                         dose_mg: s.dose_mg,
                         unit: s.unit,
-                        min_dose_mg: supp.min_dose_mg,
-                        max_dose_mg: supp.max_dose_mg
+                        min_dose_mg: supp.standard_dose * 0.5,
+                        max_dose_mg: supp.max_daily_dose
                     };
                 }
             });
@@ -2893,7 +2895,7 @@
             }
 
             try {
-                const res = await fetch(`/mixes/${currentUserId}/custom-blends`, {
+                const res = await fetch(`/mixes/blends/${currentUserId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2925,7 +2927,7 @@
             if (!confirm('Delete this blend?')) return;
 
             try {
-                const res = await fetch(`/mixes/${currentUserId}/custom-blends/${blendId}`, {
+                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}`, {
                     method: 'DELETE'
                 });
 
