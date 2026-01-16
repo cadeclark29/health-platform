@@ -111,26 +111,38 @@ async def oura_oauth_callback(
     Handle Oura OAuth callback.
     The state parameter contains the user_id.
     """
+    print(f"[OURA CALLBACK] code={code[:20]}..., state={state}, error={error}")
+
     if error:
+        print(f"[OURA CALLBACK] OAuth error from Oura: {error}")
         return RedirectResponse(url=f"/?oura_error={error}")
 
     user_id = state
     if not user_id:
+        print("[OURA CALLBACK] Missing user_id in state")
         return RedirectResponse(url="/?oura_error=missing_user_id")
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
+        print(f"[OURA CALLBACK] User not found: {user_id}")
         return RedirectResponse(url="/?oura_error=user_not_found")
 
     oura = OuraIntegration()
     redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
 
     try:
+        print(f"[OURA CALLBACK] Exchanging code for token...")
         token = await oura.exchange_code(code, redirect_uri)
+        print(f"[OURA CALLBACK] Got token: {bool(token)}, has access_token: {'access_token' in token if token else False}")
         user.oura_token = token
         db.commit()
+        db.refresh(user)
+        print(f"[OURA CALLBACK] Token saved, user.oura_token is not None: {user.oura_token is not None}")
         return RedirectResponse(url="/?oura_connected=true")
     except Exception as e:
+        print(f"[OURA CALLBACK] Exception: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         error_msg = str(e).replace(' ', '+')[:100]
         return RedirectResponse(url=f"/?oura_error={error_msg}")
 
