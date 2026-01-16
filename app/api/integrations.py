@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from datetime import timedelta
 
 from app.db import get_db
 from app.models import User, HealthData
@@ -213,43 +214,60 @@ async def get_oura_history(
     try:
         historical = await oura.fetch_historical_data(user.oura_token, days=days)
 
-        # Store combined data using most recent non-null values
+        # Store each day's data as a separate record for analytics charting
+        records_added = 0
         if historical:
-            combined = {
-                "sleep_score": None,
-                "hrv_score": None,
-                "recovery_score": None,
-                "strain_score": None,
-                "resting_hr": None,
-                "sleep_duration_hrs": None,
-                "deep_sleep_pct": None,
-                "rem_sleep_pct": None,
-            }
+            for day in historical:
+                # Skip days with no meaningful data
+                if day.get("sleep_score") is None and day.get("hrv_score") is None and day.get("recovery_score") is None:
+                    continue
 
-            # Iterate from newest to oldest to get most recent non-null values
-            for day in reversed(historical):
-                for key in combined:
-                    if combined[key] is None and day.get(key) is not None:
-                        combined[key] = day[key]
+                # Parse the date and create a timestamp for that day
+                from datetime import datetime as dt
+                day_date = dt.strptime(day["date"], "%Y-%m-%d")
 
-            health_data = HealthData(
-                user_id=user_id,
-                source="oura",
-                sleep_score=combined["sleep_score"],
-                hrv_score=combined["hrv_score"],
-                recovery_score=combined["recovery_score"],
-                strain_score=combined["strain_score"],
-                resting_hr=combined["resting_hr"],
-                sleep_duration_hrs=combined["sleep_duration_hrs"],
-                deep_sleep_pct=combined["deep_sleep_pct"],
-                rem_sleep_pct=combined["rem_sleep_pct"]
-            )
-            db.add(health_data)
+                # Check if we already have data for this date
+                existing = db.query(HealthData).filter(
+                    HealthData.user_id == user_id,
+                    HealthData.source == "oura",
+                    HealthData.timestamp >= day_date,
+                    HealthData.timestamp < day_date + timedelta(days=1)
+                ).first()
+
+                if existing:
+                    # Update existing record
+                    existing.sleep_score = day.get("sleep_score") or existing.sleep_score
+                    existing.hrv_score = day.get("hrv_score") or existing.hrv_score
+                    existing.recovery_score = day.get("recovery_score") or existing.recovery_score
+                    existing.strain_score = day.get("strain_score") or existing.strain_score
+                    existing.resting_hr = day.get("resting_hr") or existing.resting_hr
+                    existing.sleep_duration_hrs = day.get("sleep_duration_hrs") or existing.sleep_duration_hrs
+                    existing.deep_sleep_pct = day.get("deep_sleep_pct") or existing.deep_sleep_pct
+                    existing.rem_sleep_pct = day.get("rem_sleep_pct") or existing.rem_sleep_pct
+                else:
+                    # Create new record for this day
+                    health_data = HealthData(
+                        user_id=user_id,
+                        source="oura",
+                        timestamp=day_date,
+                        sleep_score=day.get("sleep_score"),
+                        hrv_score=day.get("hrv_score"),
+                        recovery_score=day.get("recovery_score"),
+                        strain_score=day.get("strain_score"),
+                        resting_hr=day.get("resting_hr"),
+                        sleep_duration_hrs=day.get("sleep_duration_hrs"),
+                        deep_sleep_pct=day.get("deep_sleep_pct"),
+                        rem_sleep_pct=day.get("rem_sleep_pct")
+                    )
+                    db.add(health_data)
+                    records_added += 1
+
             db.commit()
 
         return {
             "status": "success",
             "days": days,
+            "records_added": records_added,
             "data": historical
         }
     except Exception as e:
