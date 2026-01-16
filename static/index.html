@@ -2235,6 +2235,9 @@
         function renderCustomBlendCards() {
             const layout = document.getElementById('dispenser-layout');
 
+            // Remove existing custom blend cards first to prevent duplicates
+            layout.querySelectorAll('.custom-blend-mix').forEach(card => card.remove());
+
             customBlends.forEach(blend => {
                 const card = document.createElement('div');
                 card.className = 'mix-card custom-blend-mix';
@@ -2439,7 +2442,18 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${currentMixData.mix_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`, {
+
+                // Determine if this is a custom blend or regular mix
+                let url;
+                if (currentMixData.blend_id) {
+                    // Custom blend
+                    url = `/mixes/blends/${currentUserId}/${currentMixData.blend_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`;
+                } else {
+                    // Regular mix
+                    url = `/mixes/${currentUserId}/${currentMixData.mix_id}/dispense?time_override=${currentTime}&date_override=${dateStr}`;
+                }
+
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
