@@ -913,6 +913,200 @@
             color: #EF4444;
         }
 
+        /* Oura Connection Card */
+        .oura-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .oura-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .oura-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .oura-logo {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .oura-title {
+            font-weight: 600;
+            color: #E8E8E8;
+            font-size: 0.95em;
+        }
+
+        .oura-subtitle {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .oura-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .oura-status.connected {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .oura-status.disconnected {
+            background: rgba(255, 255, 255, 0.06);
+            color: #666;
+        }
+
+        .oura-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .oura-connect-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+
+        .oura-connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .oura-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .oura-metric {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .oura-metric-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .oura-metric-value.good {
+            color: #22C55E;
+        }
+
+        .oura-metric-value.fair {
+            color: #F59E0B;
+        }
+
+        .oura-metric-value.poor {
+            color: #EF4444;
+        }
+
+        .oura-metric-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .oura-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .oura-sync-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            color: #A78BFA;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .oura-sync-btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .oura-disconnect-btn {
+            padding: 10px 16px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .oura-disconnect-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .oura-loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 500px) {
+            .oura-metrics {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .oura-metric {
+                padding: 10px;
+            }
+
+            .oura-metric-value {
+                font-size: 1.2em;
+            }
+        }
+
         /* User header */
         .user-header {
             display: flex;
@@ -1765,6 +1959,61 @@
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
 
+            <!-- Oura Connection Card -->
+            <div class="oura-card" id="oura-card">
+                <div class="oura-header">
+                    <div class="oura-brand">
+                        <div class="oura-logo">&#x1F48D;</div>
+                        <div>
+                            <div class="oura-title">Oura Ring</div>
+                            <div class="oura-subtitle">Health data sync</div>
+                        </div>
+                    </div>
+                    <div class="oura-status disconnected" id="oura-status">
+                        <span class="oura-status-dot"></span>
+                        <span id="oura-status-text">Not connected</span>
+                    </div>
+                </div>
+
+                <!-- Not connected state -->
+                <div id="oura-not-connected">
+                    <button class="oura-connect-btn" onclick="connectOura()">
+                        Connect Oura Ring
+                    </button>
+                </div>
+
+                <!-- Connected state with metrics -->
+                <div id="oura-connected" class="hidden">
+                    <div class="oura-metrics" id="oura-metrics">
+                        <div class="oura-metric">
+                            <div class="oura-metric-value" id="oura-sleep">--</div>
+                            <div class="oura-metric-label">Sleep</div>
+                        </div>
+                        <div class="oura-metric">
+                            <div class="oura-metric-value" id="oura-hrv">--</div>
+                            <div class="oura-metric-label">HRV</div>
+                        </div>
+                        <div class="oura-metric">
+                            <div class="oura-metric-value" id="oura-recovery">--</div>
+                            <div class="oura-metric-label">Recovery</div>
+                        </div>
+                    </div>
+                    <div class="oura-actions">
+                        <button class="oura-sync-btn" onclick="syncOuraData()">
+                            Sync Latest Data
+                        </button>
+                        <button class="oura-disconnect-btn" onclick="disconnectOura()">
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading state -->
+                <div id="oura-loading" class="oura-loading hidden">
+                    Checking connection...
+                </div>
+            </div>
+
             <!-- Date Navigation -->
             <div class="date-nav">
                 <button onclick="changeDate(-1)" title="Previous day">&#8592;</button>
@@ -1791,7 +2040,7 @@
                     <div class="ai-recommendation" onclick="getAIRecommendation()" id="ai-recommendation">
                         <div class="ai-icon">&#x2728;</div>
                         <div class="ai-title">Smart Recommendation</div>
-                        <div class="ai-subtitle">Personalized based on your health data</div>
+                        <div class="ai-subtitle" id="ai-subtitle">Connect Oura for personalized insights</div>
                     </div>
 
                     <!-- Daily Foundation - Always visible below AI -->
@@ -1971,15 +2220,33 @@
         let currentMixData = null;
         let isDispensing = false;
         let trackingTab = 'daily';
+        let ouraConnected = false;
+        let ouraData = null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Check for Oura OAuth callback
+            checkOuraCallback();
+
             if (currentUserId) {
                 loadUserAndShow();
             }
             updateDateDisplay();
             updateTimeButtons();
         });
+
+        // Check Oura OAuth callback from URL params
+        function checkOuraCallback() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('oura_connected') === 'true') {
+                showStatus('Oura Ring connected successfully!', 'success');
+                // Clean URL
+                window.history.replaceState({}, document.title, '/');
+            } else if (params.get('oura_error')) {
+                showStatus('Failed to connect Oura: ' + params.get('oura_error'), 'error');
+                window.history.replaceState({}, document.title, '/');
+            }
+        }
 
         // Status messages
         function showStatus(message, type) {
@@ -1989,6 +2256,198 @@
             status.classList.remove('hidden');
             setTimeout(() => status.classList.add('hidden'), 4000);
         }
+
+        // ========== OURA INTEGRATION ==========
+
+        // Connect Oura - redirect to OAuth
+        function connectOura() {
+            if (!currentUserId) {
+                showStatus('Please sign in first', 'error');
+                return;
+            }
+            // Redirect to Oura OAuth
+            window.location.href = `/api/oura/auth?user_id=${currentUserId}`;
+        }
+
+        // Check Oura connection status
+        async function checkOuraStatus() {
+            if (!currentUserId) return;
+
+            const card = document.getElementById('oura-card');
+            const loading = document.getElementById('oura-loading');
+            const notConnected = document.getElementById('oura-not-connected');
+            const connected = document.getElementById('oura-connected');
+            const status = document.getElementById('oura-status');
+            const statusText = document.getElementById('oura-status-text');
+
+            // Show loading
+            loading.classList.remove('hidden');
+            notConnected.classList.add('hidden');
+            connected.classList.add('hidden');
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura/status`);
+                const data = await res.json();
+
+                loading.classList.add('hidden');
+
+                if (data.connected) {
+                    ouraConnected = true;
+                    status.className = 'oura-status connected';
+                    statusText.textContent = 'Connected';
+                    notConnected.classList.add('hidden');
+                    connected.classList.remove('hidden');
+                    updateAISubtitle();
+                    // Fetch latest data
+                    await fetchOuraHistory();
+                } else {
+                    ouraConnected = false;
+                    status.className = 'oura-status disconnected';
+                    statusText.textContent = 'Not connected';
+                    notConnected.classList.remove('hidden');
+                    connected.classList.add('hidden');
+                    updateAISubtitle();
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                notConnected.classList.remove('hidden');
+                connected.classList.add('hidden');
+                console.error('Error checking Oura status:', e);
+            }
+        }
+
+        // Fetch Oura history data
+        async function fetchOuraHistory() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.data && result.data.length > 0) {
+                        // Get the most recent day's data
+                        const latest = result.data[result.data.length - 1];
+                        ouraData = latest;
+                        updateOuraMetrics(latest);
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching Oura data:', e);
+            }
+        }
+
+        // Update AI subtitle based on Oura status
+        function updateAISubtitle() {
+            const subtitle = document.getElementById('ai-subtitle');
+            if (subtitle) {
+                subtitle.textContent = ouraConnected ? 'Powered by your Oura Ring data' : 'Connect Oura for personalized insights';
+            }
+        }
+
+        // Update Oura metrics display
+        function updateOuraMetrics(data) {
+            const sleepEl = document.getElementById('oura-sleep');
+            const hrvEl = document.getElementById('oura-hrv');
+            const recoveryEl = document.getElementById('oura-recovery');
+
+            // Sleep score
+            if (data.sleep_score != null) {
+                sleepEl.textContent = Math.round(data.sleep_score);
+                sleepEl.className = 'oura-metric-value ' + getScoreClass(data.sleep_score);
+            } else {
+                sleepEl.textContent = '--';
+                sleepEl.className = 'oura-metric-value';
+            }
+
+            // HRV score
+            if (data.hrv_score != null) {
+                hrvEl.textContent = Math.round(data.hrv_score);
+                hrvEl.className = 'oura-metric-value ' + getScoreClass(data.hrv_score);
+            } else {
+                hrvEl.textContent = '--';
+                hrvEl.className = 'oura-metric-value';
+            }
+
+            // Recovery score
+            if (data.recovery_score != null) {
+                recoveryEl.textContent = Math.round(data.recovery_score);
+                recoveryEl.className = 'oura-metric-value ' + getScoreClass(data.recovery_score);
+            } else {
+                recoveryEl.textContent = '--';
+                recoveryEl.className = 'oura-metric-value';
+            }
+        }
+
+        // Get CSS class based on score
+        function getScoreClass(score) {
+            if (score >= 70) return 'good';
+            if (score >= 50) return 'fair';
+            return 'poor';
+        }
+
+        // Sync Oura data
+        async function syncOuraData() {
+            if (!currentUserId) return;
+
+            const btn = document.querySelector('.oura-sync-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Syncing...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/sync`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    await fetchOuraHistory();
+                    showStatus('Oura data synced!', 'success');
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Sync failed', 'error');
+                }
+            } catch (e) {
+                showStatus('Error syncing: ' + e.message, 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Disconnect Oura
+        async function disconnectOura() {
+            if (!currentUserId) return;
+
+            if (!confirm('Disconnect your Oura Ring?')) return;
+
+            try {
+                const res = await fetch(`/integrations/${currentUserId}/oura`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    ouraConnected = false;
+                    ouraData = null;
+
+                    const status = document.getElementById('oura-status');
+                    const statusText = document.getElementById('oura-status-text');
+                    const notConnected = document.getElementById('oura-not-connected');
+                    const connected = document.getElementById('oura-connected');
+
+                    status.className = 'oura-status disconnected';
+                    statusText.textContent = 'Not connected';
+                    notConnected.classList.remove('hidden');
+                    connected.classList.add('hidden');
+                    updateAISubtitle();
+
+                    showStatus('Oura Ring disconnected', 'success');
+                }
+            } catch (e) {
+                showStatus('Error disconnecting: ' + e.message, 'error');
+            }
+        }
+
+        // ========== END OURA INTEGRATION ==========
 
         // Toggle sign in form
         function toggleSignIn(e) {
@@ -2101,6 +2560,7 @@
             loadTracking();
             loadSaturation();
             checkDailyFoundationTaken();
+            checkOuraStatus();
         }
 
         // Check if Daily Foundation was already taken today
@@ -2382,7 +2842,8 @@
 
             const aiRec = document.getElementById('ai-recommendation');
             aiRec.classList.add('loading');
-            aiRec.querySelector('.ai-subtitle').textContent = 'Analyzing your health data...';
+            const loadingText = ouraConnected ? 'Analyzing your Oura data...' : 'Analyzing your health data...';
+            aiRec.querySelector('.ai-subtitle').textContent = loadingText;
 
             try {
                 const dateStr = getDateString();
@@ -2399,7 +2860,8 @@
                 showStatus('Error: ' + e.message, 'error');
             } finally {
                 aiRec.classList.remove('loading');
-                aiRec.querySelector('.ai-subtitle').textContent = 'Personalized based on your health data';
+                const subtitle = ouraConnected ? 'Powered by your Oura Ring data' : 'Connect Oura for personalized insights';
+                aiRec.querySelector('.ai-subtitle').textContent = subtitle;
             }
         }
 

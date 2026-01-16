@@ -1,13 +1,18 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Depends
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from contextlib import asynccontextmanager
+from sqlalchemy.orm import Session
+from typing import Optional
 
 from app.db.database import engine, Base
+from app.db import get_db
 from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes
 from app.api.mixes import blends_router
+from app.models import User
+from app.integrations import OuraIntegration
 
 
 @asynccontextmanager
@@ -65,5 +70,68 @@ async def terms_of_service():
     if terms_file.exists():
         return FileResponse(terms_file)
     return {"error": "Terms of service not found"}
+
+
+# --- Oura OAuth Routes (at /api/oura/*) ---
+
+@app.get("/api/oura/auth")
+def start_oura_auth(
+    user_id: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Start Oura OAuth flow.
+    Redirects user to Oura authorization page.
+    """
+    from app.config import get_settings
+    settings = get_settings()
+
+    if not settings.oura_client_id or not settings.oura_client_secret:
+        return {"error": "Oura API credentials not configured"}
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return {"error": "User not found"}
+
+    oura = OuraIntegration()
+    redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
+    auth_url = oura.get_auth_url(redirect_uri, state=user_id)
+
+    return RedirectResponse(url=auth_url)
+
+
+@app.get("/api/oura/callback")
+async def oura_oauth_callback(
+    code: str = Query(...),
+    state: Optional[str] = Query(None),
+    error: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Handle Oura OAuth callback.
+    The state parameter contains the user_id.
+    """
+    if error:
+        return RedirectResponse(url=f"/?oura_error={error}")
+
+    user_id = state
+    if not user_id:
+        return RedirectResponse(url="/?oura_error=missing_user_id")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return RedirectResponse(url="/?oura_error=user_not_found")
+
+    oura = OuraIntegration()
+    redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
+
+    try:
+        token = await oura.exchange_code(code, redirect_uri)
+        user.oura_token = token
+        db.commit()
+        return RedirectResponse(url="/?oura_connected=true")
+    except Exception as e:
+        error_msg = str(e).replace(' ', '+')[:100]
+        return RedirectResponse(url=f"/?oura_error={error_msg}")
 
 
