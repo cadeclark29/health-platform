@@ -2704,6 +2704,8 @@
         let selectedSupplements = {};
         let allSupplements = [];
         let aiSuggestions = [];
+        let aiBlendName = 'Custom Blend';
+        let aiBlendIcon = '🧪';
 
         // Open blend builder
         async function openBlendBuilder() {
@@ -2802,10 +2804,10 @@
                 selectedSupplements[id] = {
                     supplement_id: id,
                     name: supp.name,
-                    dose_mg: supp.standard_dose,
+                    dose: supp.standard_dose,
                     unit: supp.unit,
-                    min_dose_mg: supp.standard_dose * 0.5,
-                    max_dose_mg: supp.max_daily_dose
+                    min_dose: supp.standard_dose * 0.5,
+                    max_dose: supp.max_daily_dose
                 };
             }
 
@@ -2830,12 +2832,12 @@
                     <span class="selected-supp-name">${s.name}</span>
                     <div class="selected-supp-dose">
                         <div class="dose-controls">
-                            <input type="number" class="dose-input" value="${s.dose_mg}"
-                                min="${s.min_dose_mg}" max="${s.max_dose_mg}"
+                            <input type="number" class="dose-input" value="${s.dose}"
+                                min="${s.min_dose}" max="${s.max_dose}"
                                 onchange="updateDose('${s.supplement_id}', this.value)">
                             <span class="dose-unit">${s.unit}</span>
                         </div>
-                        <span class="dose-range">(${s.min_dose_mg}-${s.max_dose_mg})</span>
+                        <span class="dose-range">(${s.min_dose}-${s.max_dose})</span>
                         <button class="btn-remove-supp" onclick="removeSupplement('${s.supplement_id}')">&#x2715;</button>
                     </div>
                 </div>
@@ -2845,7 +2847,7 @@
         // Update dose
         function updateDose(id, value) {
             if (selectedSupplements[id]) {
-                selectedSupplements[id].dose_mg = parseFloat(value);
+                selectedSupplements[id].dose = parseFloat(value);
             }
         }
 
@@ -2874,12 +2876,15 @@
                 const res = await fetch('/mixes/suggest-blend', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ description: input })
+                    body: JSON.stringify({ user_request: input, user_id: currentUserId })
                 });
 
                 if (res.ok) {
-                    aiSuggestions = await res.json();
-                    renderAISuggestions();
+                    const data = await res.json();
+                    aiSuggestions = data.supplements || [];
+                    aiBlendName = data.blend_name || 'Custom Blend';
+                    aiBlendIcon = data.blend_icon || '🧪';
+                    renderAISuggestions(data.summary);
                 } else {
                     listDiv.innerHTML = '<p style="color: #EF4444;">Error getting suggestions</p>';
                 }
@@ -2889,22 +2894,55 @@
         }
 
         // Render AI suggestions
-        function renderAISuggestions() {
+        function renderAISuggestions(summary) {
             const listDiv = document.getElementById('ai-suggestions-list');
 
-            listDiv.innerHTML = aiSuggestions.map(s => `
-                <div class="ai-suggestion-item" onclick="addSuggestion('${s.supplement_id}')">
-                    <div>
-                        <div class="ai-suggestion-name">${s.name}</div>
-                        <div class="ai-suggestion-reason">${s.reason}</div>
+            if (aiSuggestions.length === 0) {
+                listDiv.innerHTML = '<p style="color: #888;">No suggestions found. Try a different description.</p>';
+                return;
+            }
+
+            // Show summary and suggested blend name
+            let html = '';
+            if (summary) {
+                html += `<div style="color: #A78BFA; margin-bottom: 12px; font-size: 0.9em;">${summary}</div>`;
+            }
+
+            html += aiSuggestions.map(s => {
+                // Look up supplement details from catalog
+                const supp = allSupplements.find(sup => sup.id === s.supplement_id);
+                const name = supp ? supp.name : s.supplement_id;
+                const unit = supp ? supp.unit : 'mg';
+
+                return `
+                    <div class="ai-suggestion-item" onclick="addSuggestion('${s.supplement_id}', ${s.dose})">
+                        <div>
+                            <div class="ai-suggestion-name">${name}</div>
+                            <div class="ai-suggestion-reason">${s.reason}</div>
+                        </div>
+                        <span class="ai-suggestion-dose">${s.dose}${unit}</span>
                     </div>
-                    <span class="ai-suggestion-dose">${s.dose_mg}${s.unit}</span>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+
+            // Add "Add All" button
+            html += `<button class="btn-dispense" onclick="addAllSuggestions()" style="margin-top: 12px; width: 100%;">Add All to Blend</button>`;
+
+            listDiv.innerHTML = html;
+
+            // Auto-fill blend name if empty
+            const blendNameInput = document.getElementById('blend-name');
+            if (!blendNameInput.value) {
+                blendNameInput.value = aiBlendName;
+            }
+            const blendIconInput = document.getElementById('blend-icon');
+            if (blendIconInput.value === '&#x1F9EA;' || !blendIconInput.value) {
+                blendIconInput.value = aiBlendIcon;
+            }
         }
 
         // Add single suggestion
-        function addSuggestion(id) {
+        function addSuggestion(id, dose) {
             const suggestion = aiSuggestions.find(s => s.supplement_id === id);
             if (!suggestion) return;
 
@@ -2913,16 +2951,16 @@
 
             selectedSupplements[id] = {
                 supplement_id: id,
-                name: suggestion.name,
-                dose_mg: suggestion.dose_mg,
-                unit: suggestion.unit,
-                min_dose_mg: supp.standard_dose * 0.5,
-                max_dose_mg: supp.max_daily_dose
+                name: supp.name,
+                dose: dose || suggestion.dose,
+                unit: supp.unit,
+                min_dose: supp.standard_dose * 0.5,
+                max_dose: supp.max_daily_dose
             };
 
             renderSupplementGrid(document.querySelector('.category-btn.active')?.textContent || 'all');
             updateSelectedSupplements();
-            showStatus(`Added ${suggestion.name}`, 'success');
+            showStatus(`Added ${supp.name}`, 'success');
         }
 
         // Add all suggestions
@@ -2932,11 +2970,11 @@
                 if (supp) {
                     selectedSupplements[s.supplement_id] = {
                         supplement_id: s.supplement_id,
-                        name: s.name,
-                        dose_mg: s.dose_mg,
-                        unit: s.unit,
-                        min_dose_mg: supp.standard_dose * 0.5,
-                        max_dose_mg: supp.max_daily_dose
+                        name: supp.name,
+                        dose: s.dose,
+                        unit: supp.unit,
+                        min_dose: supp.standard_dose * 0.5,
+                        max_dose: supp.max_daily_dose
                     };
                 }
             });
@@ -2969,9 +3007,9 @@
                     body: JSON.stringify({
                         name,
                         icon,
-                        supplements: supplements.map(s => ({
+                        components: supplements.map(s => ({
                             supplement_id: s.supplement_id,
-                            dose_mg: s.dose_mg
+                            dose: s.dose
                         }))
                     })
                 });
