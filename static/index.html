@@ -1621,6 +1621,37 @@
         a:hover {
             color: #A78BFA;
         }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #A78BFA;
+        }
+
+        .footer-copyright {
+            color: #444;
+            font-size: 0.75em;
+        }
     </style>
 </head>
 <body>
@@ -1918,6 +1949,17 @@
             </button>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+        </div>
+        <div class="footer-copyright">
+            &copy; 2026 Dose. All rights reserved.
+        </div>
+    </footer>
 
     <script>
         // State
