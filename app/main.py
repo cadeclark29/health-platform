@@ -139,3 +139,32 @@ async def oura_oauth_callback(
         return RedirectResponse(url=f"/?oura_error={quote(error_msg)}")
 
 
+@app.get("/api/migrate")
+def run_migrations(db: Session = Depends(get_db)):
+    """
+    Run database migrations to add new columns.
+    Safe to run multiple times - uses IF NOT EXISTS.
+    """
+    from sqlalchemy import text
+
+    migrations = [
+        # Add new columns to supplement_starts table
+        "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS supplement_name VARCHAR",
+        "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS is_manual BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS dosage VARCHAR",
+        "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS frequency VARCHAR",
+        "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS reason VARCHAR",
+    ]
+
+    results = []
+    for migration in migrations:
+        try:
+            db.execute(text(migration))
+            db.commit()
+            results.append({"sql": migration[:50] + "...", "status": "success"})
+        except Exception as e:
+            results.append({"sql": migration[:50] + "...", "status": "error", "error": str(e)})
+
+    return {"migrations": results}
+
+
