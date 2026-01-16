@@ -51,3 +51,19 @@ async def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/privacy")
+async def privacy_policy():
+    privacy_file = static_path / "privacy.html"
+    if privacy_file.exists():
+        return FileResponse(privacy_file)
+    return {"error": "Privacy policy not found"}
+
+
+@app.get("/terms")
+async def terms_of_service():
+    terms_file = static_path / "terms.html"
+    if terms_file.exists():
+        return FileResponse(terms_file)
+    return {"error": "Terms of service not found"}
+
+
