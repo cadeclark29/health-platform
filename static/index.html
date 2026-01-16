@@ -2325,10 +2325,34 @@
                 if (res.ok) {
                     const result = await res.json();
                     if (result.data && result.data.length > 0) {
-                        // Get the most recent day's data
-                        const latest = result.data[result.data.length - 1];
-                        ouraData = latest;
-                        updateOuraMetrics(latest);
+                        // Build combined data using most recent non-null values
+                        // This handles cases where today's data isn't complete yet
+                        const combined = {
+                            sleep_score: null,
+                            hrv_score: null,
+                            recovery_score: null
+                        };
+
+                        // Iterate from newest to oldest to find most recent values
+                        for (let i = result.data.length - 1; i >= 0; i--) {
+                            const day = result.data[i];
+                            if (combined.sleep_score === null && day.sleep_score != null) {
+                                combined.sleep_score = day.sleep_score;
+                            }
+                            if (combined.hrv_score === null && day.hrv_score != null) {
+                                combined.hrv_score = day.hrv_score;
+                            }
+                            if (combined.recovery_score === null && day.recovery_score != null) {
+                                combined.recovery_score = day.recovery_score;
+                            }
+                            // Stop if we have all values
+                            if (combined.sleep_score !== null && combined.hrv_score !== null && combined.recovery_score !== null) {
+                                break;
+                            }
+                        }
+
+                        ouraData = combined;
+                        updateOuraMetrics(combined);
                     }
                 }
             } catch (e) {
