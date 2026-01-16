@@ -2871,15 +2871,33 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/smart?hour=${currentTime}&date_str=${dateStr}`);
 
-                if (res.ok) {
-                    currentMixData = await res.json();
-                    showDispenseModal(currentMixData);
-                } else {
-                    const err = await res.json();
+                // Step 1: Get smart recommendation (which mix to use)
+                const smartRes = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentTime}`);
+                if (!smartRes.ok) {
+                    const err = await smartRes.json();
                     showStatus(err.detail || 'Error getting recommendation', 'error');
+                    return;
                 }
+
+                const smartData = await smartRes.json();
+                const recommendedMixId = smartData.recommended_mix_id;
+
+                // Step 2: Get the full mix details
+                const mixRes = await fetch(`/mixes/${currentUserId}/${recommendedMixId}?time_override=${currentTime}&date_str=${dateStr}`);
+                if (!mixRes.ok) {
+                    const err = await mixRes.json();
+                    showStatus(err.detail || 'Error loading mix', 'error');
+                    return;
+                }
+
+                currentMixData = await mixRes.json();
+
+                // Add the AI reason to the mix data
+                currentMixData.ai_reason = smartData.reason;
+                currentMixData.health_summary = smartData.health_summary;
+
+                showDispenseModal(currentMixData);
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             } finally {
@@ -2904,6 +2922,16 @@
                     <div class="modal-title">${data.mix_name}</div>
                     <div class="modal-subtitle">${data.mix_description || 'Your personalized supplement mix'}</div>
                 </div>
+
+                ${data.ai_reason ? `
+                    <div class="ai-reason" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 1.1em;">&#x2728;</span>
+                            <span style="color: #A78BFA; font-weight: 600; font-size: 0.85em;">AI Recommendation</span>
+                        </div>
+                        <div style="color: #B0B0B0; font-size: 0.9em;">${data.ai_reason}</div>
+                    </div>
+                ` : ''}
 
                 ${supplements.length > 0 ? `
                     <div class="supplement-list">
