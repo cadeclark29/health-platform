@@ -19,12 +19,14 @@ class OuraIntegration(WearableIntegration):
 
     def get_auth_url(self, redirect_uri: str, state: str = None) -> str:
         """Get Oura OAuth authorization URL."""
+        # Scopes must match what's registered in Oura developer portal
+        scopes = "email+personal+daily+heartrate+tag+workout+session+spo2+ring_configuration+stress+heart_health"
         url = (
             f"{self.AUTH_URL}"
             f"?client_id={self.settings.oura_client_id}"
             f"&redirect_uri={redirect_uri}"
             f"&response_type=code"
-            f"&scope=daily+sleep+heartrate+workout+session"
+            f"&scope={scopes}"
         )
         if state:
             url += f"&state={state}"
