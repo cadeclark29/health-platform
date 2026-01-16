@@ -426,13 +426,13 @@ def get_analytics_data(
     # Get health data
     health_data = db.query(HealthData).filter(
         HealthData.user_id == user_id,
-        HealthData.created_at >= datetime.combine(start_date, datetime.min.time())
-    ).order_by(HealthData.created_at).all()
+        HealthData.timestamp >= datetime.combine(start_date, datetime.min.time())
+    ).order_by(HealthData.timestamp).all()
 
     # Aggregate health data by date (take the latest per day)
     daily_health = {}
     for hd in health_data:
-        day_key = hd.created_at.date().isoformat()
+        day_key = hd.timestamp.date().isoformat()
         daily_health[day_key] = {
             "date": day_key,
             "sleep_score": hd.sleep_score,
@@ -511,8 +511,8 @@ def get_outcome_analysis(
     before_start = start_date - timedelta(days=14)
     before_data = db.query(HealthData).filter(
         HealthData.user_id == user_id,
-        HealthData.created_at >= datetime.combine(before_start, datetime.min.time()),
-        HealthData.created_at < datetime.combine(start_date, datetime.min.time())
+        HealthData.timestamp >= datetime.combine(before_start, datetime.min.time()),
+        HealthData.timestamp < datetime.combine(start_date, datetime.min.time())
     ).all()
 
     # Get "after" period: most recent 14 days (if enough time has passed)
@@ -522,7 +522,7 @@ def get_outcome_analysis(
 
     after_data = db.query(HealthData).filter(
         HealthData.user_id == user_id,
-        HealthData.created_at >= datetime.combine(after_start, datetime.min.time())
+        HealthData.timestamp >= datetime.combine(after_start, datetime.min.time())
     ).all()
 
     def calculate_averages(data_list):
