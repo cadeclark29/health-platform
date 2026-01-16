@@ -42,28 +42,91 @@ class SupplementStart(Base):
     """
     Track when a user started taking a specific supplement.
     Used for before/after analysis and chart markers.
+    Supports both app-recommended and manually-added supplements.
     """
     __tablename__ = "supplement_starts"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     supplement_id = Column(String, nullable=False)
+    supplement_name = Column(String, nullable=True)  # Display name for custom supplements
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=True)  # Null if still taking
     notes = Column(String, nullable=True)
+
+    # Manual supplement tracking fields
+    is_manual = Column(Boolean, default=False)  # True if user added manually
+    dosage = Column(String, nullable=True)  # e.g., "500mg", "2000 IU"
+    frequency = Column(String, nullable=True)  # "daily", "twice_daily", "as_needed"
+    reason = Column(String, nullable=True)  # "sleep", "energy", "recovery", "general_health"
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
     user = relationship("User", back_populates="supplement_starts")
+
+    # Common supplement library for manual entry
+    SUPPLEMENT_LIBRARY = [
+        ("vitamin_d3", "Vitamin D3", "2000-5000 IU"),
+        ("fish_oil", "Fish Oil / Omega-3", "1000-2000mg"),
+        ("magnesium", "Magnesium", "200-400mg"),
+        ("magnesium_glycinate", "Magnesium Glycinate", "200-400mg"),
+        ("zinc", "Zinc", "15-30mg"),
+        ("b_complex", "B-Complex", "1 capsule"),
+        ("vitamin_b12", "Vitamin B12", "500-1000mcg"),
+        ("creatine", "Creatine", "3-5g"),
+        ("protein_powder", "Protein Powder", "20-30g"),
+        ("melatonin", "Melatonin", "0.5-5mg"),
+        ("probiotics", "Probiotics", "1 capsule"),
+        ("iron", "Iron", "18-27mg"),
+        ("vitamin_c", "Vitamin C", "500-1000mg"),
+        ("multivitamin", "Multivitamin", "1 tablet"),
+        ("caffeine", "Caffeine", "100-200mg"),
+        ("ashwagandha", "Ashwagandha", "300-600mg"),
+        ("l_theanine", "L-Theanine", "100-200mg"),
+        ("collagen", "Collagen", "10-15g"),
+        ("coq10", "CoQ10", "100-200mg"),
+        ("turmeric", "Turmeric / Curcumin", "500-1000mg"),
+        ("elderberry", "Elderberry", "500mg"),
+        ("lions_mane", "Lion's Mane", "500-1000mg"),
+        ("rhodiola", "Rhodiola Rosea", "200-400mg"),
+        ("gaba", "GABA", "250-500mg"),
+        ("glycine", "Glycine", "3g"),
+        ("electrolytes", "Electrolytes", "1 serving"),
+    ]
+
+    FREQUENCIES = [
+        ("daily", "Once daily"),
+        ("twice_daily", "Twice daily"),
+        ("three_times", "Three times daily"),
+        ("as_needed", "As needed"),
+        ("weekly", "Weekly"),
+    ]
+
+    REASONS = [
+        ("sleep", "Better Sleep"),
+        ("energy", "More Energy"),
+        ("recovery", "Exercise Recovery"),
+        ("focus", "Focus & Cognition"),
+        ("stress", "Stress & Mood"),
+        ("immunity", "Immune Support"),
+        ("general_health", "General Health"),
+        ("deficiency", "Address Deficiency"),
+    ]
 
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
             "supplement_id": self.supplement_id,
+            "supplement_name": self.supplement_name or self.supplement_id.replace("_", " ").title(),
             "start_date": str(self.start_date),
             "end_date": str(self.end_date) if self.end_date else None,
             "notes": self.notes,
+            "is_manual": self.is_manual or False,
+            "dosage": self.dosage,
+            "frequency": self.frequency,
+            "reason": self.reason,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 

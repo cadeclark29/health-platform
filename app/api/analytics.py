@@ -34,19 +34,33 @@ class SupplementStartCreate(BaseModel):
     supplement_id: str
     start_date: str  # YYYY-MM-DD
     notes: Optional[str] = None
+    # Manual supplement fields
+    supplement_name: Optional[str] = None  # Display name for custom supplements
+    is_manual: bool = False
+    dosage: Optional[str] = None  # e.g., "500mg", "2000 IU"
+    frequency: Optional[str] = None  # "daily", "twice_daily", "as_needed"
+    reason: Optional[str] = None  # "sleep", "energy", "recovery", "general_health"
 
 
 class SupplementStartUpdate(BaseModel):
     end_date: Optional[str] = None
     notes: Optional[str] = None
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
+    reason: Optional[str] = None
 
 
 class SupplementStartResponse(BaseModel):
     id: str
     supplement_id: str
+    supplement_name: Optional[str]
     start_date: str
     end_date: Optional[str]
     notes: Optional[str]
+    is_manual: bool
+    dosage: Optional[str]
+    frequency: Optional[str]
+    reason: Optional[str]
 
 
 class LifeEventCreate(BaseModel):
@@ -249,8 +263,13 @@ def start_supplement(
     supplement_start = SupplementStart(
         user_id=user_id,
         supplement_id=start.supplement_id,
+        supplement_name=start.supplement_name,
         start_date=date.fromisoformat(start.start_date),
-        notes=start.notes
+        notes=start.notes,
+        is_manual=start.is_manual,
+        dosage=start.dosage,
+        frequency=start.frequency,
+        reason=start.reason
     )
     db.add(supplement_start)
     db.commit()
@@ -299,6 +318,12 @@ def update_supplement_start(
         start.end_date = date.fromisoformat(update.end_date)
     if update.notes is not None:
         start.notes = update.notes
+    if update.dosage is not None:
+        start.dosage = update.dosage
+    if update.frequency is not None:
+        start.frequency = update.frequency
+    if update.reason is not None:
+        start.reason = update.reason
 
     db.commit()
 
@@ -324,6 +349,25 @@ def delete_supplement_start(
     db.commit()
 
     return {"status": "deleted", "id": start_id}
+
+
+@router.get("/supplement-library")
+def get_supplement_library():
+    """Get the list of common supplements for manual entry."""
+    return {
+        "supplements": [
+            {"id": s[0], "name": s[1], "typical_dose": s[2]}
+            for s in SupplementStart.SUPPLEMENT_LIBRARY
+        ],
+        "frequencies": [
+            {"id": f[0], "name": f[1]}
+            for f in SupplementStart.FREQUENCIES
+        ],
+        "reasons": [
+            {"id": r[0], "name": r[1]}
+            for r in SupplementStart.REASONS
+        ]
+    }
 
 
 # --- Life Event Endpoints ---

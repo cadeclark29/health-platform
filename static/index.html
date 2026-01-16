@@ -2325,6 +2325,211 @@
             font-size: 0.85em;
             color: #A0A0A0;
         }
+
+        /* Your Supplements Section */
+        .supplements-section {
+            margin-bottom: 20px;
+        }
+
+        .supplements-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .supplements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .supplement-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .supplement-card:hover {
+            background: rgba(139, 92, 246, 0.05);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+
+        .supplement-card.manual {
+            border-left: 3px solid #22C55E;
+        }
+
+        .supplement-card.recommended {
+            border-left: 3px solid #8B5CF6;
+        }
+
+        .supplement-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        .supplement-icon.manual {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .supplement-icon.recommended {
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .supplement-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .supplement-name {
+            font-weight: 500;
+            color: #E8E8E8;
+            margin-bottom: 2px;
+        }
+
+        .supplement-meta {
+            font-size: 0.8em;
+            color: #666;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .supplement-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .supplement-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .supplement-card:hover .supplement-actions {
+            opacity: 1;
+        }
+
+        .supplement-action-btn {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .supplement-action-btn:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .supplement-action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .add-supplement-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: 2px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            color: #8B5CF6;
+            font-size: 0.95em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-supplement-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .supplements-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+        }
+
+        .supplements-empty-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Supplement type badges */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .type-badge.manual {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .type-badge.recommended {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+        }
+
+        /* Updated marker colors for chart legend */
+        .legend-marker {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .legend-marker-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .legend-marker-dot.manual {
+            background: #22C55E;
+        }
+
+        .legend-marker-dot.recommended {
+            background: #8B5CF6;
+        }
     </style>
 </head>
 <body>
@@ -2591,6 +2796,22 @@
 
             <!-- Analytics Section -->
             <div class="analytics-section" id="analytics-section">
+                <!-- Your Full Stack Section -->
+                <div class="card supplements-section">
+                    <div class="supplements-header">
+                        <h2>Your Full Stack</h2>
+                        <button class="btn-secondary" onclick="openAddManualSupplement()" style="padding: 8px 16px; font-size: 0.85em;">+ Add Supplement</button>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Track everything you're taking - our recommendations plus your own supplements</p>
+                    <div class="supplements-grid" id="supplements-grid">
+                        <div class="supplements-empty">
+                            <div class="supplements-empty-icon">💊</div>
+                            <div>No supplements tracked yet</div>
+                            <div style="font-size: 0.85em; margin-top: 6px;">Add the supplements you're currently taking</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Health Metrics Chart -->
                 <div class="card">
                     <h2>Health Metrics Over Time</h2>
@@ -2693,30 +2914,65 @@
         </div>
     </div>
 
-    <!-- Add Supplement Start Modal -->
+    <!-- Add Supplement Modal (supports both manual and recommended) -->
     <div class="modal-overlay hidden" id="supplement-start-modal">
-        <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="text-align: left; margin-bottom: 18px;">
-                <div class="modal-title">Add Supplement Start</div>
-                <div class="modal-subtitle">Track when you started a supplement</div>
+                <div class="modal-title" id="supplement-modal-title">Add Supplement</div>
+                <div class="modal-subtitle" id="supplement-modal-subtitle">Track a supplement you're taking</div>
             </div>
             <div class="modal-form-row">
                 <label>Supplement</label>
-                <select id="start-supplement-id" style="width: 100%;">
+                <select id="start-supplement-id" style="width: 100%;" onchange="onSupplementSelect()">
                     <!-- Populated by JS -->
                 </select>
             </div>
+            <div class="modal-form-row" id="custom-name-row" style="display: none;">
+                <label>Custom Name</label>
+                <input type="text" id="start-supplement-name" placeholder="Enter supplement name" style="width: 100%;">
+            </div>
             <div class="modal-form-row">
-                <label>Start Date</label>
-                <input type="date" id="start-date" style="width: 100%;">
+                <label>Dosage</label>
+                <input type="text" id="start-dosage" placeholder="e.g., 500mg, 2000 IU" style="width: 100%;">
+            </div>
+            <div class="form-row">
+                <div class="modal-form-row" style="flex: 1;">
+                    <label>Frequency</label>
+                    <select id="start-frequency" style="width: 100%;">
+                        <option value="daily">Once daily</option>
+                        <option value="twice_daily">Twice daily</option>
+                        <option value="three_times">Three times daily</option>
+                        <option value="as_needed">As needed</option>
+                        <option value="weekly">Weekly</option>
+                    </select>
+                </div>
+                <div class="modal-form-row" style="flex: 1;">
+                    <label>Start Date</label>
+                    <input type="date" id="start-date" style="width: 100%;">
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <label>Goal / Reason</label>
+                <select id="start-reason" style="width: 100%;">
+                    <option value="">Select reason (optional)</option>
+                    <option value="sleep">Better Sleep</option>
+                    <option value="energy">More Energy</option>
+                    <option value="recovery">Exercise Recovery</option>
+                    <option value="focus">Focus & Cognition</option>
+                    <option value="stress">Stress & Mood</option>
+                    <option value="immunity">Immune Support</option>
+                    <option value="general_health">General Health</option>
+                    <option value="deficiency">Address Deficiency</option>
+                </select>
             </div>
             <div class="modal-form-row">
                 <label>Notes (optional)</label>
-                <input type="text" id="start-notes" placeholder="Why did you start?" style="width: 100%;">
+                <input type="text" id="start-notes" placeholder="Any additional notes..." style="width: 100%;">
             </div>
+            <input type="hidden" id="start-is-manual" value="true">
             <div class="modal-actions" style="margin-top: 20px;">
                 <button class="btn-cancel" onclick="closeSupplementStartModal()">Cancel</button>
-                <button onclick="saveSupplementStart()">Add Start</button>
+                <button onclick="saveSupplementStart()">Add Supplement</button>
             </div>
         </div>
     </div>
@@ -4259,10 +4515,16 @@
         async function loadAnalyticsData() {
             if (!currentUserId) return;
 
+            // Load supplement library if not already loaded
+            if (!supplementLibrary) {
+                await loadSupplementLibrary();
+            }
+
             try {
                 const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
                 if (res.ok) {
                     analyticsData = await res.json();
+                    renderSupplementsGrid();
                     renderHealthChart();
                     renderSupplementMarkers();
                     renderCheckinUI();
@@ -4301,21 +4563,25 @@
             const supplementStarts = analyticsData?.supplement_starts || [];
             const lifeEvents = analyticsData?.life_events || [];
 
-            // Create annotations for supplement starts
+            // Create annotations for supplement starts (different colors for manual vs recommended)
             const annotations = {};
             supplementStarts.forEach((start, i) => {
+                const isManual = start.is_manual;
+                const color = isManual ? '#22C55E' : '#8B5CF6';
+                const bgColor = isManual ? 'rgba(34, 197, 94, 0.8)' : 'rgba(139, 92, 246, 0.8)';
+
                 annotations[`supp-${i}`] = {
                     type: 'line',
                     xMin: start.start_date,
                     xMax: start.start_date,
-                    borderColor: '#8B5CF6',
+                    borderColor: color,
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         display: true,
-                        content: start.supplement_id.replace(/_/g, ' '),
+                        content: (start.supplement_name || start.supplement_id.replace(/_/g, ' ')).substring(0, 15),
                         position: 'start',
-                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        backgroundColor: bgColor,
                         color: '#fff',
                         font: { size: 10 }
                     }
@@ -4429,13 +4695,33 @@
 
             const starts = analyticsData?.supplement_starts || [];
 
-            let html = starts.map(start => `
-                <div class="marker-item">
-                    <div class="marker-dot"></div>
-                    <span class="marker-name">${formatSupplementName(start.supplement_id)}</span>
-                    <span class="marker-date">${formatDate(start.start_date)}</span>
+            // Add legend for marker colors
+            let html = `
+                <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8em;">
+                    <div class="legend-marker">
+                        <div class="legend-marker-dot recommended"></div>
+                        <span>Tracked</span>
+                    </div>
+                    <div class="legend-marker">
+                        <div class="legend-marker-dot manual"></div>
+                        <span>Manual</span>
+                    </div>
                 </div>
-            `).join('');
+            `;
+
+            html += starts.map(start => {
+                const isManual = start.is_manual;
+                const dotColor = isManual ? 'background: #22C55E;' : 'background: #8B5CF6;';
+                const nameColor = isManual ? 'color: #22C55E;' : 'color: #A78BFA;';
+
+                return `
+                    <div class="marker-item" style="${isManual ? 'border-color: rgba(34, 197, 94, 0.2); background: rgba(34, 197, 94, 0.08);' : ''}">
+                        <div class="marker-dot" style="${dotColor}"></div>
+                        <span class="marker-name" style="${nameColor}">${start.supplement_name || formatSupplementName(start.supplement_id)}</span>
+                        <span class="marker-date">${formatDate(start.start_date)}</span>
+                    </div>
+                `;
+            }).join('');
 
             html += `<button class="add-marker-btn" onclick="openAddSupplementStart()">+ Add Supplement Start</button>`;
 
@@ -4451,11 +4737,9 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('checkin-date-display').textContent = `Today's Check-in (${formatDate(today)})`;
 
-            // Get the user's recommended supplement stack
-            // For now, use the supplement starts that are active
+            // Get all active supplements (both manual and recommended)
             const activeSupplements = (analyticsData?.supplement_starts || [])
-                .filter(s => !s.end_date)
-                .map(s => s.supplement_id);
+                .filter(s => !s.end_date);
 
             // Also get today's logs to show what's already checked
             const todayLogs = (analyticsData?.supplement_logs || [])
@@ -4475,24 +4759,30 @@
                     <div class="empty-state">
                         <div class="emoji">&#x1F48A;</div>
                         <div>Add supplements you're taking to track them</div>
-                        <button onclick="openAddSupplementStart()" style="margin-top: 12px;">+ Add Supplement</button>
+                        <button onclick="openAddManualSupplement()" style="margin-top: 12px;">+ Add Supplement</button>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = activeSupplements.map(suppId => {
+            container.innerHTML = activeSupplements.map(supp => {
+                const suppId = supp.supplement_id;
                 const state = checkinState[suppId] || { taken: false, time_taken: null };
                 const taken = state.taken;
                 const timeTaken = state.time_taken;
+                const isManual = supp.is_manual;
+                const icon = getSupplementIcon(suppId);
 
                 return `
-                    <div class="checkin-item ${taken ? 'taken' : ''}" id="checkin-${suppId}">
+                    <div class="checkin-item ${taken ? 'taken' : ''}" id="checkin-${suppId}" style="${isManual ? 'border-left: 3px solid #22C55E;' : 'border-left: 3px solid #8B5CF6;'}">
                         <div class="checkin-checkbox ${taken ? 'checked' : ''}"
                              onclick="toggleCheckin('${suppId}')"></div>
                         <div class="checkin-info">
-                            <div class="checkin-name">${formatSupplementName(suppId)}</div>
-                            <div class="checkin-dose">Track daily intake</div>
+                            <div class="checkin-name">
+                                ${icon} ${supp.supplement_name || formatSupplementName(suppId)}
+                                <span class="type-badge ${isManual ? 'manual' : 'recommended'}" style="margin-left: 6px;">${isManual ? 'Manual' : 'Tracked'}</span>
+                            </div>
+                            <div class="checkin-dose">${supp.dosage || 'Track daily intake'}${supp.frequency ? ' • ' + formatFrequency(supp.frequency) : ''}</div>
                         </div>
                         <div class="checkin-time-btns">
                             <button class="checkin-time-btn ${timeTaken === 'morning' ? 'active' : ''}"
@@ -4744,23 +5034,93 @@
             }
         }
 
-        // Open add supplement start modal
-        function openAddSupplementStart() {
-            // Populate supplement dropdown
-            const select = document.getElementById('start-supplement-id');
-            const supplements = [
-                'ashwagandha', 'magnesium_glycinate', 'vitamin_d3', 'vitamin_b12',
-                'omega3', 'vitamin_c', 'zinc', 'electrolytes', 'l_theanine',
-                'melatonin', 'blackseed_oil', 'caffeine', 'creatine', 'glycine'
-            ];
+        // Supplement library data
+        let supplementLibrary = null;
 
-            select.innerHTML = supplements.map(s =>
-                `<option value="${s}">${formatSupplementName(s)}</option>`
-            ).join('');
+        // Load supplement library
+        async function loadSupplementLibrary() {
+            try {
+                const res = await fetch('/analytics/supplement-library');
+                if (res.ok) {
+                    supplementLibrary = await res.json();
+                }
+            } catch (e) {
+                console.error('Error loading supplement library:', e);
+            }
+        }
 
-            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('start-notes').value = '';
+        // Open add supplement modal (for manual supplements)
+        function openAddManualSupplement() {
+            document.getElementById('supplement-modal-title').textContent = 'Add Supplement';
+            document.getElementById('supplement-modal-subtitle').textContent = 'Track a supplement you\'re taking';
+            document.getElementById('start-is-manual').value = 'true';
+            populateSupplementDropdown();
+            resetSupplementForm();
             document.getElementById('supplement-start-modal').classList.remove('hidden');
+        }
+
+        // Open add supplement start modal (for chart markers)
+        function openAddSupplementStart() {
+            document.getElementById('supplement-modal-title').textContent = 'Add Supplement Start';
+            document.getElementById('supplement-modal-subtitle').textContent = 'Track when you started a supplement';
+            document.getElementById('start-is-manual').value = 'false';
+            populateSupplementDropdown();
+            resetSupplementForm();
+            document.getElementById('supplement-start-modal').classList.remove('hidden');
+        }
+
+        // Populate supplement dropdown from library
+        function populateSupplementDropdown() {
+            const select = document.getElementById('start-supplement-id');
+
+            if (supplementLibrary && supplementLibrary.supplements) {
+                select.innerHTML = supplementLibrary.supplements.map(s =>
+                    `<option value="${s.id}" data-dose="${s.typical_dose}">${s.name}</option>`
+                ).join('');
+                select.innerHTML += '<option value="custom">+ Add Custom Supplement</option>';
+            } else {
+                // Fallback if library not loaded
+                const supplements = [
+                    'vitamin_d3', 'fish_oil', 'magnesium', 'zinc', 'b_complex', 'creatine',
+                    'protein_powder', 'melatonin', 'probiotics', 'iron', 'vitamin_c',
+                    'multivitamin', 'caffeine', 'ashwagandha', 'l_theanine', 'collagen'
+                ];
+                select.innerHTML = supplements.map(s =>
+                    `<option value="${s}">${formatSupplementName(s)}</option>`
+                ).join('');
+                select.innerHTML += '<option value="custom">+ Add Custom Supplement</option>';
+            }
+        }
+
+        // Reset supplement form
+        function resetSupplementForm() {
+            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('start-dosage').value = '';
+            document.getElementById('start-frequency').value = 'daily';
+            document.getElementById('start-reason').value = '';
+            document.getElementById('start-notes').value = '';
+            document.getElementById('custom-name-row').style.display = 'none';
+            document.getElementById('start-supplement-name').value = '';
+            onSupplementSelect();
+        }
+
+        // Handle supplement selection change
+        function onSupplementSelect() {
+            const select = document.getElementById('start-supplement-id');
+            const customRow = document.getElementById('custom-name-row');
+            const dosageInput = document.getElementById('start-dosage');
+
+            if (select.value === 'custom') {
+                customRow.style.display = 'block';
+            } else {
+                customRow.style.display = 'none';
+                // Auto-fill typical dose
+                const option = select.options[select.selectedIndex];
+                const typicalDose = option.dataset.dose;
+                if (typicalDose && !dosageInput.value) {
+                    dosageInput.placeholder = `Typical: ${typicalDose}`;
+                }
+            }
         }
 
         // Close supplement start modal
@@ -4770,9 +5130,27 @@
 
         // Save supplement start
         async function saveSupplementStart() {
-            const supplementId = document.getElementById('start-supplement-id').value;
+            const select = document.getElementById('start-supplement-id');
+            let supplementId = select.value;
+            let supplementName = null;
+
+            if (supplementId === 'custom') {
+                supplementName = document.getElementById('start-supplement-name').value.trim();
+                if (!supplementName) {
+                    showStatus('Please enter a supplement name', 'error');
+                    return;
+                }
+                supplementId = supplementName.toLowerCase().replace(/\s+/g, '_');
+            } else {
+                supplementName = select.options[select.selectedIndex].text;
+            }
+
             const startDate = document.getElementById('start-date').value;
+            const dosage = document.getElementById('start-dosage').value;
+            const frequency = document.getElementById('start-frequency').value;
+            const reason = document.getElementById('start-reason').value;
             const notes = document.getElementById('start-notes').value;
+            const isManual = document.getElementById('start-is-manual').value === 'true';
 
             if (!supplementId || !startDate) {
                 showStatus('Please select supplement and date', 'error');
@@ -4785,13 +5163,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         supplement_id: supplementId,
+                        supplement_name: supplementName,
                         start_date: startDate,
-                        notes: notes || null
+                        notes: notes || null,
+                        is_manual: isManual,
+                        dosage: dosage || null,
+                        frequency: frequency || null,
+                        reason: reason || null
                     })
                 });
 
                 if (res.ok) {
-                    showStatus('Supplement start added!', 'success');
+                    showStatus('Supplement added!', 'success');
                     closeSupplementStartModal();
                     loadAnalyticsData();
                 } else {
@@ -4801,6 +5184,139 @@
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
+        }
+
+        // Render supplements grid (Your Full Stack)
+        function renderSupplementsGrid() {
+            const container = document.getElementById('supplements-grid');
+            if (!container) return;
+
+            const supplements = analyticsData?.supplement_starts || [];
+
+            if (supplements.length === 0) {
+                container.innerHTML = `
+                    <div class="supplements-empty">
+                        <div class="supplements-empty-icon">💊</div>
+                        <div>No supplements tracked yet</div>
+                        <div style="font-size: 0.85em; margin-top: 6px;">Add the supplements you're currently taking</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Separate active supplements (no end_date)
+            const active = supplements.filter(s => !s.end_date);
+
+            container.innerHTML = active.map(supp => {
+                const isManual = supp.is_manual;
+                const typeClass = isManual ? 'manual' : 'recommended';
+                const icon = getSupplementIcon(supp.supplement_id);
+                const reasonText = supp.reason ? formatReason(supp.reason) : '';
+
+                return `
+                    <div class="supplement-card ${typeClass}">
+                        <div class="supplement-icon ${typeClass}">${icon}</div>
+                        <div class="supplement-details">
+                            <div class="supplement-name">${supp.supplement_name || formatSupplementName(supp.supplement_id)}</div>
+                            <div class="supplement-meta">
+                                ${supp.dosage ? `<span class="supplement-tag">${supp.dosage}</span>` : ''}
+                                ${supp.frequency ? `<span class="supplement-tag">${formatFrequency(supp.frequency)}</span>` : ''}
+                                ${reasonText ? `<span class="supplement-tag">${reasonText}</span>` : ''}
+                            </div>
+                            <div style="font-size: 0.75em; color: #555; margin-top: 4px;">
+                                Since ${formatDate(supp.start_date)}
+                                <span class="type-badge ${typeClass}">${isManual ? 'Manual' : 'Tracked'}</span>
+                            </div>
+                        </div>
+                        <div class="supplement-actions">
+                            <button class="supplement-action-btn delete" onclick="stopSupplement('${supp.id}')" title="Stop taking">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Stop taking a supplement (set end date)
+        async function stopSupplement(startId) {
+            if (!confirm('Mark this supplement as stopped?')) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/supplement-starts/${startId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        end_date: new Date().toISOString().split('T')[0]
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus('Supplement marked as stopped', 'success');
+                    loadAnalyticsData();
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Get supplement icon
+        function getSupplementIcon(id) {
+            const icons = {
+                vitamin_d3: '☀️',
+                fish_oil: '🐟',
+                omega3: '🐟',
+                magnesium: '🧲',
+                magnesium_glycinate: '🧲',
+                zinc: '⚡',
+                b_complex: '🅱️',
+                vitamin_b12: '🅱️',
+                creatine: '💪',
+                protein_powder: '🥛',
+                melatonin: '🌙',
+                probiotics: '🦠',
+                iron: '🔩',
+                vitamin_c: '🍊',
+                multivitamin: '💊',
+                caffeine: '☕',
+                ashwagandha: '🌿',
+                l_theanine: '🍵',
+                collagen: '✨',
+                coq10: '❤️',
+                turmeric: '🧡',
+                elderberry: '🫐',
+                lions_mane: '🍄',
+                rhodiola: '🌸',
+                glycine: '😴',
+                electrolytes: '💧',
+                blackseed_oil: '🖤',
+            };
+            return icons[id] || '💊';
+        }
+
+        // Format frequency
+        function formatFrequency(freq) {
+            const formats = {
+                daily: 'Daily',
+                twice_daily: '2x/day',
+                three_times: '3x/day',
+                as_needed: 'As needed',
+                weekly: 'Weekly'
+            };
+            return formats[freq] || freq;
+        }
+
+        // Format reason
+        function formatReason(reason) {
+            const formats = {
+                sleep: '😴 Sleep',
+                energy: '⚡ Energy',
+                recovery: '💪 Recovery',
+                focus: '🧠 Focus',
+                stress: '🧘 Stress',
+                immunity: '🛡️ Immunity',
+                general_health: '❤️ Health',
+                deficiency: '📊 Deficiency'
+            };
+            return formats[reason] || reason;
         }
 
         // Helper: Format supplement name
