@@ -2243,7 +2243,7 @@
                     <div class="custom-badge">Custom</div>
                     <div class="mix-icon">${blend.icon || '&#x1F9EA;'}</div>
                     <div class="mix-name">${blend.name}</div>
-                    <div class="mix-desc">${blend.supplements.length} supplements</div>
+                    <div class="mix-desc">${(blend.components || []).length} supplements</div>
                 `;
                 layout.appendChild(card);
             });
@@ -2272,7 +2272,7 @@
                         <span class="custom-blend-icon">${blend.icon || '&#x1F9EA;'}</span>
                         <div>
                             <div class="custom-blend-name">${blend.name}</div>
-                            <div class="custom-blend-count">${blend.supplements.length} supplements</div>
+                            <div class="custom-blend-count">${(blend.components || []).length} supplements</div>
                         </div>
                     </div>
                     <div class="custom-blend-actions">
