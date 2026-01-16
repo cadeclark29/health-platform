@@ -56,6 +56,19 @@ async def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/debug/oura/{user_id}")
+def debug_oura_token(user_id: str, db: Session = Depends(get_db)):
+    """Debug endpoint to check Oura token status."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return {"error": "User not found"}
+    return {
+        "has_token": user.oura_token is not None,
+        "token_type": type(user.oura_token).__name__ if user.oura_token else None,
+        "token_keys": list(user.oura_token.keys()) if user.oura_token and isinstance(user.oura_token, dict) else None,
+    }
+
+
 @app.get("/privacy")
 async def privacy_policy():
     privacy_file = static_path / "privacy.html"
@@ -134,10 +147,20 @@ async def oura_oauth_callback(
         print(f"[OURA CALLBACK] Exchanging code for token...")
         token = await oura.exchange_code(code, redirect_uri)
         print(f"[OURA CALLBACK] Got token: {bool(token)}, has access_token: {'access_token' in token if token else False}")
+        print(f"[OURA CALLBACK] Token keys: {list(token.keys()) if token else 'None'}")
+
+        # Save token
         user.oura_token = token
+        print(f"[OURA CALLBACK] Set user.oura_token, about to commit...")
         db.commit()
+        print(f"[OURA CALLBACK] Committed!")
         db.refresh(user)
-        print(f"[OURA CALLBACK] Token saved, user.oura_token is not None: {user.oura_token is not None}")
+        print(f"[OURA CALLBACK] After refresh, user.oura_token is not None: {user.oura_token is not None}")
+
+        # Double-check by re-querying
+        check_user = db.query(User).filter(User.id == user_id).first()
+        print(f"[OURA CALLBACK] Re-queried user, oura_token is not None: {check_user.oura_token is not None}")
+
         return RedirectResponse(url="/?oura_connected=true")
     except Exception as e:
         print(f"[OURA CALLBACK] Exception: {type(e).__name__}: {str(e)}")
