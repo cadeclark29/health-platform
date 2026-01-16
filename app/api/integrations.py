@@ -302,7 +302,42 @@ async def sync_health_data(user_id: str, db: Session = Depends(get_db)):
                 user.oura_token = valid_token
                 db.commit()
 
-            data = await oura.fetch_latest_data(user.oura_token)
+            # Fetch historical data to get most recent non-null values
+            historical = await oura.fetch_historical_data(user.oura_token, days=7)
+
+            # Build combined data using most recent non-null values
+            combined = {
+                "sleep_score": None,
+                "hrv_score": None,
+                "recovery_score": None,
+                "strain_score": None,
+                "resting_hr": None,
+                "sleep_duration_hrs": None,
+                "deep_sleep_pct": None,
+                "rem_sleep_pct": None,
+            }
+
+            # Iterate from newest to oldest
+            for day in reversed(historical):
+                for key in combined:
+                    if combined[key] is None and day.get(key) is not None:
+                        combined[key] = day[key]
+
+            # Create normalized data object
+            from app.integrations.base import NormalizedHealthData
+            from datetime import datetime
+            data = NormalizedHealthData(
+                sleep_score=combined["sleep_score"],
+                hrv_score=combined["hrv_score"],
+                recovery_score=combined["recovery_score"],
+                strain_score=combined["strain_score"],
+                resting_hr=combined["resting_hr"],
+                sleep_duration_hrs=combined["sleep_duration_hrs"],
+                deep_sleep_pct=combined["deep_sleep_pct"],
+                rem_sleep_pct=combined["rem_sleep_pct"],
+                source="oura",
+                timestamp=datetime.utcnow()
+            )
             synced_data = data
             source = "oura"
         except Exception as e:
