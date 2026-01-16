@@ -213,20 +213,36 @@ async def get_oura_history(
     try:
         historical = await oura.fetch_historical_data(user.oura_token, days=days)
 
-        # Also store the latest data point in our database
+        # Store combined data using most recent non-null values
         if historical:
-            latest = historical[-1]
+            combined = {
+                "sleep_score": None,
+                "hrv_score": None,
+                "recovery_score": None,
+                "strain_score": None,
+                "resting_hr": None,
+                "sleep_duration_hrs": None,
+                "deep_sleep_pct": None,
+                "rem_sleep_pct": None,
+            }
+
+            # Iterate from newest to oldest to get most recent non-null values
+            for day in reversed(historical):
+                for key in combined:
+                    if combined[key] is None and day.get(key) is not None:
+                        combined[key] = day[key]
+
             health_data = HealthData(
                 user_id=user_id,
                 source="oura",
-                sleep_score=latest.get("sleep_score"),
-                hrv_score=latest.get("hrv_score"),
-                recovery_score=latest.get("recovery_score"),
-                strain_score=latest.get("strain_score"),
-                resting_hr=latest.get("resting_hr"),
-                sleep_duration_hrs=latest.get("sleep_duration_hrs"),
-                deep_sleep_pct=latest.get("deep_sleep_pct"),
-                rem_sleep_pct=latest.get("rem_sleep_pct")
+                sleep_score=combined["sleep_score"],
+                hrv_score=combined["hrv_score"],
+                recovery_score=combined["recovery_score"],
+                strain_score=combined["strain_score"],
+                resting_hr=combined["resting_hr"],
+                sleep_duration_hrs=combined["sleep_duration_hrs"],
+                deep_sleep_pct=combined["deep_sleep_pct"],
+                rem_sleep_pct=combined["rem_sleep_pct"]
             )
             db.add(health_data)
             db.commit()
