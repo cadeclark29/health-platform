@@ -569,6 +569,32 @@
             color: #FBBF24;
         }
 
+        .modal-skipped {
+            background: rgba(100, 100, 100, 0.1);
+            border: 1px solid rgba(100, 100, 100, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            font-size: 0.8em;
+        }
+
+        .skipped-header {
+            color: #888;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .skipped-item {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.9em;
+            text-decoration: line-through;
+        }
+
         .modal-actions {
             display: flex;
             gap: 12px;
@@ -2339,6 +2365,7 @@
 
             const supplements = data.supplements || [];
             const warnings = data.warnings || [];
+            const skipped = data.skipped || [];
 
             content.innerHTML = `
                 <div class="modal-header">
@@ -2347,22 +2374,35 @@
                     <div class="modal-subtitle">${data.mix_description || 'Your personalized supplement mix'}</div>
                 </div>
 
-                <div class="supplement-list">
-                    ${supplements.map(s => `
-                        <div class="supplement-item">
-                            <div class="supplement-info">
-                                <span class="supplement-name">${s.name}</span>
-                                <span class="supplement-description">${s.description || ''}</span>
+                ${supplements.length > 0 ? `
+                    <div class="supplement-list">
+                        ${supplements.map(s => `
+                            <div class="supplement-item">
+                                <div class="supplement-info">
+                                    <span class="supplement-name">${s.name}</span>
+                                    <span class="supplement-description">${s.description || ''}</span>
+                                </div>
+                                <span class="supplement-dose">${s.dose}${s.unit}</span>
                             </div>
-                            <span class="supplement-dose">${s.dose}${s.unit}</span>
-                        </div>
-                        ${s.intelligence_notes && s.intelligence_notes.length > 0 ? `
-                            <div class="intelligence-note">
-                                ${s.intelligence_notes.join('; ')}
-                            </div>
-                        ` : ''}
-                    `).join('')}
-                </div>
+                            ${s.intelligence_notes && s.intelligence_notes.length > 0 ? `
+                                <div class="intelligence-note">
+                                    ${s.intelligence_notes.join('; ')}
+                                </div>
+                            ` : ''}
+                        `).join('')}
+                    </div>
+                ` : `
+                    <div class="empty-state" style="padding: 20px 0;">
+                        <div style="color: #666;">All supplements in this mix have reached their daily limits</div>
+                    </div>
+                `}
+
+                ${skipped.length > 0 ? `
+                    <div class="modal-skipped">
+                        <div class="skipped-header">Skipped (daily limit reached):</div>
+                        ${skipped.map(s => `<span class="skipped-item">${s.name || s.supplement_id}</span>`).join('')}
+                    </div>
+                ` : ''}
 
                 ${warnings.length > 0 ? `
                     <div class="modal-warning">
@@ -2372,8 +2412,8 @@
 
                 <div class="modal-actions">
                     <button class="btn-cancel" onclick="closeDispenseModal()">Cancel</button>
-                    <button class="btn-dispense" onclick="confirmDispense()" id="dispense-btn">
-                        Get Dose
+                    <button class="btn-dispense" onclick="confirmDispense()" id="dispense-btn" ${supplements.length === 0 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                        ${supplements.length === 0 ? 'Nothing to Dispense' : 'Get Dose'}
                     </button>
                 </div>
             `;
@@ -2504,28 +2544,36 @@
         function renderTracking(data) {
             const content = document.getElementById('tracking-content');
             const supplements = data.supplements || [];
+            const isWeekly = trackingTab === 'weekly';
 
             if (supplements.length === 0) {
                 content.innerHTML = `
                     <div class="empty-state">
                         <div class="emoji">&#x1F48A;</div>
-                        <div>No supplements taken yet</div>
+                        <div>No supplements taken ${isWeekly ? 'this week' : 'yet'}</div>
                     </div>
                 `;
                 return;
             }
 
             content.innerHTML = supplements.map(s => {
-                const pct = s.percentage || Math.min((s.taken / s.max_daily) * 100, 100);
+                // Handle both daily (taken/max_daily) and weekly (weekly_total/weekly_max) formats
+                const taken = isWeekly ? s.weekly_total : s.taken;
+                const max = isWeekly ? s.weekly_max : s.max_daily;
+                const pct = s.percentage || Math.min((taken / max) * 100, 100);
                 let barClass = '';
                 if (pct >= 90) barClass = 'danger';
                 else if (pct >= 70) barClass = 'warning';
 
+                // Format display value (round if needed)
+                const takenDisplay = taken % 1 === 0 ? taken : taken.toFixed(1);
+                const maxDisplay = max % 1 === 0 ? max : max.toFixed(0);
+
                 return `
                     <div class="tracking-item">
                         <div class="tracking-header">
-                            <span class="tracking-name">${s.name}</span>
-                            <span class="tracking-values">${s.taken}${s.unit} / ${s.max_daily}${s.unit}</span>
+                            <span class="tracking-name">${s.name}${isWeekly ? ` (${s.days_taken || 0} days)` : ''}</span>
+                            <span class="tracking-values">${takenDisplay}${s.unit} / ${maxDisplay}${s.unit}</span>
                         </div>
                         <div class="tracking-bar">
                             <div class="tracking-fill ${barClass}" style="width: ${pct}%"></div>
