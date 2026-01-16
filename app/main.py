@@ -69,6 +69,62 @@ def debug_oura_token(user_id: str, db: Session = Depends(get_db)):
     }
 
 
+@app.post("/debug/oura/{user_id}/set-test-token")
+def set_test_token(user_id: str, db: Session = Depends(get_db)):
+    """Test if we can save a token to the database."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return {"error": "User not found"}
+
+    test_token = {"access_token": "test123", "token_type": "Bearer", "expires_in": 3600}
+    user.oura_token = test_token
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "saved": user.oura_token is not None,
+        "matches": user.oura_token == test_token if user.oura_token else False
+    }
+
+
+@app.get("/api/oura/callback-test")
+async def oura_callback_test(
+    code: str = Query(...),
+    state: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Test callback that returns JSON instead of redirecting."""
+    user_id = state
+    if not user_id:
+        return {"error": "missing_user_id"}
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return {"error": "user_not_found"}
+
+    oura = OuraIntegration()
+    redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
+
+    try:
+        token = await oura.exchange_code(code, redirect_uri)
+        user.oura_token = token
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "success": True,
+            "token_saved": user.oura_token is not None,
+            "token_keys": list(token.keys()) if token else None
+        }
+    except Exception as e:
+        import traceback
+        return {
+            "success": False,
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 @app.get("/privacy")
 async def privacy_policy():
     privacy_file = static_path / "privacy.html"
