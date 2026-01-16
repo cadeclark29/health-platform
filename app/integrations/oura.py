@@ -98,13 +98,21 @@ class OuraIntegration(WearableIntegration):
         yesterday = today - timedelta(days=1)
 
         async with httpx.AsyncClient() as client:
-            # Fetch sleep data
+            # Fetch daily sleep summary
             sleep_response = await client.get(
                 f"{self.BASE_URL}/usercollection/daily_sleep",
                 headers=headers,
                 params={"start_date": str(yesterday), "end_date": str(today)}
             )
             sleep_data = sleep_response.json().get("data", [])
+
+            # Fetch detailed sleep data (contains actual HRV)
+            detailed_sleep_response = await client.get(
+                f"{self.BASE_URL}/usercollection/sleep",
+                headers=headers,
+                params={"start_date": str(yesterday), "end_date": str(today)}
+            )
+            detailed_sleep_data = detailed_sleep_response.json().get("data", [])
 
             # Fetch readiness data
             readiness_response = await client.get(
@@ -116,16 +124,20 @@ class OuraIntegration(WearableIntegration):
 
         # Extract latest values
         latest_sleep = sleep_data[-1] if sleep_data else {}
+        latest_detailed_sleep = detailed_sleep_data[-1] if detailed_sleep_data else {}
         latest_readiness = readiness_data[-1] if readiness_data else {}
+
+        # Get actual HRV in milliseconds from detailed sleep data
+        actual_hrv = latest_detailed_sleep.get("average_hrv")
 
         # Normalize to our schema
         return NormalizedHealthData(
             sleep_score=latest_sleep.get("score"),
-            hrv_score=self._normalize_hrv(latest_readiness.get("contributors", {}).get("hrv_balance")),
+            hrv_score=actual_hrv,  # Actual HRV in milliseconds
             recovery_score=latest_readiness.get("score"),
             strain_score=self._calculate_strain_from_activity(latest_readiness),
             resting_hr=latest_readiness.get("contributors", {}).get("resting_heart_rate"),
-            sleep_duration_hrs=self._seconds_to_hours(latest_sleep.get("contributors", {}).get("total_sleep")),
+            sleep_duration_hrs=self._seconds_to_hours(latest_detailed_sleep.get("total_sleep_duration")),
             deep_sleep_pct=latest_sleep.get("contributors", {}).get("deep_sleep"),
             rem_sleep_pct=latest_sleep.get("contributors", {}).get("rem_sleep"),
             source="oura",
@@ -141,13 +153,27 @@ class OuraIntegration(WearableIntegration):
         start_date = today - timedelta(days=days)
 
         async with httpx.AsyncClient() as client:
-            # Fetch sleep data
+            # Fetch daily sleep summary
             sleep_response = await client.get(
                 f"{self.BASE_URL}/usercollection/daily_sleep",
                 headers=headers,
                 params={"start_date": str(start_date), "end_date": str(today)}
             )
             sleep_data = {d.get("day"): d for d in sleep_response.json().get("data", [])}
+
+            # Fetch detailed sleep data (contains actual HRV)
+            detailed_sleep_response = await client.get(
+                f"{self.BASE_URL}/usercollection/sleep",
+                headers=headers,
+                params={"start_date": str(start_date), "end_date": str(today)}
+            )
+            # Index by day (sleep sessions have a "day" field)
+            detailed_sleep_data = {}
+            for d in detailed_sleep_response.json().get("data", []):
+                day = d.get("day")
+                if day:
+                    # Keep the latest sleep session for each day
+                    detailed_sleep_data[day] = d
 
             # Fetch readiness data
             readiness_response = await client.get(
@@ -171,17 +197,21 @@ class OuraIntegration(WearableIntegration):
         while current <= today:
             date_str = str(current)
             sleep = sleep_data.get(date_str, {})
+            detailed_sleep = detailed_sleep_data.get(date_str, {})
             readiness = readiness_data.get(date_str, {})
             activity = activity_data.get(date_str, {})
+
+            # Get actual HRV in milliseconds from detailed sleep
+            actual_hrv = detailed_sleep.get("average_hrv")
 
             historical.append({
                 "date": date_str,
                 "sleep_score": sleep.get("score"),
-                "hrv_score": self._normalize_hrv(readiness.get("contributors", {}).get("hrv_balance")),
+                "hrv_score": actual_hrv,  # Actual HRV in milliseconds
                 "recovery_score": readiness.get("score"),
                 "strain_score": self._calculate_strain_from_activity(readiness),
                 "resting_hr": readiness.get("contributors", {}).get("resting_heart_rate"),
-                "sleep_duration_hrs": self._seconds_to_hours(sleep.get("contributors", {}).get("total_sleep")),
+                "sleep_duration_hrs": self._seconds_to_hours(detailed_sleep.get("total_sleep_duration")),
                 "deep_sleep_pct": sleep.get("contributors", {}).get("deep_sleep"),
                 "rem_sleep_pct": sleep.get("contributors", {}).get("rem_sleep"),
                 "steps": activity.get("steps"),
