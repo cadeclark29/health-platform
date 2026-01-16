@@ -143,7 +143,9 @@ async def oura_oauth_callback(
         print(f"[OURA CALLBACK] Exception: {type(e).__name__}: {str(e)}")
         import traceback
         traceback.print_exc()
-        error_msg = str(e).replace(' ', '+')[:100]
-        return RedirectResponse(url=f"/?oura_error={error_msg}")
+        # Clean error message for URL - remove newlines and special chars
+        error_msg = str(e).split('\n')[0][:80]
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/?oura_error={quote(error_msg)}")
 
 
