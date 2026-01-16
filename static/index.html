@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dose - Smart Supplement Dispensing</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -1846,6 +1848,483 @@
             color: #444;
             font-size: 0.75em;
         }
+
+        /* Main Navigation Tabs */
+        .main-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .main-nav-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .main-nav-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .main-nav-btn.active {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+        }
+
+        /* Analytics Section */
+        .analytics-section {
+            display: none;
+        }
+
+        .analytics-section.active {
+            display: block;
+        }
+
+        .dashboard-section {
+            display: block;
+        }
+
+        .dashboard-section.hidden-section {
+            display: none;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+            color: #A0A0A0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Daily Check-in */
+        .checkin-card {
+            margin-top: 20px;
+        }
+
+        .checkin-date {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .checkin-date-text {
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .checkin-supplements {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkin-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .checkin-item:hover {
+            background: rgba(139, 92, 246, 0.05);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+
+        .checkin-item.taken {
+            background: rgba(34, 197, 94, 0.08);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .checkin-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .checkin-checkbox.checked {
+            background: #22C55E;
+            border-color: #22C55E;
+        }
+
+        .checkin-checkbox.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .checkin-info {
+            flex: 1;
+        }
+
+        .checkin-name {
+            font-weight: 500;
+            color: #E8E8E8;
+            margin-bottom: 2px;
+        }
+
+        .checkin-dose {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .checkin-time-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .checkin-time-btn {
+            padding: 6px 12px;
+            font-size: 0.75em;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            color: #666;
+        }
+
+        .checkin-time-btn:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .checkin-time-btn.active {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #A78BFA;
+        }
+
+        /* Supplement Start Markers */
+        .supplement-markers {
+            margin-top: 20px;
+        }
+
+        .marker-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .marker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .marker-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8B5CF6;
+        }
+
+        .marker-name {
+            color: #A78BFA;
+            font-weight: 500;
+        }
+
+        .marker-date {
+            color: #666;
+        }
+
+        .add-marker-btn {
+            padding: 8px 14px;
+            font-size: 0.85em;
+            background: transparent;
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            color: #8B5CF6;
+            border-radius: 20px;
+        }
+
+        .add-marker-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-style: solid;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Outcome Analysis Cards */
+        .outcome-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .outcome-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .outcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .outcome-supplement {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: #E8E8E8;
+        }
+
+        .outcome-duration {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .outcome-adherence {
+            text-align: right;
+        }
+
+        .adherence-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #22C55E;
+        }
+
+        .adherence-label {
+            font-size: 0.7em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .outcome-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .outcome-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-name {
+            color: #A0A0A0;
+            font-size: 0.9em;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-values {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .metric-diff {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .metric-diff.positive {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .metric-diff.negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .metric-diff.neutral {
+            background: rgba(255, 255, 255, 0.05);
+            color: #666;
+        }
+
+        /* Life Events */
+        .life-events-section {
+            margin-top: 20px;
+        }
+
+        .life-event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .life-event-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .life-event-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .life-event-icon.positive {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .life-event-icon.negative {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .life-event-icon.neutral {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .life-event-info {
+            flex: 1;
+        }
+
+        .life-event-type {
+            font-weight: 500;
+            color: #E8E8E8;
+        }
+
+        .life-event-date {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .life-event-delete {
+            padding: 6px 10px;
+            font-size: 0.8em;
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .life-event-item:hover .life-event-delete {
+            opacity: 1;
+        }
+
+        .life-event-delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Add Life Event Form */
+        .add-event-form {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .add-event-form.visible {
+            display: block;
+        }
+
+        .add-event-form .form-row {
+            margin-bottom: 12px;
+        }
+
+        .add-event-btn {
+            margin-top: 16px;
+            padding: 10px 18px;
+            font-size: 0.9em;
+            background: transparent;
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            color: #8B5CF6;
+            width: 100%;
+        }
+
+        .add-event-btn:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-style: solid;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Add Supplement Start Modal */
+        .modal-form-row {
+            margin-bottom: 16px;
+        }
+
+        .modal-form-row label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            color: #A0A0A0;
+        }
     </style>
 </head>
 <body>
@@ -1958,6 +2437,15 @@
                 </div>
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
+
+            <!-- Main Navigation -->
+            <div class="main-nav">
+                <button class="main-nav-btn active" onclick="switchMainTab('dashboard')" id="nav-dashboard">Dashboard</button>
+                <button class="main-nav-btn" onclick="switchMainTab('analytics')" id="nav-analytics">Analytics</button>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="dashboard-section" id="dashboard-section">
 
             <!-- Oura Connection Card -->
             <div class="oura-card" id="oura-card">
@@ -2098,6 +2586,138 @@
                     </div>
                 </div>
             </div>
+
+            </div><!-- End Dashboard Section -->
+
+            <!-- Analytics Section -->
+            <div class="analytics-section" id="analytics-section">
+                <!-- Health Metrics Chart -->
+                <div class="card">
+                    <h2>Health Metrics Over Time</h2>
+                    <div class="chart-container">
+                        <canvas id="health-chart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #8B5CF6;"></div>
+                            <span>Sleep Score</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #22C55E;"></div>
+                            <span>HRV</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #F59E0B;"></div>
+                            <span>Recovery</span>
+                        </div>
+                    </div>
+
+                    <!-- Supplement Start Markers -->
+                    <div class="supplement-markers">
+                        <h3 style="font-size: 0.95em; color: #A0A0A0; margin-bottom: 8px;">Supplement Markers on Chart</h3>
+                        <div class="marker-list" id="supplement-markers-list">
+                            <button class="add-marker-btn" onclick="openAddSupplementStart()">+ Add Supplement Start</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Check-in Card -->
+                <div class="card checkin-card">
+                    <div class="checkin-date">
+                        <span class="checkin-date-text" id="checkin-date-display">Today's Check-in</span>
+                        <button class="btn-secondary" onclick="saveCheckin()" id="save-checkin-btn" style="padding: 8px 16px; font-size: 0.85em;">Save Check-in</button>
+                    </div>
+                    <div class="checkin-supplements" id="checkin-supplements">
+                        <div class="empty-state">
+                            <div class="emoji">&#x1F48A;</div>
+                            <div>Loading your supplement stack...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outcome Analysis -->
+                <div class="card">
+                    <h2>Outcome Analysis</h2>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Compare your health metrics before and after starting each supplement</p>
+                    <div class="outcome-cards" id="outcome-cards">
+                        <div class="empty-state">
+                            <div class="emoji">&#x1F4CA;</div>
+                            <div>Add supplement start dates to see analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Life Events -->
+                <div class="card life-events-section">
+                    <h2>Life Events</h2>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 12px;">Track events that might affect your health metrics</p>
+                    <div class="life-event-list" id="life-events-list">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button class="add-event-btn" onclick="toggleAddEventForm()">+ Log Life Event</button>
+                    <div class="add-event-form" id="add-event-form">
+                        <div class="form-row">
+                            <input type="date" id="event-date" style="flex: 1;">
+                            <select id="event-type" style="flex: 1;">
+                                <option value="">Select event type...</option>
+                                <option value="new_job">New job/work stress</option>
+                                <option value="changed_mattress">Changed mattress</option>
+                                <option value="moved">Moved homes</option>
+                                <option value="started_exercise">Started exercising</option>
+                                <option value="stopped_exercise">Stopped exercising</option>
+                                <option value="sick">Got sick</option>
+                                <option value="travel">Travel/jet lag</option>
+                                <option value="relationship">Relationship change</option>
+                                <option value="diet_change">Major diet change</option>
+                                <option value="medication">Started/stopped medication</option>
+                                <option value="stress">Major stress event</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <input type="text" id="event-description" placeholder="Optional description..." style="flex: 2;">
+                            <select id="event-impact" style="flex: 1;">
+                                <option value="neutral">Neutral</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <button class="btn-secondary" onclick="toggleAddEventForm()" style="flex: 1;">Cancel</button>
+                            <button onclick="saveLifeEvent()" style="flex: 1;">Save Event</button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Analytics Section -->
+
+        </div>
+    </div>
+
+    <!-- Add Supplement Start Modal -->
+    <div class="modal-overlay hidden" id="supplement-start-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="text-align: left; margin-bottom: 18px;">
+                <div class="modal-title">Add Supplement Start</div>
+                <div class="modal-subtitle">Track when you started a supplement</div>
+            </div>
+            <div class="modal-form-row">
+                <label>Supplement</label>
+                <select id="start-supplement-id" style="width: 100%;">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="modal-form-row">
+                <label>Start Date</label>
+                <input type="date" id="start-date" style="width: 100%;">
+            </div>
+            <div class="modal-form-row">
+                <label>Notes (optional)</label>
+                <input type="text" id="start-notes" placeholder="Why did you start?" style="width: 100%;">
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="btn-cancel" onclick="closeSupplementStartModal()">Cancel</button>
+                <button onclick="saveSupplementStart()">Add Start</button>
+            </div>
         </div>
     </div>
 
@@ -2222,6 +2842,12 @@
         let trackingTab = 'daily';
         let ouraConnected = false;
         let ouraData = null;
+
+        // Analytics State
+        let healthChart = null;
+        let analyticsData = null;
+        let checkinState = {}; // {supplement_id: {taken: bool, time_taken: string}}
+        let supplementList = []; // List of all supplements for dropdown
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -3607,6 +4233,635 @@
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
+        }
+
+        // ========== ANALYTICS FUNCTIONS ==========
+
+        // Switch between Dashboard and Analytics tabs
+        function switchMainTab(tab) {
+            document.getElementById('nav-dashboard').classList.toggle('active', tab === 'dashboard');
+            document.getElementById('nav-analytics').classList.toggle('active', tab === 'analytics');
+
+            const dashboardSection = document.getElementById('dashboard-section');
+            const analyticsSection = document.getElementById('analytics-section');
+
+            if (tab === 'dashboard') {
+                dashboardSection.classList.remove('hidden-section');
+                analyticsSection.classList.remove('active');
+            } else {
+                dashboardSection.classList.add('hidden-section');
+                analyticsSection.classList.add('active');
+                loadAnalyticsData();
+            }
+        }
+
+        // Load all analytics data
+        async function loadAnalyticsData() {
+            if (!currentUserId) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                if (res.ok) {
+                    analyticsData = await res.json();
+                    renderHealthChart();
+                    renderSupplementMarkers();
+                    renderCheckinUI();
+                    renderOutcomeCards();
+                    renderLifeEvents();
+                }
+            } catch (e) {
+                console.error('Error loading analytics:', e);
+            }
+        }
+
+        // Render health metrics chart
+        function renderHealthChart() {
+            const ctx = document.getElementById('health-chart');
+            if (!ctx) return;
+
+            // Destroy existing chart if it exists
+            if (healthChart) {
+                healthChart.destroy();
+            }
+
+            const healthData = analyticsData?.health_data || [];
+            if (healthData.length === 0) {
+                return;
+            }
+
+            // Sort by date
+            healthData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const labels = healthData.map(d => d.date);
+            const sleepScores = healthData.map(d => d.sleep_score);
+            const hrvScores = healthData.map(d => d.hrv_score);
+            const recoveryScores = healthData.map(d => d.recovery_score);
+
+            // Get supplement start dates for vertical lines
+            const supplementStarts = analyticsData?.supplement_starts || [];
+            const lifeEvents = analyticsData?.life_events || [];
+
+            // Create annotations for supplement starts
+            const annotations = {};
+            supplementStarts.forEach((start, i) => {
+                annotations[`supp-${i}`] = {
+                    type: 'line',
+                    xMin: start.start_date,
+                    xMax: start.start_date,
+                    borderColor: '#8B5CF6',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        display: true,
+                        content: start.supplement_id.replace(/_/g, ' '),
+                        position: 'start',
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        color: '#fff',
+                        font: { size: 10 }
+                    }
+                };
+            });
+
+            // Add life event markers
+            lifeEvents.forEach((event, i) => {
+                const color = event.impact === 'positive' ? '#22C55E' :
+                              event.impact === 'negative' ? '#EF4444' : '#666';
+                annotations[`event-${i}`] = {
+                    type: 'line',
+                    xMin: event.date,
+                    xMax: event.date,
+                    borderColor: color,
+                    borderWidth: 1,
+                    borderDash: [3, 3]
+                };
+            });
+
+            healthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sleep Score',
+                            data: sleepScores,
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        },
+                        {
+                            label: 'HRV',
+                            data: hrvScores,
+                            borderColor: '#22C55E',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        },
+                        {
+                            label: 'Recovery',
+                            data: recoveryScores,
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                            titleColor: '#E8E8E8',
+                            bodyColor: '#A0A0A0',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#666',
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#666'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render supplement start markers
+        function renderSupplementMarkers() {
+            const container = document.getElementById('supplement-markers-list');
+            if (!container) return;
+
+            const starts = analyticsData?.supplement_starts || [];
+
+            let html = starts.map(start => `
+                <div class="marker-item">
+                    <div class="marker-dot"></div>
+                    <span class="marker-name">${formatSupplementName(start.supplement_id)}</span>
+                    <span class="marker-date">${formatDate(start.start_date)}</span>
+                </div>
+            `).join('');
+
+            html += `<button class="add-marker-btn" onclick="openAddSupplementStart()">+ Add Supplement Start</button>`;
+
+            container.innerHTML = html;
+        }
+
+        // Render daily check-in UI
+        async function renderCheckinUI() {
+            const container = document.getElementById('checkin-supplements');
+            if (!container) return;
+
+            // Get today's date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkin-date-display').textContent = `Today's Check-in (${formatDate(today)})`;
+
+            // Get the user's recommended supplement stack
+            // For now, use the supplement starts that are active
+            const activeSupplements = (analyticsData?.supplement_starts || [])
+                .filter(s => !s.end_date)
+                .map(s => s.supplement_id);
+
+            // Also get today's logs to show what's already checked
+            const todayLogs = (analyticsData?.supplement_logs || [])
+                .filter(l => l.date === today);
+
+            // Build checkin state
+            checkinState = {};
+            todayLogs.forEach(log => {
+                checkinState[log.supplement_id] = {
+                    taken: log.taken,
+                    time_taken: log.time_taken || 'morning'
+                };
+            });
+
+            if (activeSupplements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">&#x1F48A;</div>
+                        <div>Add supplements you're taking to track them</div>
+                        <button onclick="openAddSupplementStart()" style="margin-top: 12px;">+ Add Supplement</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activeSupplements.map(suppId => {
+                const state = checkinState[suppId] || { taken: false, time_taken: null };
+                const taken = state.taken;
+                const timeTaken = state.time_taken;
+
+                return `
+                    <div class="checkin-item ${taken ? 'taken' : ''}" id="checkin-${suppId}">
+                        <div class="checkin-checkbox ${taken ? 'checked' : ''}"
+                             onclick="toggleCheckin('${suppId}')"></div>
+                        <div class="checkin-info">
+                            <div class="checkin-name">${formatSupplementName(suppId)}</div>
+                            <div class="checkin-dose">Track daily intake</div>
+                        </div>
+                        <div class="checkin-time-btns">
+                            <button class="checkin-time-btn ${timeTaken === 'morning' ? 'active' : ''}"
+                                    onclick="setCheckinTime('${suppId}', 'morning')">AM</button>
+                            <button class="checkin-time-btn ${timeTaken === 'evening' ? 'active' : ''}"
+                                    onclick="setCheckinTime('${suppId}', 'evening')">PM</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle checkin checkbox
+        function toggleCheckin(suppId) {
+            if (!checkinState[suppId]) {
+                checkinState[suppId] = { taken: false, time_taken: null };
+            }
+            checkinState[suppId].taken = !checkinState[suppId].taken;
+
+            const item = document.getElementById(`checkin-${suppId}`);
+            const checkbox = item.querySelector('.checkin-checkbox');
+            item.classList.toggle('taken', checkinState[suppId].taken);
+            checkbox.classList.toggle('checked', checkinState[suppId].taken);
+        }
+
+        // Set checkin time
+        function setCheckinTime(suppId, time) {
+            if (!checkinState[suppId]) {
+                checkinState[suppId] = { taken: true, time_taken: time };
+            } else {
+                checkinState[suppId].time_taken = time;
+                checkinState[suppId].taken = true;
+            }
+
+            // Update UI
+            const item = document.getElementById(`checkin-${suppId}`);
+            item.classList.add('taken');
+            item.querySelector('.checkin-checkbox').classList.add('checked');
+
+            item.querySelectorAll('.checkin-time-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(time.substring(0, 2)));
+            });
+        }
+
+        // Save daily check-in
+        async function saveCheckin() {
+            if (!currentUserId) return;
+
+            const supplements = Object.entries(checkinState).map(([suppId, state]) => ({
+                supplement_id: suppId,
+                taken: state.taken,
+                time_taken: state.time_taken
+            }));
+
+            if (supplements.length === 0) {
+                showStatus('No supplements to check in', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/daily-checkin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ supplements })
+                });
+
+                if (res.ok) {
+                    showStatus('Check-in saved!', 'success');
+                    loadAnalyticsData(); // Refresh data
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error saving check-in', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Render outcome analysis cards
+        async function renderOutcomeCards() {
+            const container = document.getElementById('outcome-cards');
+            if (!container) return;
+
+            const starts = analyticsData?.supplement_starts || [];
+            if (starts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">&#x1F4CA;</div>
+                        <div>Add supplement start dates to see analysis</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Fetch outcome analysis for each supplement
+            const cards = [];
+            for (const start of starts) {
+                try {
+                    const res = await fetch(`/analytics/${currentUserId}/outcome-analysis/${start.supplement_id}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        cards.push(renderOutcomeCard(data));
+                    }
+                } catch (e) {
+                    console.error('Error fetching outcome:', e);
+                }
+            }
+
+            container.innerHTML = cards.length > 0 ? cards.join('') : `
+                <div class="empty-state">
+                    <div class="emoji">&#x1F4CA;</div>
+                    <div>Not enough data yet for analysis</div>
+                </div>
+            `;
+        }
+
+        // Render single outcome card
+        function renderOutcomeCard(data) {
+            const changes = data.changes || {};
+            const adherence = data.adherence?.rate_pct || 0;
+
+            const metricsHtml = Object.entries(changes).map(([key, change]) => {
+                const isPositive = key === 'resting_hr' ? change.change < 0 : change.change > 0;
+                const diffClass = change.change === 0 ? 'neutral' : (isPositive ? 'positive' : 'negative');
+                const arrow = change.change > 0 ? '↑' : (change.change < 0 ? '↓' : '→');
+
+                return `
+                    <div class="outcome-metric">
+                        <span class="metric-name">${formatMetricName(key)}</span>
+                        <div class="metric-change">
+                            <span class="metric-values">${change.before} → ${change.after}</span>
+                            <span class="metric-diff ${diffClass}">${arrow} ${Math.abs(change.change_pct).toFixed(0)}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="outcome-card">
+                    <div class="outcome-header">
+                        <div>
+                            <div class="outcome-supplement">${formatSupplementName(data.supplement_id)}</div>
+                            <div class="outcome-duration">Started ${formatDate(data.start_date)} (${data.days_on_supplement} days)</div>
+                        </div>
+                        <div class="outcome-adherence">
+                            <div class="adherence-value">${adherence.toFixed(0)}%</div>
+                            <div class="adherence-label">Adherence</div>
+                        </div>
+                    </div>
+                    <div class="outcome-metrics">
+                        ${metricsHtml || '<div style="color: #666; font-size: 0.9em;">Not enough data yet</div>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render life events
+        function renderLifeEvents() {
+            const container = document.getElementById('life-events-list');
+            if (!container) return;
+
+            const events = analyticsData?.life_events || [];
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 16px;">
+                        <div style="color: #666;">No life events logged yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = events.map(event => {
+                const icon = getEventIcon(event.event_type);
+                return `
+                    <div class="life-event-item">
+                        <div class="life-event-icon ${event.impact || 'neutral'}">${icon}</div>
+                        <div class="life-event-info">
+                            <div class="life-event-type">${formatEventType(event.event_type)}</div>
+                            <div class="life-event-date">${formatDate(event.date)}${event.description ? ' - ' + event.description : ''}</div>
+                        </div>
+                        <button class="life-event-delete" onclick="deleteLifeEvent('${event.id}')">Delete</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle add event form
+        function toggleAddEventForm() {
+            const form = document.getElementById('add-event-form');
+            form.classList.toggle('visible');
+            if (form.classList.contains('visible')) {
+                document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Save life event
+        async function saveLifeEvent() {
+            const eventDate = document.getElementById('event-date').value;
+            const eventType = document.getElementById('event-type').value;
+            const description = document.getElementById('event-description').value;
+            const impact = document.getElementById('event-impact').value;
+
+            if (!eventDate || !eventType) {
+                showStatus('Please select date and event type', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/life-events`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event_date: eventDate,
+                        event_type: eventType,
+                        description: description || null,
+                        impact: impact
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus('Life event saved!', 'success');
+                    toggleAddEventForm();
+                    loadAnalyticsData();
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error saving event', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Delete life event
+        async function deleteLifeEvent(eventId) {
+            if (!confirm('Delete this life event?')) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/life-events/${eventId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showStatus('Event deleted', 'success');
+                    loadAnalyticsData();
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Open add supplement start modal
+        function openAddSupplementStart() {
+            // Populate supplement dropdown
+            const select = document.getElementById('start-supplement-id');
+            const supplements = [
+                'ashwagandha', 'magnesium_glycinate', 'vitamin_d3', 'vitamin_b12',
+                'omega3', 'vitamin_c', 'zinc', 'electrolytes', 'l_theanine',
+                'melatonin', 'blackseed_oil', 'caffeine', 'creatine', 'glycine'
+            ];
+
+            select.innerHTML = supplements.map(s =>
+                `<option value="${s}">${formatSupplementName(s)}</option>`
+            ).join('');
+
+            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('start-notes').value = '';
+            document.getElementById('supplement-start-modal').classList.remove('hidden');
+        }
+
+        // Close supplement start modal
+        function closeSupplementStartModal() {
+            document.getElementById('supplement-start-modal').classList.add('hidden');
+        }
+
+        // Save supplement start
+        async function saveSupplementStart() {
+            const supplementId = document.getElementById('start-supplement-id').value;
+            const startDate = document.getElementById('start-date').value;
+            const notes = document.getElementById('start-notes').value;
+
+            if (!supplementId || !startDate) {
+                showStatus('Please select supplement and date', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/supplement-starts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        supplement_id: supplementId,
+                        start_date: startDate,
+                        notes: notes || null
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus('Supplement start added!', 'success');
+                    closeSupplementStartModal();
+                    loadAnalyticsData();
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error saving', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Helper: Format supplement name
+        function formatSupplementName(id) {
+            return id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // Helper: Format metric name
+        function formatMetricName(key) {
+            const names = {
+                sleep_score: 'Sleep Score',
+                hrv_score: 'HRV',
+                recovery_score: 'Recovery',
+                resting_hr: 'Resting HR',
+                sleep_duration_hrs: 'Sleep Duration'
+            };
+            return names[key] || key;
+        }
+
+        // Helper: Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // Helper: Format event type
+        function formatEventType(type) {
+            const types = {
+                new_job: 'New Job/Work Stress',
+                changed_mattress: 'Changed Mattress',
+                moved: 'Moved Homes',
+                started_exercise: 'Started Exercising',
+                stopped_exercise: 'Stopped Exercising',
+                sick: 'Got Sick',
+                travel: 'Travel/Jet Lag',
+                relationship: 'Relationship Change',
+                diet_change: 'Major Diet Change',
+                medication: 'Started/Stopped Medication',
+                stress: 'Major Stress Event',
+                other: 'Other'
+            };
+            return types[type] || type;
+        }
+
+        // Helper: Get event icon
+        function getEventIcon(type) {
+            const icons = {
+                new_job: '💼',
+                changed_mattress: '🛏️',
+                moved: '🏠',
+                started_exercise: '🏃',
+                stopped_exercise: '🛋️',
+                sick: '🤒',
+                travel: '✈️',
+                relationship: '❤️',
+                diet_change: '🥗',
+                medication: '💊',
+                stress: '😰',
+                other: '📝'
+            };
+            return icons[type] || '📌';
         }
     </script>
 </body>

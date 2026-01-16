@@ -94,3 +94,8 @@ class User(Base):
     dispense_logs = relationship("DispenseLog", back_populates="user", cascade="all, delete-orphan")
     check_ins = relationship("DailyCheckIn", back_populates="user", cascade="all, delete-orphan")
     baseline = relationship("UserBaseline", back_populates="user", uselist=False, cascade="all, delete-orphan")
+
+    # Analytics relationships
+    supplement_logs = relationship("SupplementLog", back_populates="user", cascade="all, delete-orphan")
+    supplement_starts = relationship("SupplementStart", back_populates="user", cascade="all, delete-orphan")
+    life_events = relationship("LifeEvent", back_populates="user", cascade="all, delete-orphan")

@@ -4,3 +4,4 @@ from .recommendation import Recommendation, DispenseLog
 from .checkin import DailyCheckIn
 from .baseline import UserBaseline
 from .custom_blend import CustomBlend
+from .analytics import SupplementLog, SupplementStart, LifeEvent

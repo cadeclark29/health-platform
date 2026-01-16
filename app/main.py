@@ -9,7 +9,7 @@ from typing import Optional
 
 from app.db.database import engine, Base
 from app.db import get_db
-from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes
+from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes, analytics
 from app.api.mixes import blends_router
 from app.models import User
 from app.integrations import OuraIntegration
@@ -36,6 +36,7 @@ app.include_router(checkins.router, prefix="/checkins", tags=["checkins"])
 app.include_router(interactions.router, prefix="/interactions", tags=["interactions"])
 app.include_router(blends_router, prefix="/mixes/blends", tags=["blends"])  # Must be before mixes router
 app.include_router(mixes.router, prefix="/mixes", tags=["mixes"])
+app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 
 # Serve static files
 static_path = Path(__file__).resolve().parent.parent / "static"
