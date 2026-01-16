@@ -56,73 +56,6 @@ async def health_check():
     return {"status": "healthy"}
 
 
-@app.get("/debug/oura/{user_id}")
-def debug_oura_token(user_id: str, db: Session = Depends(get_db)):
-    """Debug endpoint to check Oura token status."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return {"error": "User not found"}
-    return {
-        "has_token": user.oura_token is not None,
-        "token_type": type(user.oura_token).__name__ if user.oura_token else None,
-        "token_keys": list(user.oura_token.keys()) if user.oura_token and isinstance(user.oura_token, dict) else None,
-    }
-
-
-@app.post("/debug/oura/{user_id}/set-test-token")
-def set_test_token(user_id: str, db: Session = Depends(get_db)):
-    """Test if we can save a token to the database."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return {"error": "User not found"}
-
-    test_token = {"access_token": "test123", "token_type": "Bearer", "expires_in": 3600}
-    user.oura_token = test_token
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "saved": user.oura_token is not None,
-        "matches": user.oura_token == test_token if user.oura_token else False
-    }
-
-
-@app.get("/api/oura/callback-test")
-async def oura_callback_test(
-    code: str = Query(...),
-    state: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
-):
-    """Test callback that returns JSON instead of redirecting."""
-    user_id = state
-    if not user_id:
-        return {"error": "missing_user_id"}
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return {"error": "user_not_found"}
-
-    oura = OuraIntegration()
-    redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
-
-    try:
-        token = await oura.exchange_code(code, redirect_uri)
-        user.oura_token = token
-        db.commit()
-        db.refresh(user)
-
-        return {
-            "success": True,
-            "token_saved": user.oura_token is not None,
-            "token_keys": list(token.keys()) if token else None
-        }
-    except Exception as e:
-        import traceback
-        return {
-            "success": False,
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        }
 
 
 @app.get("/privacy")
@@ -179,54 +112,29 @@ async def oura_oauth_callback(
     """
     Handle Oura OAuth callback.
     The state parameter contains the user_id.
-    TEMPORARILY returning JSON for debugging.
     """
-    debug_info = {"step": "start", "code_prefix": code[:20] if code else None, "state": state, "error": error}
-
     if error:
-        debug_info["step"] = "oauth_error"
-        return debug_info
+        return RedirectResponse(url=f"/?oura_error={error}")
 
     user_id = state
     if not user_id:
-        debug_info["step"] = "missing_user_id"
-        return debug_info
+        return RedirectResponse(url="/?oura_error=missing_user_id")
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        debug_info["step"] = "user_not_found"
-        return debug_info
+        return RedirectResponse(url="/?oura_error=user_not_found")
 
     oura = OuraIntegration()
     redirect_uri = "https://health-platform-production-94aa.up.railway.app/api/oura/callback"
 
     try:
-        debug_info["step"] = "exchanging_code"
         token = await oura.exchange_code(code, redirect_uri)
-        debug_info["step"] = "got_token"
-        debug_info["token_keys"] = list(token.keys()) if token else None
-        debug_info["has_access_token"] = "access_token" in token if token else False
-
         user.oura_token = token
-        debug_info["step"] = "token_assigned"
         db.commit()
-        debug_info["step"] = "committed"
-        db.refresh(user)
-        debug_info["step"] = "refreshed"
-        debug_info["token_saved"] = user.oura_token is not None
-
-        # Double-check
-        check_user = db.query(User).filter(User.id == user_id).first()
-        debug_info["requery_has_token"] = check_user.oura_token is not None
-        debug_info["step"] = "complete"
-        debug_info["success"] = True
-
-        return debug_info
+        return RedirectResponse(url="/?oura_connected=true")
     except Exception as e:
-        import traceback
-        debug_info["step"] = "exception"
-        debug_info["error"] = str(e)
-        debug_info["traceback"] = traceback.format_exc()
-        return debug_info
+        from urllib.parse import quote
+        error_msg = str(e).split('\n')[0][:80]
+        return RedirectResponse(url=f"/?oura_error={quote(error_msg)}")
 
 
