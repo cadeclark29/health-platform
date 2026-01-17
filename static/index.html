@@ -856,6 +856,175 @@
             display: block;
         }
 
+        /* Searchable Supplement Picker */
+        .supp-search-container {
+            margin-bottom: 16px;
+        }
+
+        .supp-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #E8E8E8;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .supp-search-input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .supp-search-input::placeholder {
+            color: #666;
+        }
+
+        .supp-list-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .supp-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .supp-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .supp-list-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .supp-list-item.selected {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .supp-list-icon {
+            font-size: 1.3em;
+            margin-right: 12px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .supp-list-info {
+            flex: 1;
+        }
+
+        .supp-list-name {
+            color: #E8E8E8;
+            font-weight: 500;
+        }
+
+        .supp-list-dose {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .supp-list-check {
+            color: #22C55E;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .supp-list-item.selected .supp-list-check {
+            opacity: 1;
+        }
+
+        .supp-no-results {
+            padding: 24px;
+            text-align: center;
+            color: #666;
+        }
+
+        /* Selected Supplements Section */
+        .selected-supps-section {
+            margin-bottom: 16px;
+        }
+
+        .selected-supps-label {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .selected-supp-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .selected-supp-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .selected-supp-name {
+            flex: 1;
+            color: #E8E8E8;
+            font-weight: 500;
+        }
+
+        .selected-supp-remove {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 0.9em;
+        }
+
+        .selected-supp-remove:hover {
+            color: #EF4444;
+        }
+
+        .selected-supp-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .selected-supp-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .selected-supp-field label {
+            font-size: 0.75em;
+            color: #888;
+        }
+
+        .selected-supp-field input,
+        .selected-supp-field select {
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #E8E8E8;
+            font-size: 0.9em;
+        }
+
+        .selected-supp-field input:focus,
+        .selected-supp-field select:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
         /* Goal Options */
         .goal-options {
             display: grid;
@@ -4915,23 +5084,38 @@
             goal: null
         };
 
-        const ONBOARDING_SUPPLEMENTS = [
-            { id: 'vitamin_d3', name: 'Vitamin D', icon: '☀️', dose: '2000 IU' },
-            { id: 'fish_oil', name: 'Fish Oil', icon: '🐟', dose: '1000mg' },
-            { id: 'magnesium_glycinate', name: 'Magnesium', icon: '🧲', dose: '400mg' },
-            { id: 'vitamin_b12', name: 'Vitamin B12', icon: '🔴', dose: '1000mcg' },
-            { id: 'ashwagandha', name: 'Ashwagandha', icon: '🌿', dose: '600mg' },
-            { id: 'zinc', name: 'Zinc', icon: '⚡', dose: '30mg' }
-        ];
+        // Icons for common supplements (used in onboarding search)
+        const SUPPLEMENT_ICONS = {
+            'vitamin_d3': '☀️',
+            'fish_oil': '🐟',
+            'magnesium': '🧲',
+            'magnesium_glycinate': '🧲',
+            'vitamin_b12': '🔴',
+            'b_complex': '🔴',
+            'ashwagandha': '🌿',
+            'zinc': '⚡',
+            'creatine': '💪',
+            'protein_powder': '🥤',
+            'melatonin': '🌙',
+            'vitamin_c': '🍊',
+            'iron': '🔩',
+            'calcium': '🦴',
+            'probiotics': '🦠',
+            'collagen': '✨',
+            'turmeric': '🟡',
+            'default': '💊'
+        };
+
+        function getSupplementIcon(id) {
+            return SUPPLEMENT_ICONS[id] || SUPPLEMENT_ICONS['default'];
+        }
 
         function showOnboarding() {
             document.getElementById('onboarding-modal').classList.remove('hidden');
             onboardingStep = 1;
             onboardingData = {
                 ouraConnected: false,
-                selectedSupplements: [],
-                duration: 0,
-                adherence: 80,
+                selectedSupplements: [], // Now stores objects: { id, name, dosage, duration }
                 goal: null
             };
             renderOnboardingStep(1);
@@ -4948,6 +5132,8 @@
                     break;
                 case 2:
                     content.innerHTML = getStep2HTML();
+                    // Populate the supplement list
+                    setTimeout(() => filterOnboardingSupplements(''), 10);
                     break;
                 case 3:
                     content.innerHTML = getStep3HTML();
@@ -5008,55 +5194,56 @@
 
         // Step 2: Add Supplements
         function getStep2HTML() {
-            const supplementsHTML = ONBOARDING_SUPPLEMENTS.map(supp => {
-                const isSelected = onboardingData.selectedSupplements.includes(supp.id);
-                return `
-                    <div class="onboarding-quick-item ${isSelected ? 'selected' : ''}"
-                         onclick="toggleOnboardingSupplement('${supp.id}')">
-                        <span class="quick-check">✓</span>
-                        <span class="quick-icon">${supp.icon}</span>
-                        <span class="quick-name">${supp.name}</span>
-                    </div>
-                `;
-            }).join('');
-
             const hasSelected = onboardingData.selectedSupplements.length > 0;
 
-            const detailsHTML = hasSelected ? `
-                <div class="onboarding-details">
-                    <label>How long have you been taking these?</label>
-                    <select id="onboarding-duration" onchange="onboardingData.duration = parseInt(this.value)">
-                        <option value="0" ${onboardingData.duration === 0 ? 'selected' : ''}>Just starting</option>
-                        <option value="7" ${onboardingData.duration === 7 ? 'selected' : ''}>About a week</option>
-                        <option value="30" ${onboardingData.duration === 30 ? 'selected' : ''}>About a month</option>
-                        <option value="90" ${onboardingData.duration === 90 ? 'selected' : ''}>3+ months</option>
-                    </select>
-
-                    <label>Estimated adherence</label>
-                    <div class="adherence-row">
-                        <input type="range" min="0" max="100" value="${onboardingData.adherence}"
-                               oninput="updateOnboardingAdherence(this.value)">
-                        <span class="adherence-value" id="onboarding-adherence-value">${onboardingData.adherence}%</span>
+            // Build selected supplements cards
+            const selectedCardsHTML = onboardingData.selectedSupplements.map((supp, idx) => `
+                <div class="selected-supp-card">
+                    <div class="selected-supp-header">
+                        <span class="selected-supp-name">${getSupplementIcon(supp.id)} ${supp.name}</span>
+                        <button class="selected-supp-remove" onclick="removeOnboardingSupplement(${idx})">✕</button>
+                    </div>
+                    <div class="selected-supp-fields">
+                        <div class="selected-supp-field">
+                            <label>Dosage</label>
+                            <input type="text" value="${supp.dosage}" placeholder="e.g. 2000 IU"
+                                   onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)">
+                        </div>
+                        <div class="selected-supp-field">
+                            <label>Taking for</label>
+                            <select onchange="updateOnboardingSupplementField(${idx}, 'duration', parseInt(this.value))">
+                                <option value="0" ${supp.duration === 0 ? 'selected' : ''}>Just starting</option>
+                                <option value="7" ${supp.duration === 7 ? 'selected' : ''}>~1 week</option>
+                                <option value="30" ${supp.duration === 30 ? 'selected' : ''}>~1 month</option>
+                                <option value="90" ${supp.duration === 90 ? 'selected' : ''}>3+ months</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            ` : '';
+            `).join('');
 
             return `
                 <div class="onboarding-step-content">
                     <div class="onboarding-illustration">💊</div>
                     <h2>What do you take?</h2>
-                    <p class="onboarding-subtitle">Add supplements you're already taking</p>
+                    <p class="onboarding-subtitle">Search and add your supplements</p>
 
-                    <div class="onboarding-quick-add">
-                        ${supplementsHTML}
+                    <div class="supp-search-container">
+                        <input type="text" class="supp-search-input" id="onboarding-supp-search"
+                               placeholder="Search supplements..."
+                               oninput="filterOnboardingSupplements(this.value)">
                     </div>
 
-                    ${detailsHTML}
+                    <div class="supp-list-container" id="onboarding-supp-list">
+                        <!-- Populated by JS -->
+                    </div>
 
-                    <button class="onboarding-btn secondary" style="background: transparent; border: 1px dashed rgba(139, 92, 246, 0.3); color: #A78BFA; margin-bottom: 16px;"
-                            onclick="closeOnboarding(); setTimeout(() => { switchMainTab('analytics'); openAddManualSupplement(); }, 300);">
-                        + Add Other Supplement
-                    </button>
+                    ${hasSelected ? `
+                        <div class="selected-supps-section">
+                            <div class="selected-supps-label">Your supplements (${onboardingData.selectedSupplements.length})</div>
+                            ${selectedCardsHTML}
+                        </div>
+                    ` : ''}
 
                     <button class="onboarding-btn ${hasSelected ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
                         ${hasSelected ? 'Continue' : 'Skip for now'}
@@ -5065,20 +5252,105 @@
             `;
         }
 
-        function toggleOnboardingSupplement(suppId) {
-            const idx = onboardingData.selectedSupplements.indexOf(suppId);
-            if (idx > -1) {
-                onboardingData.selectedSupplements.splice(idx, 1);
+        // Filter supplements in onboarding search
+        function filterOnboardingSupplements(query) {
+            const container = document.getElementById('onboarding-supp-list');
+            if (!container) return;
+
+            // Use supplement library if loaded, otherwise use a basic list
+            let supplements = [];
+            if (supplementLibrary && supplementLibrary.supplements) {
+                supplements = supplementLibrary.supplements;
             } else {
-                onboardingData.selectedSupplements.push(suppId);
+                // Fallback list
+                supplements = [
+                    { id: 'vitamin_d3', name: 'Vitamin D3', typical_dose: '2000-5000 IU' },
+                    { id: 'fish_oil', name: 'Fish Oil / Omega-3', typical_dose: '1000-2000mg' },
+                    { id: 'magnesium_glycinate', name: 'Magnesium Glycinate', typical_dose: '200-400mg' },
+                    { id: 'vitamin_b12', name: 'Vitamin B12', typical_dose: '500-1000mcg' },
+                    { id: 'ashwagandha', name: 'Ashwagandha', typical_dose: '300-600mg' },
+                    { id: 'zinc', name: 'Zinc', typical_dose: '15-30mg' },
+                    { id: 'melatonin', name: 'Melatonin', typical_dose: '0.5-5mg' },
+                    { id: 'creatine', name: 'Creatine', typical_dose: '3-5g' },
+                    { id: 'vitamin_c', name: 'Vitamin C', typical_dose: '500-1000mg' },
+                    { id: 'b_complex', name: 'B-Complex', typical_dose: '1 capsule' }
+                ];
             }
-            // Re-render to show/hide duration section
-            renderOnboardingStep(2);
+
+            // Filter by query
+            const lowerQuery = query.toLowerCase().trim();
+            const filtered = lowerQuery
+                ? supplements.filter(s => s.name.toLowerCase().includes(lowerQuery))
+                : supplements.slice(0, 8); // Show first 8 by default
+
+            // Check which are already selected
+            const selectedIds = onboardingData.selectedSupplements.map(s => s.id);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="supp-no-results">No supplements found for "${query}"</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(supp => {
+                const isSelected = selectedIds.includes(supp.id);
+                return `
+                    <div class="supp-list-item ${isSelected ? 'selected' : ''}"
+                         onclick="toggleOnboardingSupplementFromSearch('${supp.id}', '${supp.name.replace(/'/g, "\\'")}', '${(supp.typical_dose || '').replace(/'/g, "\\'")}')">
+                        <span class="supp-list-icon">${getSupplementIcon(supp.id)}</span>
+                        <div class="supp-list-info">
+                            <div class="supp-list-name">${supp.name}</div>
+                            <div class="supp-list-dose">${supp.typical_dose || ''}</div>
+                        </div>
+                        <span class="supp-list-check">✓</span>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function updateOnboardingAdherence(value) {
-            onboardingData.adherence = parseInt(value);
-            document.getElementById('onboarding-adherence-value').textContent = value + '%';
+        // Toggle supplement from search list
+        function toggleOnboardingSupplementFromSearch(id, name, typicalDose) {
+            const idx = onboardingData.selectedSupplements.findIndex(s => s.id === id);
+            if (idx > -1) {
+                // Remove it
+                onboardingData.selectedSupplements.splice(idx, 1);
+            } else {
+                // Add it with default values
+                const defaultDose = typicalDose ? typicalDose.split('-')[0] || typicalDose : '';
+                onboardingData.selectedSupplements.push({
+                    id: id,
+                    name: name,
+                    dosage: defaultDose,
+                    duration: 30 // Default to 1 month
+                });
+            }
+            // Re-render
+            renderOnboardingStep(2);
+            // Restore search and re-filter
+            setTimeout(() => {
+                const searchInput = document.getElementById('onboarding-supp-search');
+                if (searchInput) {
+                    filterOnboardingSupplements(searchInput.value || '');
+                }
+            }, 10);
+        }
+
+        // Remove a selected supplement
+        function removeOnboardingSupplement(idx) {
+            onboardingData.selectedSupplements.splice(idx, 1);
+            renderOnboardingStep(2);
+            setTimeout(() => {
+                const searchInput = document.getElementById('onboarding-supp-search');
+                if (searchInput) {
+                    filterOnboardingSupplements(searchInput.value || '');
+                }
+            }, 10);
+        }
+
+        // Update a field on a selected supplement
+        function updateOnboardingSupplementField(idx, field, value) {
+            if (onboardingData.selectedSupplements[idx]) {
+                onboardingData.selectedSupplements[idx][field] = value;
+            }
         }
 
         // Step 3: Set Goal
@@ -5167,33 +5439,31 @@
         async function completeOnboarding() {
             // Save supplements if any were selected
             if (onboardingData.selectedSupplements.length > 0) {
-                const startDate = new Date();
-                startDate.setDate(startDate.getDate() - onboardingData.duration);
-                const startDateStr = startDate.toISOString().split('T')[0];
+                for (const supp of onboardingData.selectedSupplements) {
+                    // Calculate start date based on duration
+                    const startDate = new Date();
+                    startDate.setDate(startDate.getDate() - (supp.duration || 0));
+                    const startDateStr = startDate.toISOString().split('T')[0];
 
-                for (const suppId of onboardingData.selectedSupplements) {
-                    const supp = ONBOARDING_SUPPLEMENTS.find(s => s.id === suppId);
-                    if (supp) {
-                        try {
-                            await fetch(`/analytics/${currentUserId}/supplement-starts`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    supplement_id: suppId,
-                                    supplement_name: supp.name,
-                                    start_date: startDateStr,
-                                    is_manual: true,
-                                    dosage: supp.dose
-                                })
-                            });
+                    try {
+                        await fetch(`/analytics/${currentUserId}/supplement-starts`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                supplement_id: supp.id,
+                                supplement_name: supp.name,
+                                start_date: startDateStr,
+                                is_manual: true,
+                                dosage: supp.dosage || ''
+                            })
+                        });
 
-                            // Create backdate logs if duration > 0
-                            if (onboardingData.duration > 0) {
-                                await createBackdateLogs(suppId, startDateStr, onboardingData.adherence / 100);
-                            }
-                        } catch (e) {
-                            console.error('Error adding supplement:', e);
+                        // Create backdate logs if duration > 0 (assume 80% adherence)
+                        if (supp.duration > 0) {
+                            await createBackdateLogs(supp.id, startDateStr, 0.8);
                         }
+                    } catch (e) {
+                        console.error('Error adding supplement:', e);
                     }
                 }
             }
