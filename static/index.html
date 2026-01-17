@@ -4977,14 +4977,14 @@
             try {
                 // If we don't have analytics data yet, fetch it
                 if (!analyticsData) {
-                    const res = await fetch(`/analytics/${currentUserId}/analytics?days=30`);
+                    const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
                     if (res.ok) {
                         analyticsData = await res.json();
                     }
                 }
                 loadTodaysStack();
             } catch (e) {
-                console.error('Error loading Today\'s Stack:', e);
+                console.error('Error loading Your Stack:', e);
             }
         }
 
