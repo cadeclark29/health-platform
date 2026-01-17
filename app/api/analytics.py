@@ -4,9 +4,150 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel
 from datetime import date, datetime, timedelta
+import math
 
 from app.db import get_db
 from app.models import User, HealthData, SupplementLog, SupplementStart, LifeEvent
+
+
+# --- Statistical Helper Functions ---
+
+def calculate_std_dev(values: List[float]) -> float:
+    """Calculate standard deviation of a list of values."""
+    if len(values) < 2:
+        return 0
+    mean = sum(values) / len(values)
+    variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
+    return math.sqrt(variance)
+
+
+def calculate_t_statistic(before_values: List[float], after_values: List[float]) -> dict:
+    """
+    Calculate t-statistic and confidence level for before/after comparison.
+    Uses Welch's t-test (unequal variances assumed).
+    Returns confidence level: 'high' (p<0.05), 'medium' (p<0.1), 'low' (p>=0.1)
+    """
+    if len(before_values) < 3 or len(after_values) < 3:
+        return {"confidence": "insufficient_data", "t_stat": None, "p_estimate": None}
+
+    n1, n2 = len(before_values), len(after_values)
+    mean1, mean2 = sum(before_values) / n1, sum(after_values) / n2
+    std1, std2 = calculate_std_dev(before_values), calculate_std_dev(after_values)
+
+    # Avoid division by zero
+    if std1 == 0 and std2 == 0:
+        return {"confidence": "no_variance", "t_stat": None, "p_estimate": None}
+
+    # Welch's t-test
+    se = math.sqrt((std1**2 / n1) + (std2**2 / n2)) if (std1**2 / n1 + std2**2 / n2) > 0 else 0.001
+    t_stat = (mean2 - mean1) / se if se > 0 else 0
+
+    # Approximate degrees of freedom (Welch-Satterthwaite)
+    if std1 > 0 or std2 > 0:
+        numerator = ((std1**2 / n1) + (std2**2 / n2))**2
+        denom1 = (std1**4 / (n1**2 * (n1 - 1))) if std1 > 0 else 0
+        denom2 = (std2**4 / (n2**2 * (n2 - 1))) if std2 > 0 else 0
+        df = numerator / (denom1 + denom2) if (denom1 + denom2) > 0 else min(n1, n2) - 1
+    else:
+        df = min(n1, n2) - 1
+
+    # Rough p-value estimation using t-distribution approximations
+    # For df >= 30, t approaches normal distribution
+    abs_t = abs(t_stat)
+
+    # Conservative confidence estimates based on t-statistic thresholds
+    if df >= 30:
+        # Use normal approximation
+        if abs_t >= 2.576:  # ~99% confidence
+            confidence = "very_high"
+            p_estimate = 0.01
+        elif abs_t >= 1.96:  # ~95% confidence
+            confidence = "high"
+            p_estimate = 0.05
+        elif abs_t >= 1.645:  # ~90% confidence
+            confidence = "medium"
+            p_estimate = 0.10
+        else:
+            confidence = "low"
+            p_estimate = 0.20 if abs_t >= 1.28 else 0.50
+    else:
+        # More conservative for small samples
+        if abs_t >= 3.0:
+            confidence = "high"
+            p_estimate = 0.05
+        elif abs_t >= 2.0:
+            confidence = "medium"
+            p_estimate = 0.10
+        else:
+            confidence = "low"
+            p_estimate = 0.30
+
+    return {
+        "confidence": confidence,
+        "t_stat": round(t_stat, 2),
+        "p_estimate": p_estimate,
+        "sample_sizes": {"before": n1, "after": n2}
+    }
+
+
+def detect_trend(values: List[float], dates: List[date]) -> dict:
+    """
+    Detect trend direction using linear regression.
+    Returns: improving, declining, stable, or insufficient_data
+    """
+    if len(values) < 5:
+        return {"direction": "insufficient_data", "slope": None, "strength": None}
+
+    # Convert dates to numeric (days from first date)
+    first_date = min(dates)
+    x_values = [(d - first_date).days for d in dates]
+
+    n = len(values)
+    sum_x = sum(x_values)
+    sum_y = sum(values)
+    sum_xy = sum(x * y for x, y in zip(x_values, values))
+    sum_x2 = sum(x**2 for x in x_values)
+
+    # Calculate slope
+    denominator = n * sum_x2 - sum_x**2
+    if denominator == 0:
+        return {"direction": "stable", "slope": 0, "strength": "weak"}
+
+    slope = (n * sum_xy - sum_x * sum_y) / denominator
+
+    # Calculate R-squared for trend strength
+    mean_y = sum_y / n
+    ss_tot = sum((y - mean_y)**2 for y in values)
+    intercept = (sum_y - slope * sum_x) / n
+    predictions = [slope * x + intercept for x in x_values]
+    ss_res = sum((y - pred)**2 for y, pred in zip(values, predictions))
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+
+    # Determine direction and strength
+    # Slope threshold: consider ~1 point per week significant
+    weekly_change = slope * 7
+
+    if abs(weekly_change) < 0.5:
+        direction = "stable"
+    elif weekly_change > 0:
+        direction = "improving"
+    else:
+        direction = "declining"
+
+    if r_squared >= 0.5:
+        strength = "strong"
+    elif r_squared >= 0.2:
+        strength = "moderate"
+    else:
+        strength = "weak"
+
+    return {
+        "direction": direction,
+        "slope": round(slope, 3),
+        "weekly_change": round(weekly_change, 1),
+        "r_squared": round(r_squared, 2),
+        "strength": strength
+    }
 
 router = APIRouter()
 
@@ -520,6 +661,8 @@ def get_analytics_data(
 
 # --- Outcome Analysis Endpoint ---
 
+MIN_DATA_DAYS = 14  # Minimum days of data required for meaningful analysis
+
 @router.get("/{user_id}/outcome-analysis/{supplement_id}")
 def get_outcome_analysis(
     user_id: str,
@@ -527,11 +670,13 @@ def get_outcome_analysis(
     db: Session = Depends(get_db)
 ):
     """
-    Calculate before/after metrics for a specific supplement.
+    Calculate before/after metrics for a specific supplement with statistical confidence.
 
-    Compares average health metrics:
-    - Before: 14 days before starting the supplement
-    - After: Most recent 14 days of taking it
+    Features:
+    - Statistical confidence scoring using t-tests
+    - Minimum data threshold (14+ days before showing results)
+    - Trend detection (improving/stable/declining)
+    - Life event awareness (flags potential confounders)
     """
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -550,6 +695,10 @@ def get_outcome_analysis(
         )
 
     start_date = supplement_start.start_date
+    days_on_supplement = (date.today() - start_date).days
+
+    # Check minimum data threshold
+    has_sufficient_data = days_on_supplement >= MIN_DATA_DAYS
 
     # Get "before" period: 14 days before start
     before_start = start_date - timedelta(days=14)
@@ -557,21 +706,48 @@ def get_outcome_analysis(
         HealthData.user_id == user_id,
         HealthData.timestamp >= datetime.combine(before_start, datetime.min.time()),
         HealthData.timestamp < datetime.combine(start_date, datetime.min.time())
-    ).all()
+    ).order_by(HealthData.timestamp).all()
 
-    # Get "after" period: most recent 14 days (if enough time has passed)
-    after_start = date.today() - timedelta(days=14)
-    if after_start < start_date:
-        after_start = start_date
-
+    # Get "after" period: all data since starting
     after_data = db.query(HealthData).filter(
         HealthData.user_id == user_id,
-        HealthData.timestamp >= datetime.combine(after_start, datetime.min.time())
+        HealthData.timestamp >= datetime.combine(start_date, datetime.min.time())
+    ).order_by(HealthData.timestamp).all()
+
+    # Check for life events that might confound the analysis
+    life_events = db.query(LifeEvent).filter(
+        LifeEvent.user_id == user_id,
+        LifeEvent.event_date >= before_start,
+        LifeEvent.event_date <= date.today()
     ).all()
 
-    def calculate_averages(data_list):
+    confounding_events = []
+    for event in life_events:
+        # Events close to the supplement start are most relevant
+        days_from_start = (event.event_date - start_date).days
+        if abs(days_from_start) <= 7:  # Within a week of starting
+            confounding_events.append({
+                "event_type": event.event_type,
+                "date": str(event.event_date),
+                "days_from_start": days_from_start,
+                "impact": event.impact
+            })
+
+    def extract_metric_values(data_list, metric_name):
+        """Extract non-null values for a specific metric."""
+        values = []
+        dates = []
+        for hd in data_list:
+            val = getattr(hd, metric_name, None)
+            if val is not None:
+                values.append(val)
+                dates.append(hd.timestamp.date())
+        return values, dates
+
+    def calculate_averages_with_stats(data_list):
+        """Calculate averages and collect raw values for statistics."""
         if not data_list:
-            return None
+            return None, {}
 
         metrics = {
             "sleep_score": [],
@@ -593,27 +769,53 @@ def get_outcome_analysis(
             if hd.sleep_duration_hrs is not None:
                 metrics["sleep_duration_hrs"].append(hd.sleep_duration_hrs)
 
-        return {
+        averages = {
             key: round(sum(vals) / len(vals), 1) if vals else None
             for key, vals in metrics.items()
         }
 
-    before_avg = calculate_averages(before_data)
-    after_avg = calculate_averages(after_data)
+        return averages, metrics
 
-    # Calculate changes
+    before_avg, before_values = calculate_averages_with_stats(before_data)
+    after_avg, after_values = calculate_averages_with_stats(after_data)
+
+    # Calculate changes with statistical confidence
     changes = {}
     if before_avg and after_avg:
         for key in before_avg:
             if before_avg[key] is not None and after_avg[key] is not None:
                 diff = after_avg[key] - before_avg[key]
                 pct = (diff / before_avg[key] * 100) if before_avg[key] != 0 else 0
+
+                # Calculate statistical confidence
+                stats = calculate_t_statistic(
+                    before_values.get(key, []),
+                    after_values.get(key, [])
+                )
+
                 changes[key] = {
                     "before": before_avg[key],
                     "after": after_avg[key],
                     "change": round(diff, 1),
-                    "change_pct": round(pct, 1)
+                    "change_pct": round(pct, 1),
+                    "confidence": stats["confidence"],
+                    "sample_sizes": stats.get("sample_sizes", {})
                 }
+
+    # Calculate trend for each metric (using after data)
+    trends = {}
+    for metric_name in ["sleep_score", "hrv_score", "recovery_score", "resting_hr"]:
+        values, dates = extract_metric_values(after_data, metric_name)
+        if values:
+            trend = detect_trend(values, dates)
+            # For resting_hr, declining is good
+            if metric_name == "resting_hr" and trend["direction"] == "declining":
+                trend["interpretation"] = "improving"
+            elif metric_name == "resting_hr" and trend["direction"] == "improving":
+                trend["interpretation"] = "worsening"
+            else:
+                trend["interpretation"] = trend["direction"]
+            trends[metric_name] = trend
 
     # Calculate adherence rate
     logs = db.query(SupplementLog).filter(
@@ -626,11 +828,33 @@ def get_outcome_analysis(
     days_taken = sum(1 for log in logs if log.taken)
     adherence_rate = (days_taken / days_tracked * 100) if days_tracked > 0 else 0
 
+    # Determine overall confidence level
+    if not has_sufficient_data:
+        overall_confidence = "needs_more_data"
+    elif len(confounding_events) > 0:
+        overall_confidence = "confounded"
+    elif len(before_data) < 7 or len(after_data) < 7:
+        overall_confidence = "low"
+    else:
+        # Use the average confidence across metrics
+        confidences = [c.get("confidence", "low") for c in changes.values()]
+        high_count = sum(1 for c in confidences if c in ["high", "very_high"])
+        if high_count >= 2:
+            overall_confidence = "high"
+        elif high_count >= 1 or "medium" in confidences:
+            overall_confidence = "medium"
+        else:
+            overall_confidence = "low"
+
     return {
         "supplement_id": supplement_id,
+        "supplement_name": supplement_start.supplement_name,
         "start_date": str(start_date),
         "end_date": str(supplement_start.end_date) if supplement_start.end_date else None,
-        "days_on_supplement": (date.today() - start_date).days,
+        "days_on_supplement": days_on_supplement,
+        "has_sufficient_data": has_sufficient_data,
+        "min_data_days": MIN_DATA_DAYS,
+        "overall_confidence": overall_confidence,
         "before_period": {
             "start": str(before_start),
             "end": str(start_date),
@@ -638,15 +862,177 @@ def get_outcome_analysis(
             "averages": before_avg
         },
         "after_period": {
-            "start": str(after_start),
+            "start": str(start_date),
             "end": str(date.today()),
             "data_points": len(after_data),
             "averages": after_avg
         },
         "changes": changes,
+        "trends": trends,
+        "confounding_events": confounding_events,
         "adherence": {
             "days_tracked": days_tracked,
             "days_taken": days_taken,
             "rate_pct": round(adherence_rate, 1)
         }
+    }
+
+
+# --- Correlation Insights Endpoint ---
+
+@router.get("/{user_id}/correlations")
+def get_correlation_insights(
+    user_id: str,
+    days: int = 60,
+    db: Session = Depends(get_db)
+):
+    """
+    Calculate correlations between supplement intake and health metrics.
+
+    For each supplement, calculates:
+    - Days with supplement vs days without
+    - Average metrics on each type of day
+    - Correlation strength
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    start_date = date.today() - timedelta(days=days)
+
+    # Get all health data
+    health_data = db.query(HealthData).filter(
+        HealthData.user_id == user_id,
+        HealthData.timestamp >= datetime.combine(start_date, datetime.min.time())
+    ).all()
+
+    # Build daily health metrics lookup
+    daily_health = {}
+    for hd in health_data:
+        day = hd.timestamp.date()
+        if day not in daily_health:
+            daily_health[day] = hd
+        # Keep the latest entry for each day
+
+    # Get all supplement logs
+    supplement_logs = db.query(SupplementLog).filter(
+        SupplementLog.user_id == user_id,
+        SupplementLog.log_date >= start_date,
+        SupplementLog.taken == True
+    ).all()
+
+    # Build supplement intake by day
+    supplement_days = {}
+    for log in supplement_logs:
+        if log.supplement_id not in supplement_days:
+            supplement_days[log.supplement_id] = set()
+        supplement_days[log.supplement_id].add(log.log_date)
+
+    # Get active supplements
+    active_supplements = db.query(SupplementStart).filter(
+        SupplementStart.user_id == user_id,
+        SupplementStart.end_date == None
+    ).all()
+
+    correlations = []
+
+    for supplement in active_supplements:
+        supp_id = supplement.supplement_id
+        supp_name = supplement.supplement_name or supp_id.replace("_", " ").title()
+        days_taken = supplement_days.get(supp_id, set())
+
+        if len(days_taken) < 5:
+            continue  # Not enough data
+
+        # Separate health data into days with/without supplement
+        metrics_with = {"sleep_score": [], "hrv_score": [], "recovery_score": [], "resting_hr": []}
+        metrics_without = {"sleep_score": [], "hrv_score": [], "recovery_score": [], "resting_hr": []}
+
+        for day, hd in daily_health.items():
+            target = metrics_with if day in days_taken else metrics_without
+
+            if hd.sleep_score is not None:
+                target["sleep_score"].append(hd.sleep_score)
+            if hd.hrv_score is not None:
+                target["hrv_score"].append(hd.hrv_score)
+            if hd.recovery_score is not None:
+                target["recovery_score"].append(hd.recovery_score)
+            if hd.resting_hr is not None:
+                target["resting_hr"].append(hd.resting_hr)
+
+        # Calculate correlations for each metric
+        metric_correlations = []
+        for metric_name in ["sleep_score", "hrv_score", "recovery_score", "resting_hr"]:
+            with_vals = metrics_with.get(metric_name, [])
+            without_vals = metrics_without.get(metric_name, [])
+
+            if len(with_vals) < 3 or len(without_vals) < 3:
+                continue
+
+            avg_with = sum(with_vals) / len(with_vals)
+            avg_without = sum(without_vals) / len(without_vals)
+            diff = avg_with - avg_without
+
+            # For resting_hr, lower is better
+            is_positive = diff < 0 if metric_name == "resting_hr" else diff > 0
+
+            # Calculate effect size (Cohen's d)
+            pooled_std = math.sqrt(
+                (calculate_std_dev(with_vals)**2 + calculate_std_dev(without_vals)**2) / 2
+            ) if len(with_vals) > 1 and len(without_vals) > 1 else 1
+
+            effect_size = abs(diff) / pooled_std if pooled_std > 0 else 0
+
+            if effect_size >= 0.8:
+                strength = "strong"
+            elif effect_size >= 0.5:
+                strength = "moderate"
+            elif effect_size >= 0.2:
+                strength = "weak"
+            else:
+                strength = "negligible"
+
+            metric_correlations.append({
+                "metric": metric_name,
+                "avg_with_supplement": round(avg_with, 1),
+                "avg_without_supplement": round(avg_without, 1),
+                "difference": round(diff, 1),
+                "is_positive": is_positive,
+                "effect_size": round(effect_size, 2),
+                "strength": strength,
+                "days_with": len(with_vals),
+                "days_without": len(without_vals)
+            })
+
+        if metric_correlations:
+            # Find the strongest positive correlation
+            best_metric = max(
+                [m for m in metric_correlations if m["is_positive"]],
+                key=lambda x: x["effect_size"],
+                default=None
+            )
+
+            correlations.append({
+                "supplement_id": supp_id,
+                "supplement_name": supp_name,
+                "days_taken": len(days_taken),
+                "total_days_analyzed": len(daily_health),
+                "metrics": metric_correlations,
+                "best_correlation": best_metric
+            })
+
+    # Sort by strongest correlation
+    correlations.sort(
+        key=lambda x: x["best_correlation"]["effect_size"] if x.get("best_correlation") else 0,
+        reverse=True
+    )
+
+    return {
+        "correlations": correlations,
+        "analysis_period": {
+            "start": str(start_date),
+            "end": str(date.today()),
+            "days": days
+        },
+        "total_supplements_analyzed": len(correlations)
     }

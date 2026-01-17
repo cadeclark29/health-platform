@@ -2200,6 +2200,189 @@
             color: #666;
         }
 
+        /* Confidence Badges */
+        .outcome-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .confidence-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .confidence-high {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .confidence-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+
+        .confidence-low {
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        .confidence-warning {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .conf-dot {
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+
+        .metric-trend {
+            font-size: 0.9em;
+            margin-left: 4px;
+        }
+
+        .confounding-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+            color: #F59E0B;
+            margin-bottom: 12px;
+        }
+
+        .insufficient-data-notice {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+            color: #A78BFA;
+            margin-bottom: 12px;
+        }
+
+        .outcome-card.insufficient-data {
+            opacity: 0.7;
+        }
+
+        /* Correlation Cards */
+        .correlation-section {
+            margin-top: 20px;
+        }
+
+        .correlation-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .correlation-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .correlation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .correlation-supplement {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: #E8E8E8;
+        }
+
+        .correlation-days {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .correlation-best {
+            text-align: right;
+        }
+
+        .best-metric-label {
+            font-size: 0.7em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .best-metric-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #22C55E;
+        }
+
+        .correlation-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .correlation-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+
+        .corr-metric-name {
+            color: #A0A0A0;
+            font-size: 0.85em;
+        }
+
+        .corr-metric-diff {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .corr-diff-value {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .corr-diff-value.positive {
+            color: #22C55E;
+        }
+
+        .corr-diff-value.negative {
+            color: #EF4444;
+        }
+
+        .corr-strength {
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #888;
+        }
+
+        .corr-strength.strong {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .corr-strength.moderate {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+
         /* Life Events */
         .life-events-section {
             margin-top: 20px;
@@ -2693,7 +2876,10 @@
                     </div>
                     <div class="oura-actions">
                         <button class="oura-sync-btn" onclick="syncOuraData()">
-                            Sync Latest Data
+                            Sync Latest
+                        </button>
+                        <button class="oura-sync-btn" onclick="syncOuraFullHistory()" style="background: rgba(139, 92, 246, 0.3);">
+                            Sync Full History
                         </button>
                         <button class="oura-disconnect-btn" onclick="disconnectOura()">
                             Disconnect
@@ -2859,11 +3045,23 @@
                 <!-- Outcome Analysis -->
                 <div class="card">
                     <h2>Outcome Analysis</h2>
-                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Compare your health metrics before and after starting each supplement</p>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Compare your health metrics before and after starting each supplement. ● high confidence, ◐ medium, ○ low</p>
                     <div class="outcome-cards" id="outcome-cards">
                         <div class="empty-state">
                             <div class="emoji">&#x1F4CA;</div>
                             <div>Add supplement start dates to see analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Correlation Insights -->
+                <div class="card correlation-section">
+                    <h2>Correlation Insights</h2>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">See how your metrics differ on days you take each supplement vs days you don't</p>
+                    <div class="correlation-cards" id="correlation-cards">
+                        <div class="empty-state">
+                            <div class="emoji">🔗</div>
+                            <div>Log daily supplement intake to see correlations</div>
                         </div>
                     </div>
                 </div>
@@ -3317,6 +3515,45 @@
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        // Sync full Oura history (up to 365 days)
+        async function syncOuraFullHistory() {
+            if (!currentUserId) return;
+
+            if (!confirm('Sync your full Oura history? This may take a moment and will fetch up to 12 months of data.')) {
+                return;
+            }
+
+            const btns = document.querySelectorAll('.oura-sync-btn');
+            btns.forEach(btn => {
+                btn.disabled = true;
+            });
+            showStatus('Syncing full history... This may take a moment.', 'success');
+
+            try {
+                // Fetch 365 days of history
+                const res = await fetch(`/integrations/${currentUserId}/oura/history?days=365`);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showStatus(`Full history synced! Added ${data.records_added || 0} days of data.`, 'success');
+
+                    // Refresh analytics if on analytics tab
+                    if (analyticsData) {
+                        loadAnalyticsData();
+                    }
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Failed to sync full history', 'error');
+                }
+            } catch (e) {
+                showStatus('Error syncing history: ' + e.message, 'error');
+            } finally {
+                btns.forEach(btn => {
+                    btn.disabled = false;
+                });
             }
         }
 
@@ -4529,6 +4766,7 @@
                     renderSupplementMarkers();
                     renderCheckinUI();
                     renderOutcomeCards();
+                    renderCorrelationCards();
                     renderLifeEvents();
                 }
             } catch (e) {
@@ -4899,41 +5137,189 @@
             `;
         }
 
-        // Render single outcome card
+        // Render single outcome card with confidence and trends
         function renderOutcomeCard(data) {
             const changes = data.changes || {};
             const adherence = data.adherence?.rate_pct || 0;
+            const trends = data.trends || {};
+            const confoundingEvents = data.confounding_events || [];
+            const overallConfidence = data.overall_confidence || 'low';
+            const hasSufficientData = data.has_sufficient_data !== false;
 
+            // Confidence badge
+            const confidenceBadgeClass = {
+                'high': 'confidence-high',
+                'very_high': 'confidence-high',
+                'medium': 'confidence-medium',
+                'low': 'confidence-low',
+                'needs_more_data': 'confidence-low',
+                'confounded': 'confidence-warning'
+            }[overallConfidence] || 'confidence-low';
+
+            const confidenceLabel = {
+                'high': 'High Confidence',
+                'very_high': 'Very High Confidence',
+                'medium': 'Medium Confidence',
+                'low': 'Low Confidence',
+                'needs_more_data': `Need ${data.min_data_days || 14}+ days`,
+                'confounded': 'Check Life Events'
+            }[overallConfidence] || 'Low Confidence';
+
+            // Metrics with confidence indicators
             const metricsHtml = Object.entries(changes).map(([key, change]) => {
                 const isPositive = key === 'resting_hr' ? change.change < 0 : change.change > 0;
                 const diffClass = change.change === 0 ? 'neutral' : (isPositive ? 'positive' : 'negative');
                 const arrow = change.change > 0 ? '↑' : (change.change < 0 ? '↓' : '→');
 
+                // Add confidence indicator
+                const confidence = change.confidence || 'low';
+                const confDot = confidence === 'high' || confidence === 'very_high' ? '●' :
+                               confidence === 'medium' ? '◐' : '○';
+
+                // Get trend if available
+                const trend = trends[key];
+                let trendHtml = '';
+                if (trend && trend.direction !== 'insufficient_data') {
+                    const trendIcon = trend.interpretation === 'improving' ? '📈' :
+                                     trend.interpretation === 'declining' || trend.interpretation === 'worsening' ? '📉' : '➡️';
+                    trendHtml = `<span class="metric-trend" title="${trend.strength} trend">${trendIcon}</span>`;
+                }
+
                 return `
                     <div class="outcome-metric">
-                        <span class="metric-name">${formatMetricName(key)}</span>
+                        <span class="metric-name">${formatMetricName(key)} <span class="conf-dot" title="${confidence} confidence">${confDot}</span></span>
                         <div class="metric-change">
                             <span class="metric-values">${change.before} → ${change.after}</span>
                             <span class="metric-diff ${diffClass}">${arrow} ${Math.abs(change.change_pct).toFixed(0)}%</span>
+                            ${trendHtml}
                         </div>
                     </div>
                 `;
             }).join('');
 
+            // Confounding events warning
+            let confoundingHtml = '';
+            if (confoundingEvents.length > 0) {
+                const eventNames = confoundingEvents.map(e => formatEventType(e.event_type)).join(', ');
+                confoundingHtml = `
+                    <div class="confounding-warning">
+                        ⚠️ Life event${confoundingEvents.length > 1 ? 's' : ''} near start: ${eventNames}
+                    </div>
+                `;
+            }
+
+            // Insufficient data message
+            let insufficientHtml = '';
+            if (!hasSufficientData) {
+                const daysNeeded = (data.min_data_days || 14) - data.days_on_supplement;
+                insufficientHtml = `
+                    <div class="insufficient-data-notice">
+                        📊 Need ${daysNeeded} more day${daysNeeded !== 1 ? 's' : ''} of data for reliable analysis
+                    </div>
+                `;
+            }
+
             return `
-                <div class="outcome-card">
+                <div class="outcome-card ${!hasSufficientData ? 'insufficient-data' : ''}">
                     <div class="outcome-header">
                         <div>
-                            <div class="outcome-supplement">${formatSupplementName(data.supplement_id)}</div>
+                            <div class="outcome-supplement">${data.supplement_name || formatSupplementName(data.supplement_id)}</div>
                             <div class="outcome-duration">Started ${formatDate(data.start_date)} (${data.days_on_supplement} days)</div>
                         </div>
-                        <div class="outcome-adherence">
-                            <div class="adherence-value">${adherence.toFixed(0)}%</div>
-                            <div class="adherence-label">Adherence</div>
+                        <div class="outcome-badges">
+                            <div class="confidence-badge ${confidenceBadgeClass}">${confidenceLabel}</div>
+                            <div class="outcome-adherence">
+                                <div class="adherence-value">${adherence.toFixed(0)}%</div>
+                                <div class="adherence-label">Adherence</div>
+                            </div>
                         </div>
                     </div>
+                    ${confoundingHtml}
+                    ${insufficientHtml}
                     <div class="outcome-metrics">
                         ${metricsHtml || '<div style="color: #666; font-size: 0.9em;">Not enough data yet</div>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render correlation insights
+        async function renderCorrelationCards() {
+            const container = document.getElementById('correlation-cards');
+            if (!container) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/correlations?days=60`);
+                if (!res.ok) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">🔗</div>
+                            <div>Log daily supplement intake to see correlations</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const data = await res.json();
+                const correlations = data.correlations || [];
+
+                if (correlations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">🔗</div>
+                            <div>Log daily supplement intake to see correlations</div>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 6px;">Need at least 5 days of data per supplement</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = correlations.map(corr => renderCorrelationCard(corr)).join('');
+            } catch (e) {
+                console.error('Error fetching correlations:', e);
+            }
+        }
+
+        // Render single correlation card
+        function renderCorrelationCard(corr) {
+            const metrics = corr.metrics || [];
+            const best = corr.best_correlation;
+
+            const metricsHtml = metrics.map(m => {
+                const isPositive = m.is_positive;
+                const diffClass = isPositive ? 'positive' : 'negative';
+                const arrow = m.difference > 0 ? '+' : '';
+                const strengthClass = m.strength === 'strong' ? 'strong' :
+                                     m.strength === 'moderate' ? 'moderate' : '';
+
+                return `
+                    <div class="correlation-metric">
+                        <span class="corr-metric-name">${formatMetricName(m.metric)}</span>
+                        <div class="corr-metric-diff">
+                            <span class="corr-diff-value ${diffClass}">${arrow}${m.difference.toFixed(1)}</span>
+                            <span class="corr-strength ${strengthClass}">${m.strength}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const bestMetricText = best ? `Best: ${formatMetricName(best.metric)}` : 'No clear correlation';
+            const bestValueText = best ? `+${best.difference.toFixed(1)}` : '--';
+
+            return `
+                <div class="correlation-card">
+                    <div class="correlation-header">
+                        <div>
+                            <div class="correlation-supplement">${corr.supplement_name}</div>
+                            <div class="correlation-days">${corr.days_taken} days taken of ${corr.total_days_analyzed} analyzed</div>
+                        </div>
+                        <div class="correlation-best">
+                            <div class="best-metric-label">${bestMetricText}</div>
+                            <div class="best-metric-value">${bestValueText}</div>
+                        </div>
+                    </div>
+                    <div class="correlation-metrics">
+                        ${metricsHtml || '<div style="color: #666; font-size: 0.9em;">Not enough data</div>'}
                     </div>
                 </div>
             `;
