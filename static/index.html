@@ -2464,6 +2464,13 @@
             transform: none;
         }
 
+        /* Show delete on mobile (no hover) */
+        @media (hover: none) {
+            .life-event-delete {
+                opacity: 1;
+            }
+        }
+
         /* Add Life Event Form */
         .add-event-form {
             display: none;
@@ -2636,6 +2643,13 @@
         .supplement-action-btn.delete:hover {
             background: rgba(239, 68, 68, 0.15);
             color: #EF4444;
+        }
+
+        /* Show actions on mobile (no hover) */
+        @media (hover: none) {
+            .supplement-actions {
+                opacity: 1;
+            }
         }
 
         .add-supplement-btn {
@@ -3760,8 +3774,14 @@
         function logout() {
             localStorage.removeItem('userId');
             currentUserId = null;
+            ouraConnected = false;
+            ouraData = null;
+            analyticsData = null;
+            checkinState = {};
             document.getElementById('has-user').classList.add('hidden');
             document.getElementById('no-user').classList.remove('hidden');
+            // Switch back to dashboard tab
+            switchMainTab('dashboard');
         }
 
         // Date functions
