@@ -374,19 +374,32 @@
             color: #555;
         }
 
-        .daily-foundation .taken-badge {
-            display: none;
-            background: rgba(34, 197, 94, 0.2);
-            color: #22C55E;
-            padding: 3px 10px;
+        .daily-foundation .df-contents {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+
+        .daily-foundation .df-status {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            padding: 4px 12px;
             border-radius: 6px;
             font-size: 0.7em;
             font-weight: 600;
             margin-top: 8px;
+            display: inline-block;
         }
 
-        .daily-foundation.taken .taken-badge {
-            display: inline-block;
+        .daily-foundation.taken .df-status {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .daily-foundation.partial .df-status {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
         }
 
         .daily-foundation .df-icon {
@@ -400,11 +413,6 @@
             color: #A78BFA;
         }
 
-        .daily-foundation .df-desc {
-            font-size: 0.75em;
-            color: #555;
-            margin-top: 4px;
-        }
 
         /* Mix Cards */
         .mix-card {
@@ -2208,8 +2216,42 @@
         }
 
         .stack-empty-text {
-            font-size: 0.9em;
+            font-size: 1em;
+            font-weight: 500;
+            color: #E8E8E8;
+            margin-bottom: 6px;
+        }
+
+        .stack-empty-hint {
+            font-size: 0.85em;
+            color: #666;
             margin-bottom: 16px;
+        }
+
+        .quick-add-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .quick-add-btn {
+            padding: 8px 14px;
+            font-size: 0.85em;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            color: #A78BFA;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-add-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-1px);
+            box-shadow: none;
         }
 
         /* Supplement Start Markers */
@@ -3122,8 +3164,8 @@
                     <div class="daily-foundation" onclick="selectDailyFoundation()" id="daily-foundation">
                         <div class="df-icon">&#x1F48E;</div>
                         <div class="df-name">Daily Foundation</div>
-                        <div class="df-desc">Essential daily nutrients</div>
-                        <div class="taken-badge">&#x2713; Taken Today</div>
+                        <div class="df-contents">D3 + K2 + Omega-3</div>
+                        <div class="df-status" id="df-status">Tap to dispense</div>
                     </div>
 
                     <!-- Mix cards populated by JS -->
@@ -3178,13 +3220,13 @@
 
             <!-- Analytics Section -->
             <div class="analytics-section" id="analytics-section">
-                <!-- Your Full Stack Section -->
+                <!-- My Supplements Section -->
                 <div class="card supplements-section">
                     <div class="supplements-header">
-                        <h2>Your Full Stack</h2>
+                        <h2>My Supplements</h2>
                         <button class="btn-secondary" onclick="openAddManualSupplement()" style="padding: 8px 16px; font-size: 0.85em;">+ Add Supplement</button>
                     </div>
-                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Track everything you're taking - our recommendations plus your own supplements</p>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Supplements you're currently taking. Add start dates to track their effects on your health.</p>
                     <div class="supplements-grid" id="supplements-grid">
                         <div class="supplements-empty">
                             <div class="supplements-empty-icon">💊</div>
@@ -3888,9 +3930,12 @@
             loadTodaysStackData();
         }
 
-        // Check if Daily Foundation was already taken today
+        // Check Daily Foundation status and update display
         async function checkDailyFoundationTaken() {
             if (!currentUserId) return;
+
+            const dfElement = document.getElementById('daily-foundation');
+            const dfStatus = document.getElementById('df-status');
 
             try {
                 const dateStr = getDateString();
@@ -3898,19 +3943,22 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    // Check if any Daily Foundation supplements were taken
-                    // Daily Foundation contains: vitamin_d3, vitamin_k2, omega_3, magnesium_glycinate
+                    // Daily Foundation contains: vitamin_d3, vitamin_k2, omega_3
                     const dfSupplements = ['vitamin_d3', 'vitamin_k2', 'omega_3'];
                     const takenSupps = data.supplements.map(s => s.supplement_id);
+                    const takenCount = dfSupplements.filter(s => takenSupps.includes(s)).length;
 
-                    // Consider it taken if at least 2 of the foundation supplements were taken
-                    const foundationTaken = dfSupplements.filter(s => takenSupps.includes(s)).length >= 2;
+                    // Update status based on how many were taken
+                    dfElement.classList.remove('taken', 'partial');
 
-                    const dfElement = document.getElementById('daily-foundation');
-                    if (foundationTaken) {
+                    if (takenCount === 3) {
                         dfElement.classList.add('taken');
+                        dfStatus.textContent = '✓ All 3 taken';
+                    } else if (takenCount > 0) {
+                        dfElement.classList.add('partial');
+                        dfStatus.textContent = `${takenCount}/3 taken`;
                     } else {
-                        dfElement.classList.remove('taken');
+                        dfStatus.textContent = 'Tap to dispense';
                     }
                 }
             } catch (e) {
@@ -3922,7 +3970,7 @@
         function selectDailyFoundation() {
             const dfElement = document.getElementById('daily-foundation');
             if (dfElement.classList.contains('taken')) {
-                showStatus('Daily Foundation already taken today', 'success');
+                showStatus('All 3 foundation supplements taken!', 'success');
                 return;
             }
             selectMix('daily_foundation');
@@ -5265,9 +5313,16 @@
                 container.innerHTML = `
                     <div class="stack-empty">
                         <div class="stack-empty-icon">💊</div>
-                        <div class="stack-empty-text">No supplements tracked yet</div>
-                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" style="margin-top: 8px; padding: 10px 20px;">
-                            + Add Your First Supplement
+                        <div class="stack-empty-text">What supplements do you take?</div>
+                        <div class="stack-empty-hint">Tap to add, then tap daily to log</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_d3', 'Vitamin D3', '2000 IU')">+ Vitamin D</button>
+                            <button class="quick-add-btn" onclick="quickAddSupplement('fish_oil', 'Fish Oil', '1000mg')">+ Fish Oil</button>
+                            <button class="quick-add-btn" onclick="quickAddSupplement('magnesium_glycinate', 'Magnesium', '400mg')">+ Magnesium</button>
+                            <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_b12', 'Vitamin B12', '1000mcg')">+ B12</button>
+                        </div>
+                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" class="btn-secondary" style="margin-top: 12px; padding: 8px 16px; font-size: 0.85em;">
+                            Browse All Supplements
                         </button>
                     </div>
                 `;
@@ -5357,6 +5412,44 @@
                 pill.classList.toggle('taken', isCurrentlyTaken);
                 timeEl.textContent = isCurrentlyTaken ? (autoTime === 'morning' ? 'AM' : 'PM') : '';
                 showStatus('Failed to save. Please try again.', 'error');
+            }
+        }
+
+        // Quick add a common supplement (one-click from empty state)
+        async function quickAddSupplement(suppId, suppName, dosage) {
+            if (!currentUserId) return;
+
+            const today = new Date().toISOString().split('T')[0];
+
+            try {
+                // Add the supplement to tracking
+                const res = await fetch(`/analytics/${currentUserId}/supplement-starts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        supplement_id: suppId,
+                        supplement_name: suppName,
+                        start_date: today,
+                        is_manual: true,
+                        dosage: dosage,
+                        frequency: 'daily'
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus(`${suppName} added!`, 'success');
+                    // Refresh analytics data and re-render
+                    const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                    if (analyticsRes.ok) {
+                        analyticsData = await analyticsRes.json();
+                        loadTodaysStack();
+                    }
+                } else {
+                    const err = await res.json();
+                    showStatus(err.detail || 'Error adding supplement', 'error');
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
             }
         }
 
@@ -5835,7 +5928,7 @@
             }
         }
 
-        // Render supplements grid (Your Full Stack)
+        // Render supplements grid (My Supplements)
         function renderSupplementsGrid() {
             const container = document.getElementById('supplements-grid');
             if (!container) return;
