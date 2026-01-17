@@ -30,6 +30,10 @@ class User(Base):
     wake_time = Column(String, nullable=True)  # "06:30" format
     chronotype = Column(String, nullable=True)  # early_bird, night_owl, neutral
 
+    # Primary health goal (from onboarding)
+    health_goal = Column(String, nullable=True)  # sleep, recovery, energy, wellness
+    onboarding_complete = Column(String, nullable=True)  # 'true' when onboarding finished
+
     # Region to latitude mapping for Vitamin D calculations
     REGION_LATITUDES = {
         "northern": 47.0,    # Seattle, Boston, Minneapolis, Chicago

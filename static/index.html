@@ -45,6 +45,17 @@
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.1),
+                0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(139, 92, 246, 0.05);
         }
 
         .card h2 {
@@ -287,26 +298,48 @@
 
         /* AI Recommendation - Center */
         .ai-recommendation {
-            grid-column: 2;
+            grid-column: 1 / -1;  /* Full width - hero card */
             grid-row: 1;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(167, 139, 250, 0.08) 100%);
-            border: 1px solid rgba(139, 92, 246, 0.25);
+            background: linear-gradient(135deg,
+                rgba(139, 92, 246, 0.2) 0%,
+                rgba(124, 58, 237, 0.15) 50%,
+                rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
             border-radius: 20px;
-            padding: 24px;
+            padding: 28px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 180px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-recommendation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
         }
 
         .ai-recommendation:hover {
             transform: scale(1.02);
             border-color: #8B5CF6;
-            box-shadow: 0 8px 40px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 8px 50px rgba(139, 92, 246, 0.35);
         }
 
         .ai-recommendation .ai-icon {
@@ -634,6 +667,318 @@
         .btn-dispense.dispensing {
             background: rgba(255, 255, 255, 0.1);
             pointer-events: none;
+        }
+
+        /* Onboarding Modal */
+        .onboarding-modal-content {
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .onboarding-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .progress-step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+        }
+
+        .progress-step.completed {
+            background: #22C55E;
+            color: #fff;
+        }
+
+        .progress-line {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-line.completed {
+            background: #22C55E;
+        }
+
+        .onboarding-illustration {
+            font-size: 4em;
+            margin-bottom: 16px;
+        }
+
+        .onboarding-step-content h2 {
+            font-size: 1.6em;
+            margin-bottom: 8px;
+            color: #E8E8E8;
+        }
+
+        .onboarding-subtitle {
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .onboarding-feature-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .onboarding-feature-card .feature-icon {
+            font-size: 2em;
+            flex-shrink: 0;
+        }
+
+        .onboarding-feature-card .feature-text strong {
+            display: block;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .onboarding-feature-card .feature-text p {
+            color: #888;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .onboarding-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .onboarding-btn.primary {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            border: none;
+        }
+
+        .onboarding-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        }
+
+        .onboarding-btn.secondary {
+            background: transparent;
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .onboarding-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #E8E8E8;
+            box-shadow: none;
+        }
+
+        /* Quick Add Grid for Onboarding */
+        .onboarding-quick-add {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 400px) {
+            .onboarding-quick-add {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .onboarding-quick-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .onboarding-quick-item:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .onboarding-quick-item.selected {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22C55E;
+        }
+
+        .onboarding-quick-item .quick-icon {
+            font-size: 1.8em;
+            margin-bottom: 6px;
+        }
+
+        .onboarding-quick-item .quick-name {
+            font-size: 0.85em;
+            color: #E8E8E8;
+        }
+
+        .onboarding-quick-item .quick-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #22C55E;
+            font-weight: bold;
+            display: none;
+        }
+
+        .onboarding-quick-item.selected .quick-check {
+            display: block;
+        }
+
+        /* Goal Options */
+        .goal-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .goal-option {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .goal-option:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .goal-option.selected {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: #8B5CF6;
+        }
+
+        .goal-option .goal-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .goal-option .goal-name {
+            color: #E8E8E8;
+            font-weight: 500;
+        }
+
+        /* Completion */
+        .completion-checkmark {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #22C55E, #16A34A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: #fff;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .completion-summary {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .summary-item:not(:last-child) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .summary-item .summary-icon {
+            font-size: 1.2em;
+        }
+
+        .summary-item.completed {
+            color: #22C55E;
+        }
+
+        /* Onboarding Duration/Adherence */
+        .onboarding-details {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .onboarding-details label {
+            display: block;
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .onboarding-details select {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .adherence-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .adherence-row input[type="range"] {
+            flex: 1;
+        }
+
+        .adherence-row .adherence-value {
+            min-width: 45px;
+            text-align: right;
+            color: #E8E8E8;
         }
 
         /* Dispense Animation */
@@ -1170,12 +1515,12 @@
             }
 
             .ai-recommendation {
-                grid-column: 1 / span 2;
+                grid-column: 1 / -1;
                 grid-row: auto;
             }
 
             .daily-foundation {
-                grid-column: 1 / span 2;
+                grid-column: 1 / -1;
                 grid-row: auto;
             }
         }
@@ -2470,27 +2815,32 @@
 
         .stack-empty {
             text-align: center;
-            padding: 30px 20px;
-            color: #666;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
+            border-radius: 16px;
+            border: 1px dashed rgba(139, 92, 246, 0.2);
         }
 
         .stack-empty-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-            opacity: 0.5;
+            font-size: 3em;
+            margin-bottom: 16px;
+            opacity: 0.8;
         }
 
         .stack-empty-text {
-            font-size: 1em;
-            font-weight: 500;
+            font-size: 1.15em;
+            font-weight: 600;
             color: #E8E8E8;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .stack-empty-hint {
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 16px;
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 20px;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .quick-add-buttons {
@@ -3822,6 +4172,23 @@
         </div>
     </div>
 
+    <!-- Onboarding Modal -->
+    <div class="modal-overlay hidden" id="onboarding-modal">
+        <div class="modal-content onboarding-modal-content">
+            <!-- Progress indicator -->
+            <div class="onboarding-progress">
+                <div class="progress-step active" data-step="1">1</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">2</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="3">3</div>
+            </div>
+
+            <!-- Step content container -->
+            <div id="onboarding-content"></div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
@@ -4220,7 +4587,8 @@
                     localStorage.setItem('userId', user.id);
                     showLoggedIn(user);
                     loadAllData();
-                    showStatus('Account created!', 'success');
+                    // Show onboarding for new users
+                    showOnboarding();
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error creating account', 'error');
@@ -4229,6 +4597,340 @@
                 showStatus('Error: ' + e.message, 'error');
             }
         }
+
+        // ==================== ONBOARDING ====================
+
+        let onboardingStep = 1;
+        let onboardingData = {
+            ouraConnected: false,
+            selectedSupplements: [],
+            duration: 0,
+            adherence: 80,
+            goal: null
+        };
+
+        const ONBOARDING_SUPPLEMENTS = [
+            { id: 'vitamin_d3', name: 'Vitamin D', icon: '☀️', dose: '2000 IU' },
+            { id: 'fish_oil', name: 'Fish Oil', icon: '🐟', dose: '1000mg' },
+            { id: 'magnesium_glycinate', name: 'Magnesium', icon: '🧲', dose: '400mg' },
+            { id: 'vitamin_b12', name: 'Vitamin B12', icon: '🔴', dose: '1000mcg' },
+            { id: 'ashwagandha', name: 'Ashwagandha', icon: '🌿', dose: '600mg' },
+            { id: 'zinc', name: 'Zinc', icon: '⚡', dose: '30mg' }
+        ];
+
+        function showOnboarding() {
+            document.getElementById('onboarding-modal').classList.remove('hidden');
+            onboardingStep = 1;
+            onboardingData = {
+                ouraConnected: false,
+                selectedSupplements: [],
+                duration: 0,
+                adherence: 80,
+                goal: null
+            };
+            renderOnboardingStep(1);
+        }
+
+        function renderOnboardingStep(step) {
+            onboardingStep = step;
+            updateProgressIndicator(step);
+            const content = document.getElementById('onboarding-content');
+
+            switch(step) {
+                case 1:
+                    content.innerHTML = getStep1HTML();
+                    break;
+                case 2:
+                    content.innerHTML = getStep2HTML();
+                    break;
+                case 3:
+                    content.innerHTML = getStep3HTML();
+                    break;
+                case 4:
+                    content.innerHTML = getCompletionHTML();
+                    break;
+            }
+        }
+
+        function updateProgressIndicator(currentStep) {
+            document.querySelectorAll('.progress-step').forEach((el, i) => {
+                const stepNum = i + 1;
+                el.classList.remove('active', 'completed');
+                if (stepNum < currentStep) el.classList.add('completed');
+                if (stepNum === currentStep) el.classList.add('active');
+            });
+            document.querySelectorAll('.progress-line').forEach((el, i) => {
+                el.classList.toggle('completed', i + 1 < currentStep);
+            });
+        }
+
+        function nextOnboardingStep() {
+            renderOnboardingStep(onboardingStep + 1);
+        }
+
+        // Step 1: Connect Oura
+        function getStep1HTML() {
+            return `
+                <div class="onboarding-step-content">
+                    <div class="onboarding-illustration">🎯</div>
+                    <h2>Welcome to Dose!</h2>
+                    <p class="onboarding-subtitle">Let's get you set up in 2 minutes</p>
+
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon">💍</div>
+                        <div class="feature-text">
+                            <strong>Connect Your Oura Ring</strong>
+                            <p>We use your sleep and recovery data to personalize supplement recommendations</p>
+                        </div>
+                    </div>
+
+                    <button class="onboarding-btn primary" onclick="startOuraConnectionOnboarding()">
+                        Connect Oura Ring
+                    </button>
+                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
+                        Skip for now
+                    </button>
+                </div>
+            `;
+        }
+
+        function startOuraConnectionOnboarding() {
+            // Start OAuth flow - this will redirect, so mark that we're in onboarding
+            localStorage.setItem('onboardingInProgress', 'true');
+            connectOura();
+        }
+
+        // Step 2: Add Supplements
+        function getStep2HTML() {
+            const supplementsHTML = ONBOARDING_SUPPLEMENTS.map(supp => {
+                const isSelected = onboardingData.selectedSupplements.includes(supp.id);
+                return `
+                    <div class="onboarding-quick-item ${isSelected ? 'selected' : ''}"
+                         onclick="toggleOnboardingSupplement('${supp.id}')">
+                        <span class="quick-check">✓</span>
+                        <span class="quick-icon">${supp.icon}</span>
+                        <span class="quick-name">${supp.name}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const hasSelected = onboardingData.selectedSupplements.length > 0;
+
+            const detailsHTML = hasSelected ? `
+                <div class="onboarding-details">
+                    <label>How long have you been taking these?</label>
+                    <select id="onboarding-duration" onchange="onboardingData.duration = parseInt(this.value)">
+                        <option value="0" ${onboardingData.duration === 0 ? 'selected' : ''}>Just starting</option>
+                        <option value="7" ${onboardingData.duration === 7 ? 'selected' : ''}>About a week</option>
+                        <option value="30" ${onboardingData.duration === 30 ? 'selected' : ''}>About a month</option>
+                        <option value="90" ${onboardingData.duration === 90 ? 'selected' : ''}>3+ months</option>
+                    </select>
+
+                    <label>Estimated adherence</label>
+                    <div class="adherence-row">
+                        <input type="range" min="0" max="100" value="${onboardingData.adherence}"
+                               oninput="updateOnboardingAdherence(this.value)">
+                        <span class="adherence-value" id="onboarding-adherence-value">${onboardingData.adherence}%</span>
+                    </div>
+                </div>
+            ` : '';
+
+            return `
+                <div class="onboarding-step-content">
+                    <div class="onboarding-illustration">💊</div>
+                    <h2>What do you take?</h2>
+                    <p class="onboarding-subtitle">Add supplements you're already taking</p>
+
+                    <div class="onboarding-quick-add">
+                        ${supplementsHTML}
+                    </div>
+
+                    ${detailsHTML}
+
+                    <button class="onboarding-btn secondary" style="background: transparent; border: 1px dashed rgba(139, 92, 246, 0.3); color: #A78BFA; margin-bottom: 16px;"
+                            onclick="closeOnboarding(); setTimeout(() => { switchMainTab('analytics'); openAddManualSupplement(); }, 300);">
+                        + Add Other Supplement
+                    </button>
+
+                    <button class="onboarding-btn ${hasSelected ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
+                        ${hasSelected ? 'Continue' : 'Skip for now'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function toggleOnboardingSupplement(suppId) {
+            const idx = onboardingData.selectedSupplements.indexOf(suppId);
+            if (idx > -1) {
+                onboardingData.selectedSupplements.splice(idx, 1);
+            } else {
+                onboardingData.selectedSupplements.push(suppId);
+            }
+            // Re-render to show/hide duration section
+            renderOnboardingStep(2);
+        }
+
+        function updateOnboardingAdherence(value) {
+            onboardingData.adherence = parseInt(value);
+            document.getElementById('onboarding-adherence-value').textContent = value + '%';
+        }
+
+        // Step 3: Set Goal
+        function getStep3HTML() {
+            const goals = [
+                { id: 'sleep', icon: '😴', name: 'Better Sleep' },
+                { id: 'recovery', icon: '💪', name: 'Recovery & Performance' },
+                { id: 'energy', icon: '⚡', name: 'Energy & Focus' },
+                { id: 'wellness', icon: '🌿', name: 'General Wellness' }
+            ];
+
+            const goalsHTML = goals.map(goal => `
+                <div class="goal-option ${onboardingData.goal === goal.id ? 'selected' : ''}"
+                     onclick="selectOnboardingGoal('${goal.id}')">
+                    <span class="goal-icon">${goal.icon}</span>
+                    <span class="goal-name">${goal.name}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="onboarding-step-content">
+                    <div class="onboarding-illustration">🎯</div>
+                    <h2>What's your focus?</h2>
+                    <p class="onboarding-subtitle">This helps us personalize your recommendations</p>
+
+                    <div class="goal-options">
+                        ${goalsHTML}
+                    </div>
+
+                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
+                        Skip for now
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectOnboardingGoal(goal) {
+            onboardingData.goal = goal;
+            // Update UI
+            document.querySelectorAll('.goal-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            // Auto-advance after short delay
+            setTimeout(() => nextOnboardingStep(), 400);
+        }
+
+        // Completion Screen
+        function getCompletionHTML() {
+            const ouraStatus = onboardingData.ouraConnected || ouraConnected
+                ? '<span class="summary-icon">✓</span> Oura Ring connected'
+                : '<span class="summary-icon">—</span> Oura Ring (connect later in settings)';
+
+            const suppCount = onboardingData.selectedSupplements.length;
+            const suppStatus = suppCount > 0
+                ? `<span class="summary-icon">✓</span> ${suppCount} supplement${suppCount > 1 ? 's' : ''} added`
+                : '<span class="summary-icon">—</span> No supplements added yet';
+
+            const goalNames = {
+                sleep: 'Better Sleep',
+                recovery: 'Recovery & Performance',
+                energy: 'Energy & Focus',
+                wellness: 'General Wellness'
+            };
+            const goalStatus = onboardingData.goal
+                ? `<span class="summary-icon">✓</span> Goal: ${goalNames[onboardingData.goal]}`
+                : '<span class="summary-icon">—</span> No goal set';
+
+            return `
+                <div class="onboarding-step-content">
+                    <div class="completion-checkmark">✓</div>
+                    <h2>You're all set!</h2>
+                    <p class="onboarding-subtitle">Your personalized dashboard is ready</p>
+
+                    <div class="completion-summary">
+                        <div class="summary-item ${(onboardingData.ouraConnected || ouraConnected) ? 'completed' : ''}">${ouraStatus}</div>
+                        <div class="summary-item ${suppCount > 0 ? 'completed' : ''}">${suppStatus}</div>
+                        <div class="summary-item ${onboardingData.goal ? 'completed' : ''}">${goalStatus}</div>
+                    </div>
+
+                    <button class="onboarding-btn primary" onclick="completeOnboarding()">
+                        Go to Dashboard
+                    </button>
+                </div>
+            `;
+        }
+
+        async function completeOnboarding() {
+            // Save supplements if any were selected
+            if (onboardingData.selectedSupplements.length > 0) {
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - onboardingData.duration);
+                const startDateStr = startDate.toISOString().split('T')[0];
+
+                for (const suppId of onboardingData.selectedSupplements) {
+                    const supp = ONBOARDING_SUPPLEMENTS.find(s => s.id === suppId);
+                    if (supp) {
+                        try {
+                            await fetch(`/analytics/${currentUserId}/supplement-starts`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    supplement_id: suppId,
+                                    supplement_name: supp.name,
+                                    start_date: startDateStr,
+                                    is_manual: true,
+                                    dosage: supp.dose
+                                })
+                            });
+
+                            // Create backdate logs if duration > 0
+                            if (onboardingData.duration > 0) {
+                                await createBackdateLogs(suppId, startDateStr, onboardingData.adherence / 100);
+                            }
+                        } catch (e) {
+                            console.error('Error adding supplement:', e);
+                        }
+                    }
+                }
+            }
+
+            // Save goal to user profile
+            if (onboardingData.goal) {
+                try {
+                    await fetch(`/users/${currentUserId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            health_goal: onboardingData.goal,
+                            onboarding_complete: 'true'
+                        })
+                    });
+                } catch (e) {
+                    console.error('Error saving goal:', e);
+                }
+            } else {
+                // Just mark onboarding complete
+                try {
+                    await fetch(`/users/${currentUserId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ onboarding_complete: 'true' })
+                    });
+                } catch (e) {
+                    console.error('Error marking onboarding complete:', e);
+                }
+            }
+
+            // Close modal and refresh data
+            closeOnboarding();
+            loadAllData();
+            showStatus('Welcome to Dose! Your dashboard is ready.', 'success');
+        }
+
+        function closeOnboarding() {
+            document.getElementById('onboarding-modal').classList.add('hidden');
+            localStorage.removeItem('onboardingInProgress');
+        }
+
+        // ==================== END ONBOARDING ====================
 
         // Sign in
         async function signIn() {
@@ -5842,17 +6544,17 @@
             if (supplements.length === 0) {
                 container.innerHTML = `
                     <div class="stack-empty">
-                        <div class="stack-empty-icon">💊</div>
-                        <div class="stack-empty-text">What supplements do you take?</div>
-                        <div class="stack-empty-hint">Tap to add, then tap daily to log</div>
+                        <div class="stack-empty-icon">✨</div>
+                        <div class="stack-empty-text">Start Your Supplement Journey</div>
+                        <div class="stack-empty-hint">Add the supplements you take daily and track their impact on your health</div>
                         <div class="quick-add-buttons">
                             <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_d3', 'Vitamin D3', '2000 IU')">+ Vitamin D</button>
                             <button class="quick-add-btn" onclick="quickAddSupplement('fish_oil', 'Fish Oil', '1000mg')">+ Fish Oil</button>
                             <button class="quick-add-btn" onclick="quickAddSupplement('magnesium_glycinate', 'Magnesium', '400mg')">+ Magnesium</button>
                             <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_b12', 'Vitamin B12', '1000mcg')">+ B12</button>
                         </div>
-                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" class="btn-secondary" style="margin-top: 12px; padding: 8px 16px; font-size: 0.85em;">
-                            Browse All Supplements
+                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 12px;">
+                            + Add Your First Supplement
                         </button>
                     </div>
                 `;

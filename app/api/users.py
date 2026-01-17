@@ -52,6 +52,8 @@ class UserUpdate(BaseModel):
     allergies: Optional[List[str]] = None
     medications: Optional[List[str]] = None
     goals: Optional[List[str]] = None
+    health_goal: Optional[str] = None  # sleep, recovery, energy, wellness
+    onboarding_complete: Optional[str] = None
 
 
 class UserResponse(BaseModel):
@@ -73,6 +75,8 @@ class UserResponse(BaseModel):
     allergies: List[str]
     medications: List[str]
     goals: List[str]
+    health_goal: Optional[str]
+    onboarding_complete: Optional[str]
     has_oura: bool
     has_whoop: bool
     has_baseline: bool
@@ -178,6 +182,10 @@ def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_d
         user.medications = user_data.medications
     if user_data.goals is not None:
         user.goals = user_data.goals
+    if user_data.health_goal is not None:
+        user.health_goal = user_data.health_goal
+    if user_data.onboarding_complete is not None:
+        user.onboarding_complete = user_data.onboarding_complete
 
     db.commit()
     db.refresh(user)
@@ -218,6 +226,8 @@ def _user_to_response(user: User) -> UserResponse:
         allergies=user.allergies or [],
         medications=user.medications or [],
         goals=user.goals or [],
+        health_goal=user.health_goal,
+        onboarding_complete=user.onboarding_complete,
         has_oura=user.oura_token is not None,
         has_whoop=user.whoop_token is not None,
         has_baseline=user.baseline is not None
