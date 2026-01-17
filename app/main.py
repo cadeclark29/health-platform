@@ -154,6 +154,9 @@ def run_migrations(db: Session = Depends(get_db)):
         "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS dosage VARCHAR",
         "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS frequency VARCHAR",
         "ALTER TABLE supplement_starts ADD COLUMN IF NOT EXISTS reason VARCHAR",
+        # Add new columns to users table for onboarding
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS health_goal VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_complete VARCHAR",
     ]
 
     results = []
