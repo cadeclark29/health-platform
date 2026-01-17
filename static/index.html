@@ -3084,6 +3084,7 @@
 
                 <!-- Connected state with metrics -->
                 <div id="oura-connected" class="hidden">
+                    <div class="oura-date-label" id="oura-date-label" style="text-align: center; font-size: 0.75em; color: #666; margin-bottom: 8px;">Today's scores</div>
                     <div class="oura-metrics" id="oura-metrics">
                         <div class="oura-metric">
                             <div class="oura-metric-value" id="oura-sleep">--</div>
@@ -3705,6 +3706,44 @@
             }
         }
 
+        // Update Oura metrics for the currently selected date
+        function updateOuraMetricsForSelectedDate() {
+            if (!ouraConnected) return;
+
+            const dateLabel = document.getElementById('oura-date-label');
+            const selectedDateStr = currentDate.toISOString().split('T')[0];
+
+            // Check if today
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selected = new Date(currentDate);
+            selected.setHours(0, 0, 0, 0);
+            const isToday = today.getTime() === selected.getTime();
+
+            // Find health data for this date from analyticsData
+            const healthData = analyticsData?.health_data || [];
+            const dayData = healthData.find(h => h.date === selectedDateStr);
+
+            if (dayData) {
+                updateOuraMetrics(dayData);
+                if (isToday) {
+                    dateLabel.textContent = "Today's scores";
+                } else {
+                    const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+                    dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions);
+                }
+            } else {
+                // No data for this date
+                updateOuraMetrics({ sleep_score: null, hrv_score: null, recovery_score: null });
+                if (isToday) {
+                    dateLabel.textContent = "No data yet today";
+                } else {
+                    const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+                    dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions) + ' (no data)';
+                }
+            }
+        }
+
         // Get CSS class based on score
         function getScoreClass(score) {
             if (score >= 70) return 'good';
@@ -3712,7 +3751,7 @@
             return 'poor';
         }
 
-        // Sync Oura data
+        // Sync Oura data (fetch last 7 days to ensure we get today's data)
         async function syncOuraData() {
             if (!currentUserId) return;
 
@@ -3722,13 +3761,19 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`/integrations/${currentUserId}/sync`, {
-                    method: 'POST'
-                });
+                // Use history endpoint with 7 days to properly store date-specific data
+                const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
 
                 if (res.ok) {
-                    await fetchOuraHistory();
-                    showStatus('Oura data synced!', 'success');
+                    const result = await res.json();
+                    // Refresh analytics data to get new health scores
+                    const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                    if (analyticsRes.ok) {
+                        analyticsData = await analyticsRes.json();
+                        updateOuraMetricsForSelectedDate();
+                    }
+                    const added = result.records_added || 0;
+                    showStatus(added > 0 ? `Synced ${added} day(s) of data!` : 'Data is up to date!', 'success');
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Sync failed', 'error');
@@ -3763,9 +3808,15 @@
                     const data = await res.json();
                     showStatus(`Full history synced! Added ${data.records_added || 0} days of data.`, 'success');
 
-                    // Refresh analytics if on analytics tab
-                    if (analyticsData) {
-                        loadAnalyticsData();
+                    // Refresh analytics data and update Oura display
+                    const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                    if (analyticsRes.ok) {
+                        analyticsData = await analyticsRes.json();
+                        updateOuraMetricsForSelectedDate();
+                        // Also refresh chart if on analytics tab
+                        if (document.getElementById('analytics-section').classList.contains('active')) {
+                            renderHealthChart();
+                        }
                     }
                 } else {
                     const err = await res.json();
@@ -5023,14 +5074,14 @@
             }
 
             try {
-                // If we don't have analytics data yet, fetch it
-                if (!analyticsData) {
-                    const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
-                    if (res.ok) {
-                        analyticsData = await res.json();
-                    }
+                // Always fetch fresh analytics data (includes health data for Oura display)
+                const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                if (res.ok) {
+                    analyticsData = await res.json();
                 }
                 loadTodaysStack();
+                // Update Oura metrics for the selected date
+                updateOuraMetricsForSelectedDate();
             } catch (e) {
                 console.error('Error loading Your Stack:', e);
             }
