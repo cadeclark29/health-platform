@@ -2519,6 +2519,31 @@
             box-shadow: none;
         }
 
+        /* Future date state for Your Stack */
+        .stack-future {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+        }
+
+        .stack-future-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .stack-future-text {
+            font-size: 1em;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .stack-future-hint {
+            font-size: 0.85em;
+            color: #555;
+        }
+
         /* Supplement Start Markers */
         .supplement-markers {
             margin-top: 20px;
@@ -3118,6 +3143,16 @@
             color: #EF4444;
         }
 
+        .supplement-action-btn.edit:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+        }
+
+        .supplement-action-btn.stop:hover {
+            background: rgba(251, 191, 36, 0.15);
+            color: #FBBF24;
+        }
+
         /* Show actions on mobile (no hover) */
         @media (hover: none) {
             .supplement-actions {
@@ -3649,7 +3684,7 @@
                 </div>
                 <div class="modal-form-row" style="flex: 1;">
                     <label>Start Date</label>
-                    <input type="date" id="start-date" style="width: 100%;">
+                    <input type="date" id="start-date" style="width: 100%;" onchange="checkBackdateAdherence()">
                 </div>
             </div>
             <div class="modal-form-row">
@@ -3670,10 +3705,21 @@
                 <label>Notes (optional)</label>
                 <input type="text" id="start-notes" placeholder="Any additional notes..." style="width: 100%;">
             </div>
+            <div class="modal-form-row" id="adherence-row" style="display: none;">
+                <label>Estimated Adherence</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="start-adherence" min="0" max="100" value="80" style="flex: 1;" oninput="updateAdherenceLabel()">
+                    <span id="adherence-label" style="min-width: 45px; text-align: right;">80%</span>
+                </div>
+                <div style="font-size: 0.75em; color: #666; margin-top: 4px;">
+                    We'll auto-fill past logs based on this percentage
+                </div>
+            </div>
             <input type="hidden" id="start-is-manual" value="true">
+            <input type="hidden" id="edit-supplement-id" value="">
             <div class="modal-actions" style="margin-top: 20px;">
                 <button class="btn-cancel" onclick="closeSupplementStartModal()">Cancel</button>
-                <button onclick="saveSupplementStart()">Add Supplement</button>
+                <button id="supplement-save-btn" onclick="saveSupplementStart()">Add Supplement</button>
             </div>
         </div>
     </div>
@@ -3898,44 +3944,18 @@
             }
         }
 
-        // Fetch Oura history data
+        // Fetch Oura history data (just syncs data, doesn't update display)
         async function fetchOuraHistory() {
             if (!currentUserId) return;
 
             try {
+                // Sync latest 7 days of data to the database
                 const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
                 if (res.ok) {
-                    const result = await res.json();
-                    if (result.data && result.data.length > 0) {
-                        // Build combined data using most recent non-null values
-                        // This handles cases where today's data isn't complete yet
-                        const combined = {
-                            sleep_score: null,
-                            hrv_score: null,
-                            recovery_score: null
-                        };
-
-                        // Iterate from newest to oldest to find most recent values
-                        for (let i = result.data.length - 1; i >= 0; i--) {
-                            const day = result.data[i];
-                            if (combined.sleep_score === null && day.sleep_score != null) {
-                                combined.sleep_score = day.sleep_score;
-                            }
-                            if (combined.hrv_score === null && day.hrv_score != null) {
-                                combined.hrv_score = day.hrv_score;
-                            }
-                            if (combined.recovery_score === null && day.recovery_score != null) {
-                                combined.recovery_score = day.recovery_score;
-                            }
-                            // Stop if we have all values
-                            if (combined.sleep_score !== null && combined.hrv_score !== null && combined.recovery_score !== null) {
-                                break;
-                            }
-                        }
-
-                        ouraData = combined;
-                        updateOuraMetrics(combined);
-                    }
+                    // Data is now synced to database
+                    // The display will be updated by updateOuraMetricsForSelectedDate()
+                    // which uses analyticsData.health_data for the selected date
+                    console.log('Oura history synced');
                 }
             } catch (e) {
                 console.error('Error fetching Oura data:', e);
@@ -3991,12 +4011,21 @@
             const dateLabel = document.getElementById('oura-date-label');
             const selectedDateStr = currentDate.toISOString().split('T')[0];
 
-            // Check if today
+            // Check if today or future
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const selected = new Date(currentDate);
             selected.setHours(0, 0, 0, 0);
             const isToday = today.getTime() === selected.getTime();
+            const isFuture = selected.getTime() > today.getTime();
+
+            // Handle future dates
+            if (isFuture) {
+                updateOuraMetrics({ sleep_score: null, hrv_score: null, recovery_score: null });
+                const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+                dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions) + ' (future)';
+                return;
+            }
 
             // Find health data for this date from analyticsData
             const healthData = analyticsData?.health_data || [];
@@ -5748,21 +5777,41 @@
             const selectedDate = currentDate;
             const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
-            // Format date nicely - show "Today" if it's today
+            // Determine if today, past, or future
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const selected = new Date(selectedDate);
             selected.setHours(0, 0, 0, 0);
             const isToday = today.getTime() === selected.getTime();
+            const isFuture = selected.getTime() > today.getTime();
 
+            // Format date label
             if (isToday) {
                 dateEl.textContent = 'Today';
+            } else if (isFuture) {
+                dateEl.textContent = selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                }) + ' (future)';
             } else {
                 dateEl.textContent = selectedDate.toLocaleDateString('en-US', {
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric'
                 });
+            }
+
+            // Handle future dates - show message instead of logging pills
+            if (isFuture) {
+                container.innerHTML = `
+                    <div class="stack-future">
+                        <div class="stack-future-icon">📅</div>
+                        <div class="stack-future-text">Future date</div>
+                        <div class="stack-future-hint">Navigate to today or a past date to log supplements</div>
+                    </div>
+                `;
+                return;
             }
 
             // Get active supplements from analytics data
@@ -6292,6 +6341,50 @@
             document.getElementById('supplement-start-modal').classList.remove('hidden');
         }
 
+        // Open edit supplement modal
+        function openEditSupplement(suppId) {
+            // Find the supplement in analyticsData
+            const supp = (analyticsData?.supplement_starts || []).find(s => s.id === suppId);
+            if (!supp) {
+                showStatus('Supplement not found', 'error');
+                return;
+            }
+
+            document.getElementById('supplement-modal-title').textContent = 'Edit Supplement';
+            document.getElementById('supplement-modal-subtitle').textContent = 'Update ' + (supp.supplement_name || formatSupplementName(supp.supplement_id));
+            document.getElementById('start-is-manual').value = supp.is_manual ? 'true' : 'false';
+            document.getElementById('edit-supplement-id').value = suppId;
+
+            populateSupplementDropdown();
+
+            // Set the supplement selection
+            const select = document.getElementById('start-supplement-id');
+            select.value = supp.supplement_id;
+            if (!select.value) {
+                // Custom supplement not in list
+                select.value = 'custom';
+                document.getElementById('custom-name-row').style.display = 'block';
+                document.getElementById('start-supplement-name').value = supp.supplement_name || '';
+            }
+            select.disabled = true; // Can't change supplement type when editing
+
+            // Pre-fill form values
+            document.getElementById('start-date').value = supp.start_date;
+            document.getElementById('start-date').disabled = true; // Can't change start date when editing
+            document.getElementById('start-dosage').value = supp.dosage || '';
+            document.getElementById('start-frequency').value = supp.frequency || 'daily';
+            document.getElementById('start-reason').value = supp.reason || '';
+            document.getElementById('start-notes').value = supp.notes || '';
+
+            // Hide adherence row (not applicable for edits)
+            document.getElementById('adherence-row').style.display = 'none';
+
+            // Update save button text
+            document.getElementById('supplement-save-btn').textContent = 'Save Changes';
+
+            document.getElementById('supplement-start-modal').classList.remove('hidden');
+        }
+
         // Populate supplement dropdown from library
         function populateSupplementDropdown() {
             const select = document.getElementById('start-supplement-id');
@@ -6324,7 +6417,43 @@
             document.getElementById('start-notes').value = '';
             document.getElementById('custom-name-row').style.display = 'none';
             document.getElementById('start-supplement-name').value = '';
+            document.getElementById('edit-supplement-id').value = '';
+            document.getElementById('start-adherence').value = 80;
+            document.getElementById('adherence-label').textContent = '80%';
+            document.getElementById('adherence-row').style.display = 'none';
+            document.getElementById('supplement-save-btn').textContent = 'Add Supplement';
             onSupplementSelect();
+            checkBackdateAdherence();
+        }
+
+        // Update adherence label when slider changes
+        function updateAdherenceLabel() {
+            const value = document.getElementById('start-adherence').value;
+            document.getElementById('adherence-label').textContent = value + '%';
+        }
+
+        // Check if start date is in the past and show adherence option
+        function checkBackdateAdherence() {
+            const startDate = document.getElementById('start-date').value;
+            const adherenceRow = document.getElementById('adherence-row');
+
+            if (!startDate) {
+                adherenceRow.style.display = 'none';
+                return;
+            }
+
+            const start = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            start.setHours(0, 0, 0, 0);
+
+            // Show adherence option if start date is more than 1 day in the past
+            const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+            if (daysDiff > 1) {
+                adherenceRow.style.display = 'block';
+            } else {
+                adherenceRow.style.display = 'none';
+            }
         }
 
         // Handle supplement selection change
@@ -6349,11 +6478,15 @@
         // Close supplement start modal
         function closeSupplementStartModal() {
             document.getElementById('supplement-start-modal').classList.add('hidden');
+            // Re-enable fields that might have been disabled for edit mode
+            document.getElementById('start-supplement-id').disabled = false;
+            document.getElementById('start-date').disabled = false;
         }
 
-        // Save supplement start
+        // Save supplement start (handles both add and edit)
         async function saveSupplementStart() {
             const select = document.getElementById('start-supplement-id');
+            const editId = document.getElementById('edit-supplement-id').value;
             let supplementId = select.value;
             let supplementName = null;
 
@@ -6381,31 +6514,94 @@
             }
 
             try {
-                const res = await fetch(`/analytics/${currentUserId}/supplement-starts`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        supplement_id: supplementId,
-                        supplement_name: supplementName,
-                        start_date: startDate,
-                        notes: notes || null,
-                        is_manual: isManual,
-                        dosage: dosage || null,
-                        frequency: frequency || null,
-                        reason: reason || null
-                    })
-                });
+                let res;
+                if (editId) {
+                    // Update existing supplement
+                    res = await fetch(`/analytics/${currentUserId}/supplement-starts/${editId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            dosage: dosage || null,
+                            frequency: frequency || null,
+                            reason: reason || null,
+                            notes: notes || null
+                        })
+                    });
+                } else {
+                    // Create new supplement
+                    res = await fetch(`/analytics/${currentUserId}/supplement-starts`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            supplement_id: supplementId,
+                            supplement_name: supplementName,
+                            start_date: startDate,
+                            notes: notes || null,
+                            is_manual: isManual,
+                            dosage: dosage || null,
+                            frequency: frequency || null,
+                            reason: reason || null
+                        })
+                    });
+                }
 
                 if (res.ok) {
-                    showStatus('Supplement added!', 'success');
+                    // Check if we need to create backdate logs
+                    const adherenceRow = document.getElementById('adherence-row');
+                    if (!editId && adherenceRow.style.display !== 'none') {
+                        const adherence = parseInt(document.getElementById('start-adherence').value) / 100;
+                        await createBackdateLogs(supplementId, startDate, adherence);
+                    }
+
+                    showStatus(editId ? 'Supplement updated!' : 'Supplement added!', 'success');
                     closeSupplementStartModal();
                     loadAnalyticsData();
+                    loadTodaysStackData();
                 } else {
                     const err = await res.json();
                     showStatus(err.detail || 'Error saving', 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Create backdate logs based on adherence percentage
+        async function createBackdateLogs(supplementId, startDate, adherence) {
+            const start = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            start.setHours(0, 0, 0, 0);
+
+            const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+            if (daysDiff <= 1) return;
+
+            // Generate logs for past days based on adherence
+            const logsToCreate = [];
+            for (let i = 0; i < daysDiff; i++) {
+                if (Math.random() < adherence) {
+                    const logDate = new Date(start);
+                    logDate.setDate(logDate.getDate() + i);
+                    logsToCreate.push({
+                        date: logDate.toISOString().split('T')[0],
+                        supplement_id: supplementId,
+                        taken: true,
+                        time_taken: 'morning'
+                    });
+                }
+            }
+
+            // Batch create logs
+            for (const log of logsToCreate) {
+                try {
+                    await fetch(`/analytics/${currentUserId}/daily-checkin`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(log)
+                    });
+                } catch (e) {
+                    console.error('Error creating backdate log:', e);
+                }
             }
         }
 
@@ -6435,12 +6631,13 @@
                 const typeClass = isManual ? 'manual' : 'recommended';
                 const icon = getSupplementIcon(supp.supplement_id);
                 const reasonText = supp.reason ? formatReason(supp.reason) : '';
+                const suppName = supp.supplement_name || formatSupplementName(supp.supplement_id);
 
                 return `
                     <div class="supplement-card ${typeClass}">
                         <div class="supplement-icon ${typeClass}">${icon}</div>
                         <div class="supplement-details">
-                            <div class="supplement-name">${supp.supplement_name || formatSupplementName(supp.supplement_id)}</div>
+                            <div class="supplement-name">${suppName}</div>
                             <div class="supplement-meta">
                                 ${supp.dosage ? `<span class="supplement-tag">${supp.dosage}</span>` : ''}
                                 ${supp.frequency ? `<span class="supplement-tag">${formatFrequency(supp.frequency)}</span>` : ''}
@@ -6452,7 +6649,9 @@
                             </div>
                         </div>
                         <div class="supplement-actions">
-                            <button class="supplement-action-btn delete" onclick="stopSupplement('${supp.id}')" title="Stop taking">✕</button>
+                            <button class="supplement-action-btn edit" onclick="openEditSupplement('${supp.id}')" title="Edit">✎</button>
+                            <button class="supplement-action-btn stop" onclick="stopSupplement('${supp.id}')" title="Stop taking">⏸</button>
+                            <button class="supplement-action-btn delete" onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Delete permanently">🗑</button>
                         </div>
                     </div>
                 `;
@@ -6461,7 +6660,7 @@
 
         // Stop taking a supplement (set end date)
         async function stopSupplement(startId) {
-            if (!confirm('Mark this supplement as stopped?')) return;
+            if (!confirm('Mark this supplement as stopped? It will still appear in your history.')) return;
 
             try {
                 const res = await fetch(`/analytics/${currentUserId}/supplement-starts/${startId}`, {
@@ -6475,6 +6674,28 @@
                 if (res.ok) {
                     showStatus('Supplement marked as stopped', 'success');
                     loadAnalyticsData();
+                }
+            } catch (e) {
+                showStatus('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Permanently delete a supplement
+        async function deleteSupplement(startId, name) {
+            if (!confirm(`Permanently delete "${name}" from your stack?\n\nThis will remove all tracking data for this supplement and cannot be undone.`)) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/supplement-starts/${startId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showStatus('Supplement deleted', 'success');
+                    loadAnalyticsData();
+                    loadTodaysStackData(); // Refresh Dashboard stack too
+                } else {
+                    const error = await res.json();
+                    showStatus('Error: ' + (error.detail || 'Failed to delete'), 'error');
                 }
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
