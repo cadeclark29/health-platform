@@ -5211,7 +5211,7 @@
             // Insufficient data message
             let insufficientHtml = '';
             if (!hasSufficientData) {
-                const daysNeeded = (data.min_data_days || 14) - data.days_on_supplement;
+                const daysNeeded = Math.max(1, (data.min_data_days || 14) - data.days_on_supplement);
                 insufficientHtml = `
                     <div class="insufficient-data-notice">
                         📊 Need ${daysNeeded} more day${daysNeeded !== 1 ? 's' : ''} of data for reliable analysis
