@@ -3075,10 +3075,10 @@
                 </div>
             </div>
 
-            <!-- Today's Stack - Quick Log -->
+            <!-- Your Stack - Quick Log -->
             <div class="card todays-stack-card">
                 <div class="todays-stack-header">
-                    <span class="todays-stack-title">Today's Stack</span>
+                    <span class="todays-stack-title">Your Stack</span>
                     <span class="todays-stack-date" id="todays-stack-date">Loading...</span>
                 </div>
                 <div class="stack-pills" id="stack-pills">
@@ -3220,20 +3220,6 @@
                         <h3 style="font-size: 0.95em; color: #A0A0A0; margin-bottom: 8px;">Supplement Markers on Chart</h3>
                         <div class="marker-list" id="supplement-markers-list">
                             <button class="add-marker-btn" onclick="openAddSupplementStart()">+ Add Supplement Start</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Daily Check-in Card -->
-                <div class="card checkin-card">
-                    <div class="checkin-date">
-                        <span class="checkin-date-text" id="checkin-date-display">Today's Check-in</span>
-                        <button class="btn-secondary" onclick="saveCheckin()" id="save-checkin-btn" style="padding: 8px 16px; font-size: 0.85em;">Save Check-in</button>
-                    </div>
-                    <div class="checkin-supplements" id="checkin-supplements">
-                        <div class="empty-state">
-                            <div class="emoji">&#x1F48A;</div>
-                            <div>Loading your supplement stack...</div>
                         </div>
                     </div>
                 </div>
@@ -3496,7 +3482,6 @@
         // Analytics State
         let healthChart = null;
         let analyticsData = null;
-        let checkinState = {}; // {supplement_id: {taken: bool, time_taken: string}}
         let supplementList = []; // List of all supplements for dropdown
 
         // Initialize
@@ -3909,7 +3894,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`);
+                const res = await fetch(`/mixes/${currentUserId}/tracking/daily?date_override=${dateStr}`);
 
                 if (res.ok) {
                     const data = await res.json();
@@ -4142,7 +4127,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/${mixId}?hour=${currentTime}&date_str=${dateStr}`);
+                const res = await fetch(`/mixes/${currentUserId}/${mixId}?hour=${currentTime}&date_override=${dateStr}`);
 
                 if (res.ok) {
                     currentMixData = await res.json();
@@ -4165,7 +4150,7 @@
 
             try {
                 const dateStr = getDateString();
-                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}/preview?hour=${currentTime}&date_str=${dateStr}`);
+                const res = await fetch(`/mixes/blends/${currentUserId}/${blendId}/preview?hour=${currentTime}&date_override=${dateStr}`);
 
                 if (res.ok) {
                     currentMixData = await res.json();
@@ -4206,7 +4191,7 @@
                 const recommendedMixId = smartData.recommended_mix_id;
 
                 // Step 2: Get the full mix details
-                const mixRes = await fetch(`/mixes/${currentUserId}/${recommendedMixId}?time_override=${currentTime}&date_str=${dateStr}`);
+                const mixRes = await fetch(`/mixes/${currentUserId}/${recommendedMixId}?time_override=${currentTime}&date_override=${dateStr}`);
                 if (!mixRes.ok) {
                     const err = await mixRes.json();
                     showStatus(err.detail || 'Error loading mix', 'error');
@@ -4337,6 +4322,33 @@
                 });
 
                 if (res.ok) {
+                    // Also add dispensed supplements to daily stack
+                    const supplements = currentMixData.supplements || [];
+                    if (supplements.length > 0) {
+                        const autoTime = currentTime < 12 ? 'morning' : 'evening';
+                        try {
+                            await fetch(`/analytics/${currentUserId}/daily-checkin`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    date: dateStr,
+                                    supplements: supplements.map(s => ({
+                                        supplement_id: s.supplement_id,
+                                        taken: true,
+                                        time_taken: autoTime
+                                    }))
+                                })
+                            });
+                            // Refresh analytics data in background
+                            const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                            if (analyticsRes.ok) {
+                                analyticsData = await analyticsRes.json();
+                                loadTodaysStack();
+                            }
+                        } catch (e) {
+                            console.error('Error logging dispensed supplements:', e);
+                        }
+                    }
                     showDispenseAnimation(currentMixData);
                 } else {
                     const err = await res.json();
@@ -4417,9 +4429,9 @@
 
             try {
                 const dateStr = getDateString();
-                let url = `/mixes/${currentUserId}/tracking/daily?date_str=${dateStr}`;
+                let url = `/mixes/${currentUserId}/tracking/daily?date_override=${dateStr}`;
                 if (trackingTab === 'weekly') {
-                    url = `/mixes/${currentUserId}/tracking/weekly?date_str=${dateStr}`;
+                    url = `/mixes/${currentUserId}/tracking/weekly?date_override=${dateStr}`;
                 }
 
                 const res = await fetch(url);
@@ -4992,10 +5004,11 @@
                     renderSupplementsGrid();
                     renderHealthChart();
                     renderSupplementMarkers();
-                    renderCheckinUI();
                     renderOutcomeCards();
                     renderCorrelationCards();
                     renderLifeEvents();
+                    // Also refresh Your Stack on Dashboard
+                    loadTodaysStack();
                 }
             } catch (e) {
                 console.error('Error loading analytics:', e);
@@ -5194,42 +5207,53 @@
             container.innerHTML = html;
         }
 
-        // ========== TODAY'S STACK - QUICK LOG ==========
+        // ========== YOUR STACK - QUICK LOG ==========
 
-        // Load and render Today's Stack on Dashboard
+        // Load and render Your Stack on Dashboard (uses selected date from date nav)
         async function loadTodaysStack() {
             const container = document.getElementById('stack-pills');
             const dateEl = document.getElementById('todays-stack-date');
             if (!container) return;
 
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
+            // Use selected date from date navigation (currentDate)
+            const selectedDate = currentDate;
+            const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
-            // Format date nicely
-            dateEl.textContent = today.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-            });
+            // Format date nicely - show "Today" if it's today
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selected = new Date(selectedDate);
+            selected.setHours(0, 0, 0, 0);
+            const isToday = today.getTime() === selected.getTime();
+
+            if (isToday) {
+                dateEl.textContent = 'Today';
+            } else {
+                dateEl.textContent = selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
 
             // Get active supplements from analytics data
             const activeSupplements = (analyticsData?.supplement_starts || [])
                 .filter(s => !s.end_date);
 
-            // Get today's logs
-            const todayLogs = (analyticsData?.supplement_logs || [])
-                .filter(l => l.date === todayStr);
+            // Get logs for selected date (NOT auto-populated)
+            const selectedDateLogs = (analyticsData?.supplement_logs || [])
+                .filter(l => l.date === selectedDateStr);
 
-            // Build lookup for what's already logged
-            const loggedToday = {};
-            todayLogs.forEach(log => {
+            // Build lookup for what's already logged ON THIS DATE
+            const loggedOnDate = {};
+            selectedDateLogs.forEach(log => {
                 if (log.taken) {
-                    loggedToday[log.supplement_id] = log.time_taken || 'morning';
+                    loggedOnDate[log.supplement_id] = log.time_taken || 'morning';
                 }
             });
 
             // Render the pills
-            renderTodaysStack(activeSupplements, loggedToday);
+            renderTodaysStack(activeSupplements, loggedOnDate);
         }
 
         // Render Today's Stack pills
@@ -5288,11 +5312,12 @@
             if (!pill) return;
 
             const isCurrentlyTaken = pill.classList.contains('taken');
-            const today = new Date().toISOString().split('T')[0];
 
-            // Auto-detect AM/PM based on current time
-            const hour = new Date().getHours();
-            const autoTime = hour < 12 ? 'morning' : 'evening';
+            // Use selected date from date navigation
+            const selectedDateStr = currentDate.toISOString().split('T')[0];
+
+            // Auto-detect AM/PM based on selected time (currentTime is the hour)
+            const autoTime = currentTime < 12 ? 'morning' : 'evening';
 
             // Optimistic UI update
             pill.classList.toggle('taken', !isCurrentlyTaken);
@@ -5304,12 +5329,12 @@
             }
 
             try {
-                // Call the API with single supplement
+                // Call the API with single supplement for the selected date
                 const res = await fetch(`/analytics/${currentUserId}/daily-checkin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        date: today,
+                        date: selectedDateStr,
                         supplements: [{
                             supplement_id: suppId,
                             taken: !isCurrentlyTaken,
@@ -5321,11 +5346,9 @@
                 if (!res.ok) throw new Error('Failed to save');
 
                 // Refresh analytics data in background to keep in sync
-                const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=30`);
+                const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
                 if (analyticsRes.ok) {
                     analyticsData = await analyticsRes.json();
-                    // Also update the Analytics tab check-in if visible
-                    renderCheckinUI();
                 }
 
             } catch (e) {
@@ -5337,144 +5360,7 @@
             }
         }
 
-        // ========== END TODAY'S STACK ==========
-
-        // Render daily check-in UI
-        async function renderCheckinUI() {
-            const container = document.getElementById('checkin-supplements');
-            if (!container) return;
-
-            // Get today's date
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('checkin-date-display').textContent = `Today's Check-in (${formatDate(today)})`;
-
-            // Get all active supplements (both manual and recommended)
-            const activeSupplements = (analyticsData?.supplement_starts || [])
-                .filter(s => !s.end_date);
-
-            // Also get today's logs to show what's already checked
-            const todayLogs = (analyticsData?.supplement_logs || [])
-                .filter(l => l.date === today);
-
-            // Build checkin state
-            checkinState = {};
-            todayLogs.forEach(log => {
-                checkinState[log.supplement_id] = {
-                    taken: log.taken,
-                    time_taken: log.time_taken || 'morning'
-                };
-            });
-
-            if (activeSupplements.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="emoji">&#x1F48A;</div>
-                        <div>Add supplements you're taking to track them</div>
-                        <button onclick="openAddManualSupplement()" style="margin-top: 12px;">+ Add Supplement</button>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = activeSupplements.map(supp => {
-                const suppId = supp.supplement_id;
-                const state = checkinState[suppId] || { taken: false, time_taken: null };
-                const taken = state.taken;
-                const timeTaken = state.time_taken;
-                const isManual = supp.is_manual;
-                const icon = getSupplementIcon(suppId);
-
-                return `
-                    <div class="checkin-item ${taken ? 'taken' : ''}" id="checkin-${suppId}" style="${isManual ? 'border-left: 3px solid #22C55E;' : 'border-left: 3px solid #8B5CF6;'}">
-                        <div class="checkin-checkbox ${taken ? 'checked' : ''}"
-                             onclick="toggleCheckin('${suppId}')"></div>
-                        <div class="checkin-info">
-                            <div class="checkin-name">
-                                ${icon} ${supp.supplement_name || formatSupplementName(suppId)}
-                                <span class="type-badge ${isManual ? 'manual' : 'recommended'}" style="margin-left: 6px;">${isManual ? 'Manual' : 'Tracked'}</span>
-                            </div>
-                            <div class="checkin-dose">${supp.dosage || 'Track daily intake'}${supp.frequency ? ' • ' + formatFrequency(supp.frequency) : ''}</div>
-                        </div>
-                        <div class="checkin-time-btns">
-                            <button type="button" class="checkin-time-btn ${timeTaken === 'morning' ? 'active' : ''}"
-                                    onclick="event.stopPropagation(); setCheckinTime('${suppId}', 'morning')">AM</button>
-                            <button type="button" class="checkin-time-btn ${timeTaken === 'evening' ? 'active' : ''}"
-                                    onclick="event.stopPropagation(); setCheckinTime('${suppId}', 'evening')">PM</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Toggle checkin checkbox
-        function toggleCheckin(suppId) {
-            if (!checkinState[suppId]) {
-                checkinState[suppId] = { taken: false, time_taken: null };
-            }
-            checkinState[suppId].taken = !checkinState[suppId].taken;
-
-            const item = document.getElementById(`checkin-${suppId}`);
-            const checkbox = item.querySelector('.checkin-checkbox');
-            item.classList.toggle('taken', checkinState[suppId].taken);
-            checkbox.classList.toggle('checked', checkinState[suppId].taken);
-        }
-
-        // Set checkin time
-        function setCheckinTime(suppId, time) {
-            if (!checkinState[suppId]) {
-                checkinState[suppId] = { taken: true, time_taken: time };
-            } else {
-                checkinState[suppId].time_taken = time;
-                checkinState[suppId].taken = true;
-            }
-
-            // Update UI
-            const item = document.getElementById(`checkin-${suppId}`);
-            item.classList.add('taken');
-            item.querySelector('.checkin-checkbox').classList.add('checked');
-
-            // AM = morning, PM = evening
-            item.querySelectorAll('.checkin-time-btn').forEach(btn => {
-                const btnText = btn.textContent.trim().toUpperCase();
-                const isActive = (btnText === 'AM' && time === 'morning') ||
-                                 (btnText === 'PM' && time === 'evening');
-                btn.classList.toggle('active', isActive);
-            });
-        }
-
-        // Save daily check-in
-        async function saveCheckin() {
-            if (!currentUserId) return;
-
-            const supplements = Object.entries(checkinState).map(([suppId, state]) => ({
-                supplement_id: suppId,
-                taken: state.taken,
-                time_taken: state.time_taken
-            }));
-
-            if (supplements.length === 0) {
-                showStatus('No supplements to check in', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch(`/analytics/${currentUserId}/daily-checkin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ supplements })
-                });
-
-                if (res.ok) {
-                    showStatus('Check-in saved!', 'success');
-                    loadAnalyticsData(); // Refresh data
-                } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error saving check-in', 'error');
-                }
-            } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
-            }
-        }
+        // ========== END YOUR STACK ==========
 
         // Render outcome analysis cards
         async function renderOutcomeCards() {
