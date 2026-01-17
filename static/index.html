@@ -5060,8 +5060,12 @@
             item.classList.add('taken');
             item.querySelector('.checkin-checkbox').classList.add('checked');
 
+            // AM = morning, PM = evening
             item.querySelectorAll('.checkin-time-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(time.substring(0, 2)));
+                const btnText = btn.textContent.trim().toUpperCase();
+                const isActive = (btnText === 'AM' && time === 'morning') ||
+                                 (btnText === 'PM' && time === 'evening');
+                btn.classList.toggle('active', isActive);
             });
         }
 
