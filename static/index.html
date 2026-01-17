@@ -2028,6 +2028,8 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 6px;
             color: #666;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
         .checkin-time-btn:hover {
@@ -5023,10 +5025,10 @@
                             <div class="checkin-dose">${supp.dosage || 'Track daily intake'}${supp.frequency ? ' • ' + formatFrequency(supp.frequency) : ''}</div>
                         </div>
                         <div class="checkin-time-btns">
-                            <button class="checkin-time-btn ${timeTaken === 'morning' ? 'active' : ''}"
-                                    onclick="setCheckinTime('${suppId}', 'morning')">AM</button>
-                            <button class="checkin-time-btn ${timeTaken === 'evening' ? 'active' : ''}"
-                                    onclick="setCheckinTime('${suppId}', 'evening')">PM</button>
+                            <button type="button" class="checkin-time-btn ${timeTaken === 'morning' ? 'active' : ''}"
+                                    onclick="event.stopPropagation(); setCheckinTime('${suppId}', 'morning')">AM</button>
+                            <button type="button" class="checkin-time-btn ${timeTaken === 'evening' ? 'active' : ''}"
+                                    onclick="event.stopPropagation(); setCheckinTime('${suppId}', 'evening')">PM</button>
                         </div>
                     </div>
                 `;
