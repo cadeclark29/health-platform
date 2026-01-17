@@ -2046,6 +2046,172 @@
             color: #A78BFA;
         }
 
+        /* Today's Stack - Quick Log */
+        .todays-stack-card {
+            margin-bottom: 20px;
+        }
+
+        .todays-stack-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .todays-stack-title {
+            font-weight: 600;
+            color: #E8E8E8;
+            font-size: 1.1em;
+        }
+
+        .todays-stack-date {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .stack-pills {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .stack-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 90px;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .stack-pill:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .stack-pill:active {
+            transform: translateY(0);
+        }
+
+        .stack-pill.taken {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .stack-pill.taken:hover {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .stack-pill-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #22C55E;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .stack-pill.taken .stack-pill-check {
+            display: flex;
+        }
+
+        .stack-pill-name {
+            font-weight: 600;
+            color: #E8E8E8;
+            text-align: center;
+            font-size: 0.95em;
+            margin-bottom: 4px;
+        }
+
+        .stack-pill-dose {
+            font-size: 0.75em;
+            color: #666;
+            text-align: center;
+        }
+
+        .stack-pill-time {
+            font-size: 0.7em;
+            color: #22C55E;
+            margin-top: 6px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .stack-pill.taken .stack-pill-time {
+            opacity: 1;
+        }
+
+        .stack-add-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            background: transparent;
+            border: 2px dashed rgba(139, 92, 246, 0.25);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 90px;
+            color: #8B5CF6;
+        }
+
+        .stack-add-pill:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: none;
+            transform: translateY(-2px);
+        }
+
+        .stack-add-pill:active {
+            transform: translateY(0);
+        }
+
+        .stack-add-icon {
+            font-size: 1.5em;
+            margin-bottom: 4px;
+        }
+
+        .stack-add-text {
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .stack-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+        }
+
+        .stack-empty-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .stack-empty-text {
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+
         /* Supplement Start Markers */
         .supplement-markers {
             margin-top: 20px;
@@ -2909,6 +3075,20 @@
                 </div>
             </div>
 
+            <!-- Today's Stack - Quick Log -->
+            <div class="card todays-stack-card">
+                <div class="todays-stack-header">
+                    <span class="todays-stack-title">Today's Stack</span>
+                    <span class="todays-stack-date" id="todays-stack-date">Loading...</span>
+                </div>
+                <div class="stack-pills" id="stack-pills">
+                    <div class="stack-empty">
+                        <div class="stack-empty-icon">💊</div>
+                        <div class="stack-empty-text">Loading your supplements...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Date Navigation -->
             <div class="date-nav">
                 <button onclick="changeDate(-1)" title="Previous day">&#8592;</button>
@@ -3720,6 +3900,7 @@
             loadSaturation();
             checkDailyFoundationTaken();
             checkOuraStatus();
+            loadTodaysStackData();
         }
 
         // Check if Daily Foundation was already taken today
@@ -4763,10 +4944,35 @@
             if (tab === 'dashboard') {
                 dashboardSection.classList.remove('hidden-section');
                 analyticsSection.classList.remove('active');
+                // Load Today's Stack (needs analytics data)
+                loadTodaysStackData();
             } else {
                 dashboardSection.classList.add('hidden-section');
                 analyticsSection.classList.add('active');
                 loadAnalyticsData();
+            }
+        }
+
+        // Load minimal data for Today's Stack on Dashboard
+        async function loadTodaysStackData() {
+            if (!currentUserId) return;
+
+            // Load supplement library if not already loaded
+            if (!supplementLibrary) {
+                await loadSupplementLibrary();
+            }
+
+            try {
+                // If we don't have analytics data yet, fetch it
+                if (!analyticsData) {
+                    const res = await fetch(`/analytics/${currentUserId}/analytics?days=30`);
+                    if (res.ok) {
+                        analyticsData = await res.json();
+                    }
+                }
+                loadTodaysStack();
+            } catch (e) {
+                console.error('Error loading Today\'s Stack:', e);
             }
         }
 
@@ -4987,6 +5193,151 @@
 
             container.innerHTML = html;
         }
+
+        // ========== TODAY'S STACK - QUICK LOG ==========
+
+        // Load and render Today's Stack on Dashboard
+        async function loadTodaysStack() {
+            const container = document.getElementById('stack-pills');
+            const dateEl = document.getElementById('todays-stack-date');
+            if (!container) return;
+
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            // Format date nicely
+            dateEl.textContent = today.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            // Get active supplements from analytics data
+            const activeSupplements = (analyticsData?.supplement_starts || [])
+                .filter(s => !s.end_date);
+
+            // Get today's logs
+            const todayLogs = (analyticsData?.supplement_logs || [])
+                .filter(l => l.date === todayStr);
+
+            // Build lookup for what's already logged
+            const loggedToday = {};
+            todayLogs.forEach(log => {
+                if (log.taken) {
+                    loggedToday[log.supplement_id] = log.time_taken || 'morning';
+                }
+            });
+
+            // Render the pills
+            renderTodaysStack(activeSupplements, loggedToday);
+        }
+
+        // Render Today's Stack pills
+        function renderTodaysStack(supplements, loggedToday) {
+            const container = document.getElementById('stack-pills');
+            if (!container) return;
+
+            if (supplements.length === 0) {
+                container.innerHTML = `
+                    <div class="stack-empty">
+                        <div class="stack-empty-icon">💊</div>
+                        <div class="stack-empty-text">No supplements tracked yet</div>
+                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" style="margin-top: 8px; padding: 10px 20px;">
+                            + Add Your First Supplement
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = supplements.map(supp => {
+                const suppId = supp.supplement_id;
+                const suppName = supp.supplement_name || formatSupplementName(suppId);
+                const dosage = supp.dosage || '';
+                const isTaken = loggedToday[suppId] !== undefined;
+                const timeTaken = loggedToday[suppId] || '';
+
+                return `
+                    <div class="stack-pill ${isTaken ? 'taken' : ''}"
+                         id="stack-pill-${suppId}"
+                         onclick="toggleStackLog('${suppId}', '${suppName.replace(/'/g, "\\'")}', '${dosage.replace(/'/g, "\\'")}')">
+                        <div class="stack-pill-check">✓</div>
+                        <div class="stack-pill-name">${suppName}</div>
+                        <div class="stack-pill-dose">${dosage || 'Tap to log'}</div>
+                        <div class="stack-pill-time">${isTaken ? (timeTaken === 'morning' ? 'AM' : 'PM') : ''}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add the "Add supplement" pill
+            html += `
+                <div class="stack-add-pill" onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);">
+                    <div class="stack-add-icon">+</div>
+                    <div class="stack-add-text">Add</div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Toggle a supplement log with one tap
+        async function toggleStackLog(suppId, suppName, dosage) {
+            if (!currentUserId) return;
+
+            const pill = document.getElementById(`stack-pill-${suppId}`);
+            if (!pill) return;
+
+            const isCurrentlyTaken = pill.classList.contains('taken');
+            const today = new Date().toISOString().split('T')[0];
+
+            // Auto-detect AM/PM based on current time
+            const hour = new Date().getHours();
+            const autoTime = hour < 12 ? 'morning' : 'evening';
+
+            // Optimistic UI update
+            pill.classList.toggle('taken', !isCurrentlyTaken);
+            const timeEl = pill.querySelector('.stack-pill-time');
+            if (!isCurrentlyTaken) {
+                timeEl.textContent = autoTime === 'morning' ? 'AM' : 'PM';
+            } else {
+                timeEl.textContent = '';
+            }
+
+            try {
+                // Call the API with single supplement
+                const res = await fetch(`/analytics/${currentUserId}/daily-checkin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        date: today,
+                        supplements: [{
+                            supplement_id: suppId,
+                            taken: !isCurrentlyTaken,
+                            time_taken: autoTime
+                        }]
+                    })
+                });
+
+                if (!res.ok) throw new Error('Failed to save');
+
+                // Refresh analytics data in background to keep in sync
+                const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=30`);
+                if (analyticsRes.ok) {
+                    analyticsData = await analyticsRes.json();
+                    // Also update the Analytics tab check-in if visible
+                    renderCheckinUI();
+                }
+
+            } catch (e) {
+                console.error('Error toggling supplement:', e);
+                // Revert UI on error
+                pill.classList.toggle('taken', isCurrentlyTaken);
+                timeEl.textContent = isCurrentlyTaken ? (autoTime === 'morning' ? 'AM' : 'PM') : '';
+                showStatus('Failed to save. Please try again.', 'error');
+            }
+        }
+
+        // ========== END TODAY'S STACK ==========
 
         // Render daily check-in UI
         async function renderCheckinUI() {
