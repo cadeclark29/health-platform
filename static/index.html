@@ -981,6 +981,259 @@
             color: #E8E8E8;
         }
 
+        /* Getting Started Card */
+        .getting-started-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .getting-started-card h3 {
+            font-size: 1.1em;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .getting-started-card .gs-subtitle {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 16px;
+        }
+
+        .gs-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gs-checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .gs-checklist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .gs-check-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .gs-checklist-item.completed .gs-check-circle {
+            background: #22C55E;
+            border-color: #22C55E;
+            color: #fff;
+        }
+
+        .gs-item-content {
+            flex: 1;
+        }
+
+        .gs-item-title {
+            color: #E8E8E8;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .gs-checklist-item.completed .gs-item-title {
+            color: #888;
+            text-decoration: line-through;
+        }
+
+        .gs-item-desc {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
+        .gs-item-action {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            transition: all 0.2s;
+        }
+
+        .gs-item-action:hover {
+            background: rgba(139, 92, 246, 0.3);
+        }
+
+        .gs-checklist-item.completed .gs-item-action {
+            display: none;
+        }
+
+        .gs-dismiss {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+
+        .gs-dismiss:hover {
+            color: #888;
+        }
+
+        .gs-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .gs-progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .gs-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #22C55E);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .gs-progress-text {
+            color: #888;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        /* Chart Overlay */
+        .chart-container {
+            position: relative;
+        }
+
+        .chart-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            text-align: center;
+            padding: 24px;
+            z-index: 5;
+        }
+
+        .chart-overlay.hidden {
+            display: none;
+        }
+
+        .chart-overlay-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .chart-overlay h3 {
+            color: #E8E8E8;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .chart-overlay p {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+            max-width: 260px;
+        }
+
+        .chart-overlay-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .chart-overlay-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Saturation section hidden state */
+        .saturation-gauge.hidden-section {
+            display: none;
+        }
+
+        /* Improved empty state */
+        .empty-state-modern {
+            text-align: center;
+            padding: 32px 20px;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
+            border-radius: 16px;
+            border: 1px dashed rgba(139, 92, 246, 0.2);
+        }
+
+        .empty-state-modern .empty-illustration {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .empty-state-modern h3 {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #E8E8E8;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-modern p {
+            color: #888;
+            margin-bottom: 16px;
+            font-size: 0.9em;
+            max-width: 260px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .empty-state-cta {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .empty-state-cta:hover {
+            transform: scale(1.03);
+        }
+
         /* Dispense Animation */
         .dispense-animation {
             text-align: center;
@@ -3709,6 +3962,50 @@
             <!-- Dashboard Section -->
             <div class="dashboard-section" id="dashboard-section">
 
+            <!-- Getting Started Card (for new users) -->
+            <div class="getting-started-card hidden" id="getting-started-card">
+                <h3>👋 Getting Started</h3>
+                <p class="gs-subtitle">Complete these steps to get personalized insights</p>
+
+                <div class="gs-progress">
+                    <div class="gs-progress-bar">
+                        <div class="gs-progress-fill" id="gs-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="gs-progress-text" id="gs-progress-text">0/3</span>
+                </div>
+
+                <div class="gs-checklist">
+                    <div class="gs-checklist-item" id="gs-item-oura">
+                        <div class="gs-check-circle" id="gs-check-oura">✓</div>
+                        <div class="gs-item-content">
+                            <div class="gs-item-title">Connect Oura Ring</div>
+                            <div class="gs-item-desc">Sync your sleep and recovery data</div>
+                        </div>
+                        <button class="gs-item-action" onclick="connectOura()">Connect</button>
+                    </div>
+
+                    <div class="gs-checklist-item" id="gs-item-supplements">
+                        <div class="gs-check-circle" id="gs-check-supplements">✓</div>
+                        <div class="gs-item-content">
+                            <div class="gs-item-title">Add your supplements</div>
+                            <div class="gs-item-desc">Track what you take daily</div>
+                        </div>
+                        <button class="gs-item-action" onclick="openAddManualSupplement()">Add</button>
+                    </div>
+
+                    <div class="gs-checklist-item" id="gs-item-log">
+                        <div class="gs-check-circle" id="gs-check-log">✓</div>
+                        <div class="gs-item-content">
+                            <div class="gs-item-title">Log your first check-in</div>
+                            <div class="gs-item-desc">Start building your history</div>
+                        </div>
+                        <button class="gs-item-action" onclick="switchMainTab('dashboard')">Log</button>
+                    </div>
+                </div>
+
+                <button class="gs-dismiss" onclick="dismissGettingStarted()">Dismiss for now</button>
+            </div>
+
             <!-- Oura Connection Card -->
             <div class="oura-card" id="oura-card">
                 <div class="oura-header">
@@ -3905,6 +4202,13 @@
                     <h2>Health Metrics Over Time</h2>
                     <div class="chart-container">
                         <canvas id="health-chart"></canvas>
+                        <!-- Overlay for when Oura not connected -->
+                        <div class="chart-overlay hidden" id="chart-overlay">
+                            <div class="chart-overlay-icon">📊</div>
+                            <h3>See Your Health Trends</h3>
+                            <p>Connect your Oura Ring to visualize sleep, HRV, and recovery data over time</p>
+                            <button class="chart-overlay-btn" onclick="connectOura()">Connect Oura</button>
+                        </div>
                     </div>
                     <div class="chart-legend">
                         <div class="legend-item">
@@ -4293,6 +4597,7 @@
                     notConnected.classList.add('hidden');
                     connected.classList.remove('hidden');
                     updateAISubtitle();
+                    updateProgressiveDisclosure();
                     // Fetch latest data
                     await fetchOuraHistory();
                 } else {
@@ -4302,6 +4607,7 @@
                     notConnected.classList.remove('hidden');
                     connected.classList.add('hidden');
                     updateAISubtitle();
+                    updateProgressiveDisclosure();
                 }
             } catch (e) {
                 loading.classList.add('hidden');
@@ -4931,6 +5237,126 @@
         }
 
         // ==================== END ONBOARDING ====================
+
+
+        // ==================== PROGRESSIVE DISCLOSURE ====================
+
+        // Check user setup status
+        function getUserSetupStatus() {
+            return {
+                hasOura: ouraConnected,
+                hasSupplements: (analyticsData?.supplement_starts || []).filter(s => !s.end_date).length > 0,
+                hasLogs: (analyticsData?.supplement_logs || []).length > 0
+            };
+        }
+
+        // Check if user is new (needs getting started guidance)
+        function isNewUser() {
+            const status = getUserSetupStatus();
+            // User is "new" if they haven't completed 2 of the 3 setup steps
+            const completedSteps = (status.hasOura ? 1 : 0) + (status.hasSupplements ? 1 : 0) + (status.hasLogs ? 1 : 0);
+            return completedSteps < 2;
+        }
+
+        // Update the Getting Started card
+        function updateGettingStartedCard() {
+            const card = document.getElementById('getting-started-card');
+            if (!card) return;
+
+            // Don't show if user dismissed it
+            if (localStorage.getItem('gettingStartedDismissed') === 'true') {
+                card.classList.add('hidden');
+                return;
+            }
+
+            const status = getUserSetupStatus();
+
+            // Update checklist items
+            const ouraItem = document.getElementById('gs-item-oura');
+            const supplementsItem = document.getElementById('gs-item-supplements');
+            const logItem = document.getElementById('gs-item-log');
+
+            if (status.hasOura) {
+                ouraItem.classList.add('completed');
+            } else {
+                ouraItem.classList.remove('completed');
+            }
+
+            if (status.hasSupplements) {
+                supplementsItem.classList.add('completed');
+            } else {
+                supplementsItem.classList.remove('completed');
+            }
+
+            if (status.hasLogs) {
+                logItem.classList.add('completed');
+            } else {
+                logItem.classList.remove('completed');
+            }
+
+            // Update progress
+            const completedCount = (status.hasOura ? 1 : 0) + (status.hasSupplements ? 1 : 0) + (status.hasLogs ? 1 : 0);
+            const progressFill = document.getElementById('gs-progress-fill');
+            const progressText = document.getElementById('gs-progress-text');
+
+            if (progressFill) progressFill.style.width = `${(completedCount / 3) * 100}%`;
+            if (progressText) progressText.textContent = `${completedCount}/3`;
+
+            // Hide if all completed
+            if (completedCount >= 3) {
+                card.classList.add('hidden');
+            } else if (isNewUser()) {
+                card.classList.remove('hidden');
+            } else {
+                // User has some progress, show card to encourage completion
+                card.classList.remove('hidden');
+            }
+        }
+
+        // Dismiss Getting Started card
+        function dismissGettingStarted() {
+            localStorage.setItem('gettingStartedDismissed', 'true');
+            const card = document.getElementById('getting-started-card');
+            if (card) card.classList.add('hidden');
+        }
+
+        // Update Saturation section visibility
+        function updateSaturationVisibility() {
+            const saturationGauge = document.getElementById('saturation-gauge');
+            if (!saturationGauge) return;
+
+            const status = getUserSetupStatus();
+
+            // Hide saturation if no supplements
+            if (!status.hasSupplements) {
+                saturationGauge.classList.add('hidden-section');
+            } else {
+                saturationGauge.classList.remove('hidden-section');
+            }
+        }
+
+        // Update chart overlay visibility
+        function updateChartOverlay() {
+            const overlay = document.getElementById('chart-overlay');
+            if (!overlay) return;
+
+            // Show overlay if no Oura connected
+            if (!ouraConnected) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Master function to update all progressive disclosure elements
+        function updateProgressiveDisclosure() {
+            updateGettingStartedCard();
+            updateSaturationVisibility();
+            updateChartOverlay();
+        }
+
+        // ==================== END PROGRESSIVE DISCLOSURE ====================
+
 
         // Sign in
         async function signIn() {
@@ -6116,6 +6542,8 @@
                     renderLifeEvents();
                     // Also refresh Your Stack on Dashboard
                     loadTodaysStack();
+                    // Update progressive disclosure elements
+                    updateProgressiveDisclosure();
                 }
             } catch (e) {
                 console.error('Error loading analytics:', e);
