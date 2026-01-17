@@ -587,6 +587,7 @@ def _get_usage_history(user_id: str, db: Session, days: int = 30) -> dict:
 async def get_daily_tracking(
     user_id: str,
     date_str: Optional[str] = None,
+    date_override: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -594,15 +595,18 @@ async def get_daily_tracking(
 
     Args:
         date_str: Optional date in YYYY-MM-DD format. Defaults to today.
+        date_override: Alias for date_str (for consistency with other endpoints).
     """
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Accept either date_str or date_override
+    date_param = date_override or date_str
     target_date = date.today()
-    if date_str:
+    if date_param:
         try:
-            target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            target_date = datetime.strptime(date_param, "%Y-%m-%d").date()
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
@@ -639,19 +643,22 @@ async def get_daily_tracking(
 async def get_weekly_tracking(
     user_id: str,
     end_date_str: Optional[str] = None,
+    date_override: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """
-    Get weekly supplement totals (last 7 days).
+    Get weekly supplement totals (last 7 days ending on the specified date).
     """
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Accept either end_date_str or date_override
+    date_param = date_override or end_date_str
     end_date = date.today()
-    if end_date_str:
+    if date_param:
         try:
-            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+            end_date = datetime.strptime(date_param, "%Y-%m-%d").date()
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format")
 
