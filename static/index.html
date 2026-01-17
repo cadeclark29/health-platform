@@ -1910,6 +1910,271 @@
             display: none;
         }
 
+        /* Supplement Insights */
+        .insights-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .insights-loading .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(139, 92, 246, 0.2);
+            border-top-color: #8B5CF6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .insights-section-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #A78BFA;
+            margin: 20px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insights-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .insight-card.positive {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .insight-card.negative {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .insight-card.pending {
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.05);
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .insight-supp-name {
+            font-weight: 600;
+            color: #E8E8E8;
+            font-size: 1em;
+        }
+
+        .insight-start-date {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .insight-badge {
+            font-size: 0.75em;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .insight-badge.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .insight-badge.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .insight-badge.pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
+        }
+
+        .insight-badge.neutral {
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        .insight-metric {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .insight-metric-label {
+            font-size: 0.85em;
+            color: #888;
+            min-width: 80px;
+        }
+
+        .insight-metric-values {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .insight-metric-before {
+            color: #666;
+        }
+
+        .insight-metric-arrow {
+            color: #666;
+        }
+
+        .insight-metric-after {
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .insight-metric-change {
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .insight-metric-change.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .insight-metric-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .insight-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .insight-confidence {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .insight-confidence-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .insight-confidence-dot.high { background: #22C55E; }
+        .insight-confidence-dot.medium { background: #F59E0B; }
+        .insight-confidence-dot.low { background: #666; }
+
+        .insight-adherence {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-streak {
+            color: #F59E0B;
+        }
+
+        /* Consistency Cards */
+        .consistency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .consistency-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .consistency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .consistency-name {
+            font-weight: 600;
+            color: #E8E8E8;
+            font-size: 0.9em;
+        }
+
+        .consistency-streak {
+            font-size: 0.8em;
+            color: #F59E0B;
+        }
+
+        .consistency-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .consistency-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #A78BFA);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .consistency-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        .consistency-info {
+            font-size: 0.75em;
+            color: #888;
+            font-style: italic;
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 8px;
+        }
+
+        .insights-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .insights-empty-icon {
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+
         /* Chart Container */
         .chart-container {
             position: relative;
@@ -3233,6 +3498,19 @@
                             <div class="supplements-empty-icon">💊</div>
                             <div>No supplements tracked yet</div>
                             <div style="font-size: 0.85em; margin-top: 6px;">Add the supplements you're currently taking</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplement Insights -->
+                <div class="card" id="insights-card">
+                    <h2>Supplement Insights</h2>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">See how your supplements are affecting your health metrics.</p>
+
+                    <div id="insights-content">
+                        <div class="insights-loading">
+                            <div class="spinner"></div>
+                            <div>Analyzing your data...</div>
                         </div>
                     </div>
                 </div>
@@ -5103,8 +5381,7 @@
                     renderSupplementsGrid();
                     renderHealthChart();
                     renderSupplementMarkers();
-                    renderOutcomeCards();
-                    renderCorrelationCards();
+                    loadSupplementInsights(); // Load the new insights feature
                     renderLifeEvents();
                     // Also refresh Your Stack on Dashboard
                     loadTodaysStack();
@@ -5112,6 +5389,159 @@
             } catch (e) {
                 console.error('Error loading analytics:', e);
             }
+        }
+
+        // Load and render supplement insights
+        async function loadSupplementInsights() {
+            if (!currentUserId) return;
+
+            const container = document.getElementById('insights-content');
+            if (!container) return;
+
+            try {
+                const res = await fetch(`/analytics/${currentUserId}/supplement-insights`);
+                if (res.ok) {
+                    const data = await res.json();
+                    renderSupplementInsights(data);
+                } else {
+                    container.innerHTML = '<div class="insights-empty"><div class="insights-empty-icon">📊</div><div>Unable to load insights</div></div>';
+                }
+            } catch (e) {
+                console.error('Error loading supplement insights:', e);
+                container.innerHTML = '<div class="insights-empty"><div class="insights-empty-icon">📊</div><div>Unable to load insights</div></div>';
+            }
+        }
+
+        // Render supplement insights
+        function renderSupplementInsights(data) {
+            const container = document.getElementById('insights-content');
+            if (!container) return;
+
+            const { impact_analysis, consistency_tracking, summary } = data;
+
+            if (summary.total_supplements === 0) {
+                container.innerHTML = `
+                    <div class="insights-empty">
+                        <div class="insights-empty-icon">📊</div>
+                        <div>No supplements to analyze yet</div>
+                        <div style="font-size: 0.85em; margin-top: 8px; color: #666;">Add supplements you're taking to see insights</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // Impact Analysis Section
+            if (impact_analysis.length > 0) {
+                html += '<div class="insights-section-title">📊 Impact Analysis</div>';
+
+                impact_analysis.forEach(insight => {
+                    const hasData = insight.has_sufficient_data && insight.change !== null;
+                    const isPositive = insight.is_positive;
+                    const cardClass = !hasData ? 'pending' : (isPositive ? 'positive' : 'negative');
+                    const badgeClass = !hasData ? 'pending' : (isPositive ? 'positive' : 'negative');
+
+                    let badgeText = '';
+                    if (!hasData) {
+                        badgeText = insight.message || 'Collecting data...';
+                    } else {
+                        const sign = insight.change_pct > 0 ? '+' : '';
+                        badgeText = `${sign}${insight.change_pct}%`;
+                    }
+
+                    html += `
+                        <div class="insight-card ${cardClass}">
+                            <div class="insight-header">
+                                <div>
+                                    <div class="insight-supp-name">${insight.supplement_name}</div>
+                                    <div class="insight-start-date">Started ${formatDateShort(insight.start_date)} · ${insight.days_on} days</div>
+                                </div>
+                                <div class="insight-badge ${badgeClass}">${badgeText}</div>
+                            </div>
+                    `;
+
+                    if (hasData) {
+                        const changeClass = isPositive ? 'positive' : 'negative';
+                        const arrow = isPositive ? '↑' : '↓';
+                        html += `
+                            <div class="insight-metric">
+                                <div class="insight-metric-label">${insight.metric_display_name}</div>
+                                <div class="insight-metric-values">
+                                    <span class="insight-metric-before">${insight.before_avg}</span>
+                                    <span class="insight-metric-arrow">→</span>
+                                    <span class="insight-metric-after">${insight.after_avg}</span>
+                                    <span class="insight-metric-change ${changeClass}">${arrow} ${Math.abs(insight.change_pct)}%</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div style="color: #888; font-size: 0.85em; margin: 8px 0;">
+                                Tracking ${insight.metric_display_name} · ${insight.expected_effect}
+                            </div>
+                        `;
+                    }
+
+                    // Footer with confidence and adherence
+                    const confidenceClass = insight.confidence === 'high' || insight.confidence === 'very_high' ? 'high' :
+                                           insight.confidence === 'medium' ? 'medium' : 'low';
+                    const confidenceText = hasData ? (
+                        insight.confidence === 'high' || insight.confidence === 'very_high' ? 'High confidence' :
+                        insight.confidence === 'medium' ? 'Medium confidence' : 'Low confidence'
+                    ) : 'Gathering data';
+
+                    html += `
+                            <div class="insight-footer">
+                                <div class="insight-confidence">
+                                    <span class="insight-confidence-dot ${confidenceClass}"></span>
+                                    <span>${confidenceText}</span>
+                                </div>
+                                <div class="insight-adherence">
+                                    ${insight.streak_days > 0 ? `<span class="insight-streak">🔥 ${insight.streak_days} day streak</span>` : ''}
+                                    <span>${insight.adherence_pct}% adherence</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Consistency Tracking Section
+            if (consistency_tracking.length > 0) {
+                html += '<div class="insights-section-title">📅 Consistency Tracking</div>';
+                html += '<div class="consistency-info">These supplements have long-term benefits that build over months. Keep taking them consistently!</div>';
+                html += '<div class="consistency-grid">';
+
+                consistency_tracking.forEach(supp => {
+                    const barWidth = Math.min(100, supp.adherence_pct);
+                    html += `
+                        <div class="consistency-card">
+                            <div class="consistency-header">
+                                <div class="consistency-name">${supp.supplement_name}</div>
+                                ${supp.streak_days > 0 ? `<div class="consistency-streak">🔥 ${supp.streak_days}d</div>` : ''}
+                            </div>
+                            <div class="consistency-bar">
+                                <div class="consistency-bar-fill" style="width: ${barWidth}%"></div>
+                            </div>
+                            <div class="consistency-stats">
+                                <span>${supp.adherence_pct}% adherence</span>
+                                <span>${supp.days_on} days</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Format date as "Jan 5"
+        function formatDateShort(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
         // Render health metrics chart

@@ -1036,3 +1036,270 @@ def get_correlation_insights(
         },
         "total_supplements_analyzed": len(correlations)
     }
+
+
+# --- Supplement Insights Endpoint ---
+
+# Mapping of supplements to measurable health metrics
+# Only these supplements will show before/after impact analysis
+MEASURABLE_SUPPLEMENTS = {
+    "magnesium_glycinate": {
+        "metrics": ["sleep_score", "hrv_score", "deep_sleep_pct"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Sleep & relaxation"
+    },
+    "magnesium": {
+        "metrics": ["sleep_score", "hrv_score"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Sleep & relaxation"
+    },
+    "ashwagandha": {
+        "metrics": ["hrv_score", "recovery_score", "resting_hr"],
+        "primary_metric": "hrv_score",
+        "expected_effect": "Stress & HRV"
+    },
+    "l_theanine": {
+        "metrics": ["hrv_score", "sleep_score"],
+        "primary_metric": "hrv_score",
+        "expected_effect": "Calm & focus"
+    },
+    "glycine": {
+        "metrics": ["sleep_score", "deep_sleep_pct"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Sleep quality"
+    },
+    "melatonin": {
+        "metrics": ["sleep_score", "sleep_duration_hrs"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Sleep onset"
+    },
+    "rhodiola": {
+        "metrics": ["recovery_score", "hrv_score"],
+        "primary_metric": "recovery_score",
+        "expected_effect": "Energy & recovery"
+    },
+    "gaba": {
+        "metrics": ["sleep_score", "hrv_score"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Relaxation"
+    },
+    "apigenin": {
+        "metrics": ["sleep_score"],
+        "primary_metric": "sleep_score",
+        "expected_effect": "Sleep quality"
+    },
+}
+
+# Friendly metric names
+METRIC_DISPLAY_NAMES = {
+    "sleep_score": "Sleep Score",
+    "hrv_score": "HRV",
+    "recovery_score": "Recovery",
+    "resting_hr": "Resting HR",
+    "deep_sleep_pct": "Deep Sleep %",
+    "sleep_duration_hrs": "Sleep Duration"
+}
+
+
+@router.get("/{user_id}/supplement-insights")
+def get_supplement_insights(
+    user_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive insights for all user supplements.
+
+    Returns two categories:
+    1. Impact Analysis - for supplements with measurable short-term effects
+    2. Consistency Tracking - for long-term/preventative supplements
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Get all active supplement starts
+    supplement_starts = db.query(SupplementStart).filter(
+        SupplementStart.user_id == user_id,
+        SupplementStart.end_date == None  # Active supplements only
+    ).order_by(SupplementStart.start_date).all()
+
+    if not supplement_starts:
+        return {
+            "impact_analysis": [],
+            "consistency_tracking": [],
+            "summary": {
+                "total_supplements": 0,
+                "measurable_count": 0,
+                "consistency_count": 0
+            }
+        }
+
+    # Get all health data for analysis
+    earliest_start = min(s.start_date for s in supplement_starts)
+    before_period_start = earliest_start - timedelta(days=14)
+
+    health_data = db.query(HealthData).filter(
+        HealthData.user_id == user_id,
+        HealthData.timestamp >= datetime.combine(before_period_start, datetime.min.time())
+    ).order_by(HealthData.timestamp).all()
+
+    # Get all supplement logs for adherence calculation
+    all_logs = db.query(SupplementLog).filter(
+        SupplementLog.user_id == user_id,
+        SupplementLog.log_date >= earliest_start
+    ).all()
+
+    # Build log lookup by supplement
+    logs_by_supplement = {}
+    for log in all_logs:
+        if log.supplement_id not in logs_by_supplement:
+            logs_by_supplement[log.supplement_id] = []
+        logs_by_supplement[log.supplement_id].append(log)
+
+    impact_analysis = []
+    consistency_tracking = []
+
+    for supp_start in supplement_starts:
+        supp_id = supp_start.supplement_id
+        supp_name = supp_start.supplement_name or supp_id.replace("_", " ").title()
+        start_date_val = supp_start.start_date
+        days_on = (date.today() - start_date_val).days
+
+        # Calculate adherence
+        supp_logs = logs_by_supplement.get(supp_id, [])
+        days_logged = len([l for l in supp_logs if l.log_date >= start_date_val])
+        days_taken = len([l for l in supp_logs if l.log_date >= start_date_val and l.taken])
+        adherence_pct = round((days_taken / days_logged * 100) if days_logged > 0 else 0, 1)
+
+        # Calculate streak (consecutive days taken ending today or yesterday)
+        streak = 0
+        check_date = date.today()
+        taken_dates = set(l.log_date for l in supp_logs if l.taken)
+
+        # Allow for today not being logged yet
+        if check_date not in taken_dates:
+            check_date = check_date - timedelta(days=1)
+
+        while check_date in taken_dates:
+            streak += 1
+            check_date = check_date - timedelta(days=1)
+
+        # Check if this supplement is measurable
+        if supp_id in MEASURABLE_SUPPLEMENTS:
+            config = MEASURABLE_SUPPLEMENTS[supp_id]
+            primary_metric = config["primary_metric"]
+
+            # Get before data (14 days before start)
+            before_data = [
+                hd for hd in health_data
+                if start_date_val - timedelta(days=14) <= hd.timestamp.date() < start_date_val
+            ]
+
+            # Get after data (from start to now)
+            after_data = [
+                hd for hd in health_data
+                if hd.timestamp.date() >= start_date_val
+            ]
+
+            # Calculate before/after for primary metric
+            def get_metric_values(data_list, metric_name):
+                return [getattr(hd, metric_name) for hd in data_list if getattr(hd, metric_name, None) is not None]
+
+            before_values = get_metric_values(before_data, primary_metric)
+            after_values = get_metric_values(after_data, primary_metric)
+
+            has_sufficient_data = len(before_values) >= 5 and len(after_values) >= 7 and days_on >= MIN_DATA_DAYS
+
+            if before_values and after_values:
+                before_avg = sum(before_values) / len(before_values)
+                after_avg = sum(after_values) / len(after_values)
+                change = after_avg - before_avg
+                change_pct = round((change / before_avg * 100) if before_avg != 0 else 0, 1)
+
+                # Determine if change is positive (for resting_hr, lower is better)
+                is_positive = change < 0 if primary_metric == "resting_hr" else change > 0
+
+                # Calculate confidence
+                stats = calculate_t_statistic(before_values, after_values)
+
+                impact_analysis.append({
+                    "supplement_id": supp_id,
+                    "supplement_name": supp_name,
+                    "start_date": str(start_date_val),
+                    "days_on": days_on,
+                    "expected_effect": config["expected_effect"],
+                    "primary_metric": primary_metric,
+                    "metric_display_name": METRIC_DISPLAY_NAMES.get(primary_metric, primary_metric),
+                    "before_avg": round(before_avg, 1),
+                    "after_avg": round(after_avg, 1),
+                    "change": round(change, 1),
+                    "change_pct": change_pct,
+                    "is_positive": is_positive,
+                    "confidence": stats["confidence"],
+                    "has_sufficient_data": has_sufficient_data,
+                    "data_points": {
+                        "before": len(before_values),
+                        "after": len(after_values)
+                    },
+                    "adherence_pct": adherence_pct,
+                    "streak_days": streak
+                })
+            else:
+                # Measurable but not enough data yet
+                impact_analysis.append({
+                    "supplement_id": supp_id,
+                    "supplement_name": supp_name,
+                    "start_date": str(start_date_val),
+                    "days_on": days_on,
+                    "expected_effect": config["expected_effect"],
+                    "primary_metric": primary_metric,
+                    "metric_display_name": METRIC_DISPLAY_NAMES.get(primary_metric, primary_metric),
+                    "before_avg": None,
+                    "after_avg": None,
+                    "change": None,
+                    "change_pct": None,
+                    "is_positive": None,
+                    "confidence": "needs_more_data",
+                    "has_sufficient_data": False,
+                    "data_points": {
+                        "before": len(before_values),
+                        "after": len(after_values)
+                    },
+                    "adherence_pct": adherence_pct,
+                    "streak_days": streak,
+                    "message": f"Need {MIN_DATA_DAYS - days_on} more days of data" if days_on < MIN_DATA_DAYS else "Need more health data"
+                })
+        else:
+            # Non-measurable supplement - consistency tracking only
+            consistency_tracking.append({
+                "supplement_id": supp_id,
+                "supplement_name": supp_name,
+                "start_date": str(start_date_val),
+                "days_on": days_on,
+                "adherence_pct": adherence_pct,
+                "streak_days": streak,
+                "days_taken": days_taken,
+                "days_logged": days_logged,
+                "dosage": supp_start.dosage,
+                "frequency": supp_start.frequency,
+                "reason": supp_start.reason
+            })
+
+    # Sort impact analysis by absolute change percentage (most impactful first)
+    impact_analysis.sort(
+        key=lambda x: abs(x["change_pct"]) if x.get("change_pct") is not None else -1,
+        reverse=True
+    )
+
+    # Sort consistency by streak (longest first)
+    consistency_tracking.sort(key=lambda x: x["streak_days"], reverse=True)
+
+    return {
+        "impact_analysis": impact_analysis,
+        "consistency_tracking": consistency_tracking,
+        "summary": {
+            "total_supplements": len(supplement_starts),
+            "measurable_count": len(impact_analysis),
+            "consistency_count": len(consistency_tracking)
+        }
+    }
