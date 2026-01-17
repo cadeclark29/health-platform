@@ -7279,27 +7279,29 @@
             if (daysDiff <= 1) return;
 
             // Generate logs for past days based on adherence
-            const logsToCreate = [];
+            const datesToLog = [];
             for (let i = 0; i < daysDiff; i++) {
                 if (Math.random() < adherence) {
                     const logDate = new Date(start);
                     logDate.setDate(logDate.getDate() + i);
-                    logsToCreate.push({
-                        date: logDate.toISOString().split('T')[0],
-                        supplement_id: supplementId,
-                        taken: true,
-                        time_taken: 'morning'
-                    });
+                    datesToLog.push(logDate.toISOString().split('T')[0]);
                 }
             }
 
-            // Batch create logs
-            for (const log of logsToCreate) {
+            // Create logs for each date (using correct API format)
+            for (const dateStr of datesToLog) {
                 try {
                     await fetch(`/analytics/${currentUserId}/daily-checkin`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(log)
+                        body: JSON.stringify({
+                            date: dateStr,
+                            supplements: [{
+                                supplement_id: supplementId,
+                                taken: true,
+                                time_taken: 'morning'
+                            }]
+                        })
                     });
                 } catch (e) {
                     console.error('Error creating backdate log:', e);
