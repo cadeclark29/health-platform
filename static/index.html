@@ -403,6 +403,327 @@
             color: #A78BFA;
         }
 
+        /* Smart Recommendation Hero Card */
+        .smart-rec-card {
+            position: relative;
+            background: linear-gradient(135deg,
+                rgba(139, 92, 246, 0.15) 0%,
+                rgba(124, 58, 237, 0.1) 50%,
+                rgba(99, 102, 241, 0.08) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .smart-rec-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            animation: rec-glow 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rec-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .smart-rec-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .smart-rec-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .smart-rec-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .smart-rec-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #A78BFA;
+        }
+
+        .smart-rec-main {
+            min-height: 80px;
+        }
+
+        .smart-rec-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            color: #888;
+        }
+
+        .smart-rec-loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-top-color: #8B5CF6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .smart-rec-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #E8E8E8;
+            margin-bottom: 8px;
+        }
+
+        .smart-rec-reason {
+            font-size: 0.95em;
+            color: #A0A0A0;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .smart-rec-reason strong {
+            color: #C4B5FD;
+        }
+
+        .smart-rec-metrics {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .smart-rec-metric {
+            flex: 1;
+            text-align: center;
+        }
+
+        .smart-rec-metric .metric-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #E8E8E8;
+            display: block;
+        }
+
+        .smart-rec-metric .metric-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .smart-rec-metric .metric-trend {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75em;
+            margin-left: 4px;
+        }
+
+        .smart-rec-metric .metric-trend.up { color: #22C55E; }
+        .smart-rec-metric .metric-trend.down { color: #EF4444; }
+        .smart-rec-metric .metric-trend.flat { color: #888; }
+
+        .smart-rec-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .smart-rec-take-btn {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .smart-rec-take-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .smart-rec-take-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .smart-rec-details-btn {
+            flex: 1;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #888;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .smart-rec-details-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #E8E8E8;
+        }
+
+        .smart-rec-empty {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .smart-rec-empty-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .smart-rec-empty-text {
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+
+        /* Progress Card */
+        .progress-card {
+            margin-bottom: 20px;
+        }
+
+        .progress-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-card-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .progress-period {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .progress-metrics {
+            display: flex;
+            gap: 12px;
+        }
+
+        .progress-metric {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .progress-metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-metric-icon.sleep {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818CF8;
+        }
+
+        .progress-metric-icon.hrv {
+            background: rgba(236, 72, 153, 0.2);
+            color: #F472B6;
+        }
+
+        .progress-metric-icon.recovery {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .progress-metric-info {
+            flex: 1;
+        }
+
+        .progress-metric-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-metric-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #E8E8E8;
+        }
+
+        .progress-metric-trend {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .progress-metric-trend.up {
+            color: #22C55E;
+        }
+
+        .progress-metric-trend.down {
+            color: #EF4444;
+        }
+
+        .progress-metric-trend.flat {
+            color: #888;
+        }
+
+        .progress-summary {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #A0A0A0;
+        }
+
+        .progress-summary strong {
+            color: #C4B5FD;
+        }
+
         /* Main Dispenser Layout */
         .dispenser-layout {
             display: grid;
@@ -3559,6 +3880,95 @@
             color: #EF4444;
         }
 
+        /* Progress Bar Visualization */
+        .insight-progress {
+            margin: 12px 0;
+        }
+
+        .insight-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .insight-progress-label {
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .insight-progress-change {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .insight-progress-change.positive {
+            color: #22C55E;
+        }
+
+        .insight-progress-change.negative {
+            color: #EF4444;
+        }
+
+        .insight-progress-bar-container {
+            position: relative;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .insight-progress-before {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: rgba(136, 136, 136, 0.3);
+            border-radius: 8px 0 0 8px;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            font-size: 0.85em;
+            color: #888;
+            z-index: 1;
+        }
+
+        .insight-progress-after {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #fff;
+            z-index: 2;
+            transition: width 0.5s ease-out;
+        }
+
+        .insight-progress-after.positive {
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.4), rgba(34, 197, 94, 0.7));
+        }
+
+        .insight-progress-after.negative {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.4), rgba(239, 68, 68, 0.7));
+        }
+
+        .insight-progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.75em;
+            color: #666;
+        }
+
         .insight-footer {
             display: flex;
             justify-content: space-between;
@@ -4925,6 +5335,111 @@
                 <div id="oura-loading" class="oura-loading hidden">
                     Checking connection...
                 </div>
+            </div>
+
+            <!-- Smart Recommendation Hero Card -->
+            <div class="smart-rec-card" id="smart-rec-card">
+                <div class="smart-rec-glow"></div>
+                <div class="smart-rec-content">
+                    <div class="smart-rec-header">
+                        <div class="smart-rec-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#sparkle-gradient)" stroke-width="2">
+                                <defs>
+                                    <linearGradient id="sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#A78BFA"/>
+                                        <stop offset="100%" style="stop-color:#8B5CF6"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                        </div>
+                        <div class="smart-rec-label">Today's Recommendation</div>
+                    </div>
+
+                    <div class="smart-rec-main" id="smart-rec-main">
+                        <div class="smart-rec-loading">
+                            <div class="smart-rec-loading-spinner"></div>
+                            <span>Analyzing your health data...</span>
+                        </div>
+                    </div>
+
+                    <div class="smart-rec-metrics hidden" id="smart-rec-metrics">
+                        <div class="smart-rec-metric">
+                            <span class="metric-value" id="rec-sleep">--</span>
+                            <span class="metric-label">Sleep</span>
+                            <span class="metric-trend" id="rec-sleep-trend"></span>
+                        </div>
+                        <div class="smart-rec-metric">
+                            <span class="metric-value" id="rec-hrv">--</span>
+                            <span class="metric-label">HRV</span>
+                            <span class="metric-trend" id="rec-hrv-trend"></span>
+                        </div>
+                        <div class="smart-rec-metric">
+                            <span class="metric-value" id="rec-recovery">--</span>
+                            <span class="metric-label">Recovery</span>
+                            <span class="metric-trend" id="rec-recovery-trend"></span>
+                        </div>
+                    </div>
+
+                    <div class="smart-rec-actions hidden" id="smart-rec-actions">
+                        <button class="smart-rec-take-btn" id="smart-rec-take-btn" onclick="takeRecommendedStack()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Take Stack
+                        </button>
+                        <button class="smart-rec-details-btn" onclick="showRecDetails()">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Progress Card -->
+            <div class="card progress-card hidden" id="progress-card">
+                <div class="progress-card-header">
+                    <h3>Your Progress</h3>
+                    <span class="progress-period" id="progress-period">Last 30 days</span>
+                </div>
+                <div class="progress-metrics" id="progress-metrics">
+                    <div class="progress-metric">
+                        <div class="progress-metric-icon sleep">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                            </svg>
+                        </div>
+                        <div class="progress-metric-info">
+                            <div class="progress-metric-label">Sleep</div>
+                            <div class="progress-metric-value" id="progress-sleep">--</div>
+                        </div>
+                        <div class="progress-metric-trend" id="progress-sleep-trend"></div>
+                    </div>
+                    <div class="progress-metric">
+                        <div class="progress-metric-icon hrv">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </div>
+                        <div class="progress-metric-info">
+                            <div class="progress-metric-label">HRV</div>
+                            <div class="progress-metric-value" id="progress-hrv">--</div>
+                        </div>
+                        <div class="progress-metric-trend" id="progress-hrv-trend"></div>
+                    </div>
+                    <div class="progress-metric">
+                        <div class="progress-metric-icon recovery">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                            </svg>
+                        </div>
+                        <div class="progress-metric-info">
+                            <div class="progress-metric-label">Recovery</div>
+                            <div class="progress-metric-value" id="progress-recovery">--</div>
+                        </div>
+                        <div class="progress-metric-trend" id="progress-recovery-trend"></div>
+                    </div>
+                </div>
+                <div class="progress-summary" id="progress-summary"></div>
             </div>
 
             <!-- Your Stack - Quick Log -->
@@ -7988,8 +8503,382 @@
                 loadTodaysStack();
                 // Update Oura metrics for the selected date
                 updateOuraMetricsForSelectedDate();
+                // Load smart recommendation
+                loadSmartRecommendation();
+                // Load progress card
+                loadProgressCard();
             } catch (e) {
                 console.error('Error loading Your Stack:', e);
+            }
+        }
+
+        // Store current recommendation data
+        let currentRecommendation = null;
+
+        // Load Smart Recommendation for Dashboard
+        async function loadSmartRecommendation() {
+            if (!currentUserId) return;
+
+            const mainEl = document.getElementById('smart-rec-main');
+            const metricsEl = document.getElementById('smart-rec-metrics');
+            const actionsEl = document.getElementById('smart-rec-actions');
+
+            if (!mainEl) return;
+
+            // Check if user has supplements
+            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+
+            if (supplements.length === 0) {
+                mainEl.innerHTML = `
+                    <div class="smart-rec-empty">
+                        <div class="smart-rec-empty-title">Add supplements to get started</div>
+                        <div class="smart-rec-empty-text">We'll analyze your health data and recommend when to take them</div>
+                        <button class="smart-rec-take-btn" onclick="openAddManualSupplement()" style="width: auto; padding: 12px 24px;">
+                            + Add Your First Supplement
+                        </button>
+                    </div>
+                `;
+                metricsEl?.classList.add('hidden');
+                actionsEl?.classList.add('hidden');
+                return;
+            }
+
+            // Show loading state
+            mainEl.innerHTML = `
+                <div class="smart-rec-loading">
+                    <div class="smart-rec-loading-spinner"></div>
+                    <span>Analyzing your health data...</span>
+                </div>
+            `;
+
+            try {
+                // Get current hour for time-based recommendation
+                const currentHour = new Date().getHours();
+
+                // Fetch smart recommendation
+                const res = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentHour}`);
+
+                if (!res.ok) {
+                    throw new Error('Failed to get recommendation');
+                }
+
+                const data = await res.json();
+                currentRecommendation = data;
+
+                // Build recommendation UI
+                const healthSummary = data.health_summary || {};
+                const hasHealthData = healthSummary.sleep_score || healthSummary.hrv_score || healthSummary.recovery_score;
+
+                // Get previous day's data for trend comparison
+                const healthData = analyticsData?.health_data || [];
+                const trends = calculateHealthTrends(healthData, healthSummary);
+
+                mainEl.innerHTML = `
+                    <div class="smart-rec-title">${getTimeGreeting()} Stack</div>
+                    <div class="smart-rec-reason">${formatRecommendationReason(data.reason, healthSummary)}</div>
+                `;
+
+                // Show metrics if we have health data
+                if (hasHealthData) {
+                    document.getElementById('rec-sleep').textContent = healthSummary.sleep_score || '--';
+                    document.getElementById('rec-hrv').textContent = healthSummary.hrv_score || '--';
+                    document.getElementById('rec-recovery').textContent = healthSummary.recovery_score || '--';
+
+                    // Add trend indicators
+                    document.getElementById('rec-sleep-trend').innerHTML = getTrendIcon(trends.sleep);
+                    document.getElementById('rec-sleep-trend').className = 'metric-trend ' + trends.sleep;
+                    document.getElementById('rec-hrv-trend').innerHTML = getTrendIcon(trends.hrv);
+                    document.getElementById('rec-hrv-trend').className = 'metric-trend ' + trends.hrv;
+                    document.getElementById('rec-recovery-trend').innerHTML = getTrendIcon(trends.recovery);
+                    document.getElementById('rec-recovery-trend').className = 'metric-trend ' + trends.recovery;
+
+                    metricsEl?.classList.remove('hidden');
+                } else {
+                    metricsEl?.classList.add('hidden');
+                }
+
+                // Show actions
+                actionsEl?.classList.remove('hidden');
+
+                // Update take button text based on time
+                const takeBtn = document.getElementById('smart-rec-take-btn');
+                if (takeBtn) {
+                    const period = currentHour < 12 ? 'Morning' : currentHour < 18 ? 'Afternoon' : 'Evening';
+                    takeBtn.innerHTML = `
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Log ${period} Stack
+                    `;
+                }
+
+            } catch (e) {
+                console.error('Error loading recommendation:', e);
+                mainEl.innerHTML = `
+                    <div class="smart-rec-empty">
+                        <div class="smart-rec-empty-title">Your Daily Stack</div>
+                        <div class="smart-rec-empty-text">Tap below to log your supplements for today</div>
+                    </div>
+                `;
+                actionsEl?.classList.remove('hidden');
+            }
+        }
+
+        // Get time-based greeting
+        function getTimeGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return 'Morning';
+            if (hour < 18) return 'Afternoon';
+            return 'Evening';
+        }
+
+        // Format recommendation reason with emphasis
+        function formatRecommendationReason(reason, healthSummary) {
+            if (!reason) return 'Based on your current supplement routine';
+
+            // Highlight metrics in the reason
+            let formatted = reason;
+            if (healthSummary.sleep_score) {
+                formatted = formatted.replace(
+                    new RegExp(`(${healthSummary.sleep_score})`),
+                    '<strong>$1</strong>'
+                );
+            }
+            if (healthSummary.hrv_score) {
+                formatted = formatted.replace(
+                    new RegExp(`(${healthSummary.hrv_score})`),
+                    '<strong>$1</strong>'
+                );
+            }
+            return formatted;
+        }
+
+        // Calculate health trends
+        function calculateHealthTrends(healthData, current) {
+            const trends = { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
+
+            if (healthData.length < 2) return trends;
+
+            // Get yesterday's data (second most recent)
+            const sorted = [...healthData].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            if (sorted.length >= 2) {
+                const prev = sorted[1];
+
+                if (current.sleep_score && prev.sleep_score) {
+                    const diff = current.sleep_score - prev.sleep_score;
+                    trends.sleep = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
+                }
+                if (current.hrv_score && prev.hrv_score) {
+                    const diff = current.hrv_score - prev.hrv_score;
+                    trends.hrv = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
+                }
+                if (current.recovery_score && prev.recovery_score) {
+                    const diff = current.recovery_score - prev.recovery_score;
+                    trends.recovery = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
+                }
+            }
+
+            return trends;
+        }
+
+        // Get trend icon SVG
+        function getTrendIcon(trend) {
+            if (trend === 'up') {
+                return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>';
+            } else if (trend === 'down') {
+                return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+            }
+            return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>';
+        }
+
+        // Take recommended stack - logs all active supplements
+        async function takeRecommendedStack() {
+            if (!currentUserId) return;
+
+            const btn = document.getElementById('smart-rec-take-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `
+                <div class="smart-rec-loading-spinner" style="width: 18px; height: 18px;"></div>
+                Logging...
+            `;
+
+            try {
+                // Get active supplements
+                const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+
+                if (supplements.length === 0) {
+                    showStatus('No active supplements to log', 'error');
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const timeOfDay = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening';
+
+                // Log each supplement
+                let loggedCount = 0;
+                for (const supp of supplements) {
+                    try {
+                        const res = await fetch(`/analytics/${currentUserId}/supplement-logs`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                supplement_id: supp.supplement_id,
+                                log_date: today,
+                                taken: true,
+                                time_taken: timeOfDay
+                            })
+                        });
+
+                        if (res.ok) {
+                            loggedCount++;
+                        }
+                    } catch (e) {
+                        console.error('Error logging supplement:', supp.supplement_id, e);
+                    }
+                }
+
+                // Show success
+                btn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Logged ${loggedCount} supplements!
+                `;
+                btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+
+                showStatus(`Logged ${loggedCount} supplements!`, 'success');
+
+                // Refresh the stack display
+                await loadTodaysStackData();
+
+                // Reset button after delay
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    btn.style.background = '';
+                }, 2000);
+
+            } catch (e) {
+                console.error('Error taking stack:', e);
+                showStatus('Error logging supplements', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+
+        // Show recommendation details (opens modal)
+        function showRecDetails() {
+            if (!currentRecommendation) {
+                showStatus('No recommendation available', 'error');
+                return;
+            }
+
+            // Switch to dispenser tab and trigger the smart recommendation
+            switchMainTab('dispenser');
+            setTimeout(() => {
+                const aiRec = document.getElementById('ai-recommendation');
+                if (aiRec) aiRec.click();
+            }, 100);
+        }
+
+        // Load and display progress card
+        function loadProgressCard() {
+            const card = document.getElementById('progress-card');
+            if (!card) return;
+
+            const healthData = analyticsData?.health_data || [];
+            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+
+            // Need both health data and supplements to show progress
+            if (healthData.length < 7 || supplements.length === 0) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            card.classList.remove('hidden');
+
+            // Sort health data by date
+            const sorted = [...healthData].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            // Get recent (last 7 days) vs previous (7-30 days ago) averages
+            const recent = sorted.slice(0, 7);
+            const previous = sorted.slice(7, 30);
+
+            if (previous.length < 3) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            // Calculate averages
+            const calcAvg = (data, field) => {
+                const values = data.filter(d => d[field] != null).map(d => d[field]);
+                return values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
+            };
+
+            const recentSleep = calcAvg(recent, 'sleep_score');
+            const prevSleep = calcAvg(previous, 'sleep_score');
+            const recentHrv = calcAvg(recent, 'hrv_score');
+            const prevHrv = calcAvg(previous, 'hrv_score');
+            const recentRecovery = calcAvg(recent, 'recovery_score');
+            const prevRecovery = calcAvg(previous, 'recovery_score');
+
+            // Update values
+            document.getElementById('progress-sleep').textContent = recentSleep || '--';
+            document.getElementById('progress-hrv').textContent = recentHrv || '--';
+            document.getElementById('progress-recovery').textContent = recentRecovery || '--';
+
+            // Calculate and display trends
+            const getTrend = (recent, prev) => {
+                if (recent == null || prev == null) return { class: 'flat', diff: 0 };
+                const diff = recent - prev;
+                const pct = Math.round((diff / prev) * 100);
+                if (pct > 3) return { class: 'up', diff: pct };
+                if (pct < -3) return { class: 'down', diff: pct };
+                return { class: 'flat', diff: pct };
+            };
+
+            const sleepTrend = getTrend(recentSleep, prevSleep);
+            const hrvTrend = getTrend(recentHrv, prevHrv);
+            const recoveryTrend = getTrend(recentRecovery, prevRecovery);
+
+            const trendHTML = (trend) => {
+                const icon = trend.class === 'up'
+                    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>'
+                    : trend.class === 'down'
+                    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'
+                    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>';
+                const sign = trend.diff > 0 ? '+' : '';
+                return `${icon}<span>${sign}${trend.diff}%</span>`;
+            };
+
+            document.getElementById('progress-sleep-trend').innerHTML = trendHTML(sleepTrend);
+            document.getElementById('progress-sleep-trend').className = 'progress-metric-trend ' + sleepTrend.class;
+            document.getElementById('progress-hrv-trend').innerHTML = trendHTML(hrvTrend);
+            document.getElementById('progress-hrv-trend').className = 'progress-metric-trend ' + hrvTrend.class;
+            document.getElementById('progress-recovery-trend').innerHTML = trendHTML(recoveryTrend);
+            document.getElementById('progress-recovery-trend').className = 'progress-metric-trend ' + recoveryTrend.class;
+
+            // Generate summary
+            const improvements = [];
+            if (sleepTrend.diff > 5) improvements.push(`sleep up ${sleepTrend.diff}%`);
+            if (hrvTrend.diff > 5) improvements.push(`HRV up ${hrvTrend.diff}%`);
+            if (recoveryTrend.diff > 5) improvements.push(`recovery up ${recoveryTrend.diff}%`);
+
+            const summaryEl = document.getElementById('progress-summary');
+            if (improvements.length > 0) {
+                summaryEl.innerHTML = `<strong>Nice progress!</strong> Your ${improvements.join(' and ')} compared to last month.`;
+                summaryEl.style.display = 'block';
+            } else if (sleepTrend.diff < -5 || hrvTrend.diff < -5 || recoveryTrend.diff < -5) {
+                summaryEl.innerHTML = `<strong>Keep tracking!</strong> Your metrics may still be adjusting. Consistency is key.`;
+                summaryEl.style.display = 'block';
+            } else {
+                summaryEl.style.display = 'none';
             }
         }
 
@@ -8094,14 +8983,35 @@
                     if (hasData) {
                         const changeClass = isPositive ? 'positive' : 'negative';
                         const arrow = isPositive ? '↑' : '↓';
+                        const trendIcon = isPositive
+                            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'
+                            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>';
+
+                        // Calculate progress bar widths (normalize to percentage of max)
+                        const maxScore = 100; // Assume scores are out of 100
+                        const beforePct = Math.min((insight.before_avg / maxScore) * 100, 100);
+                        const afterPct = Math.min((insight.after_avg / maxScore) * 100, 100);
+
                         html += `
-                            <div class="insight-metric">
-                                <div class="insight-metric-label">${insight.metric_display_name}</div>
-                                <div class="insight-metric-values">
-                                    <span class="insight-metric-before">${insight.before_avg}</span>
-                                    <span class="insight-metric-arrow">→</span>
-                                    <span class="insight-metric-after">${insight.after_avg}</span>
-                                    <span class="insight-metric-change ${changeClass}">${arrow} ${Math.abs(insight.change_pct)}%</span>
+                            <div class="insight-progress">
+                                <div class="insight-progress-header">
+                                    <span class="insight-progress-label">${insight.metric_display_name}</span>
+                                    <span class="insight-progress-change ${changeClass}">
+                                        ${trendIcon}
+                                        ${arrow} ${Math.abs(insight.change_pct)}%
+                                    </span>
+                                </div>
+                                <div class="insight-progress-bar-container">
+                                    <div class="insight-progress-before" style="width: ${beforePct}%">
+                                        ${insight.before_avg}
+                                    </div>
+                                    <div class="insight-progress-after ${changeClass}" style="width: ${afterPct}%">
+                                        ${insight.after_avg}
+                                    </div>
+                                </div>
+                                <div class="insight-progress-labels">
+                                    <span>Before</span>
+                                    <span>After ${insight.days_on} days</span>
                                 </div>
                             </div>
                         `;
