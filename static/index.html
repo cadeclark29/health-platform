@@ -5849,8 +5849,8 @@
                     duration: 30 // Default to 1 month
                 });
             }
-            // Re-render
-            renderOnboardingStep(2);
+            // Re-render current step (supplements is step 5)
+            renderOnboardingStep(5);
             // Restore search and re-filter
             setTimeout(() => {
                 const searchInput = document.getElementById('onboarding-supp-search');
@@ -5863,7 +5863,7 @@
         // Remove a selected supplement
         function removeOnboardingSupplement(idx) {
             onboardingData.selectedSupplements.splice(idx, 1);
-            renderOnboardingStep(2);
+            renderOnboardingStep(5);
             setTimeout(() => {
                 const searchInput = document.getElementById('onboarding-supp-search');
                 if (searchInput) {
