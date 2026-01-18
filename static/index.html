@@ -6926,14 +6926,55 @@
         // Check Oura OAuth callback from URL params
         function checkOuraCallback() {
             const params = new URLSearchParams(window.location.search);
+            const wasOnboarding = localStorage.getItem('onboardingInProgress') === 'true';
+
             if (params.get('oura_connected') === 'true') {
                 showStatus('Oura Ring connected successfully!', 'success');
                 // Clean URL
                 window.history.replaceState({}, document.title, '/');
+
+                // Resume onboarding if it was in progress
+                if (wasOnboarding) {
+                    resumeOnboardingAfterOAuth(true);
+                }
             } else if (params.get('oura_error')) {
                 showStatus('Failed to connect Oura: ' + params.get('oura_error'), 'error');
                 window.history.replaceState({}, document.title, '/');
+
+                // Resume onboarding even on error (let user skip Oura)
+                if (wasOnboarding) {
+                    resumeOnboardingAfterOAuth(false);
+                }
             }
+        }
+
+        // Resume onboarding after Oura OAuth redirect
+        function resumeOnboardingAfterOAuth(ouraConnected) {
+            // Restore saved onboarding data
+            const savedData = localStorage.getItem('onboardingData');
+            const savedStep = localStorage.getItem('onboardingStep');
+
+            if (savedData) {
+                try {
+                    onboardingData = JSON.parse(savedData);
+                } catch (e) {
+                    console.error('Failed to parse saved onboarding data');
+                }
+            }
+
+            // Mark Oura as connected in onboarding data
+            onboardingData.ouraConnected = ouraConnected;
+
+            // Clean up localStorage
+            localStorage.removeItem('onboardingData');
+            localStorage.removeItem('onboardingStep');
+            // Keep onboardingInProgress until completion
+
+            // Show onboarding modal and go to the right step
+            document.getElementById('onboarding-modal').classList.remove('hidden');
+            lastRenderedStep = 0; // Reset to ensure animation plays
+            const resumeStep = parseInt(savedStep) || 5;
+            renderOnboardingStep(resumeStep);
         }
 
         // Status messages
@@ -7850,8 +7891,10 @@
         }
 
         function startOuraConnectionOnboarding() {
-            // Start OAuth flow - this will redirect, so mark that we're in onboarding
+            // Start OAuth flow - this will redirect, so save onboarding state
             localStorage.setItem('onboardingInProgress', 'true');
+            localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
+            localStorage.setItem('onboardingStep', '5'); // Resume at supplements step after OAuth
             connectOura();
         }
 
