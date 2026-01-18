@@ -2146,13 +2146,17 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Step Content Transitions */
+        /* Step Content Transitions - only animate on actual step changes */
         .onboarding-step-content {
-            animation: slideInRight 0.4s ease-out;
+            /* No animation by default - prevents re-animation on re-renders within same step */
+        }
+
+        .onboarding-step-content.entering {
+            animation: slideInRight 0.3s ease-out;
         }
 
         .onboarding-step-content.exiting {
-            animation: slideOutLeft 0.3s ease-in forwards;
+            animation: slideOutLeft 0.2s ease-in forwards;
         }
 
         /* Enhanced Micro-copy */
@@ -2521,9 +2525,10 @@
             color: #F59E0B;
         }
 
-        /* Goal Selected Pulse */
+        /* Goal Selected - static highlight, no animation */
         .goal-option.selected {
-            animation: pulseGlow 2s ease-in-out infinite;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
         }
 
         /* Confetti Container */
@@ -7368,9 +7373,12 @@
             return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        let lastRenderedStep = 0; // Track to only animate on actual step changes
+
         function showOnboarding() {
             document.getElementById('onboarding-modal').classList.remove('hidden');
             onboardingStep = 1;
+            lastRenderedStep = 0; // Reset so first step animates
             onboardingData = {
                 age: null,
                 sex: null,
@@ -7389,7 +7397,9 @@
             renderOnboardingStep(1);
         }
 
-        function renderOnboardingStep(step) {
+        function renderOnboardingStep(step, forceNoAnimation = false) {
+            const isStepChange = step !== lastRenderedStep;
+            lastRenderedStep = step;
             onboardingStep = step;
             updateProgressIndicator(step);
             const content = document.getElementById('onboarding-content');
@@ -7417,6 +7427,16 @@
                 case 7:
                     content.innerHTML = getCompletionHTML();
                     break;
+            }
+
+            // Only add entering animation when step actually changes
+            if (isStepChange && !forceNoAnimation) {
+                const stepContent = content.querySelector('.onboarding-step-content');
+                if (stepContent) {
+                    stepContent.classList.add('entering');
+                    // Remove class after animation completes
+                    setTimeout(() => stepContent.classList.remove('entering'), 300);
+                }
             }
         }
 
