@@ -206,6 +206,63 @@ def delete_user(user_id: str, db: Session = Depends(get_db)):
     return {"status": "deleted"}
 
 
+@router.post("/{user_id}/reset")
+def reset_user_account(user_id: str, db: Session = Depends(get_db)):
+    """
+    Reset a user's account data while keeping the account itself.
+    Clears: health data, supplements, logs, life events, check-ins, baseline, wearable tokens.
+    Keeps: name, email, account ID.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Clear all related data (cascade delete handles the relationships)
+    # We need to manually clear the collections
+    user.health_data.clear()
+    user.dispense_logs.clear()
+    user.check_ins.clear()
+    user.supplement_logs.clear()
+    user.supplement_starts.clear()
+    user.life_events.clear()
+
+    # Delete baseline if exists
+    if user.baseline:
+        db.delete(user.baseline)
+
+    # Clear wearable tokens
+    user.oura_token = None
+    user.whoop_token = None
+
+    # Reset profile data
+    user.age = None
+    user.sex = None
+    user.height_feet = None
+    user.height_inches = None
+    user.weight_lbs = None
+    user.region = None
+    user.activity_level = None
+    user.work_environment = None
+    user.diet_type = None
+    user.bedtime = None
+    user.wake_time = None
+    user.chronotype = None
+    user.health_goal = None
+    user.onboarding_complete = None
+    user.allergies = []
+    user.medications = []
+    user.goals = []
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "status": "reset",
+        "message": "Account data has been reset. You can now start fresh.",
+        "user": _user_to_response(user)
+    }
+
+
 def _user_to_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
