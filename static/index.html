@@ -1911,82 +1911,59 @@
             color: #666;
         }
 
-        /* Selected Supplements Section */
+        /* Selected Supplements Section - Compact Pills */
         .selected-supps-section {
             margin-bottom: 16px;
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .selected-supps-label {
+            width: 100%;
             font-size: 0.85em;
             color: #888;
-            margin-bottom: 8px;
-            position: sticky;
-            top: 0;
-            background: #121212;
-            padding: 4px 0;
-            z-index: 1;
+            margin-bottom: 4px;
         }
 
-        .selected-supp-card {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
-        }
-
-        .selected-supp-header {
-            display: flex;
+        .selected-supp-pill {
+            display: inline-flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            padding: 6px 10px 6px 8px;
+            font-size: 0.85em;
+        }
+
+        .selected-supp-icon {
+            font-size: 1em;
         }
 
         .selected-supp-name {
-            flex: 1;
             color: #E8E8E8;
             font-weight: 500;
+        }
+
+        .selected-supp-dose {
+            color: #888;
+            font-size: 0.9em;
         }
 
         .selected-supp-remove {
             background: none;
             border: none;
-            color: #888;
+            color: #666;
             cursor: pointer;
-            padding: 4px 8px;
-            font-size: 0.9em;
+            padding: 2px;
+            font-size: 0.8em;
+            line-height: 1;
+            margin-left: 2px;
         }
 
         .selected-supp-remove:hover {
             color: #EF4444;
-        }
-
-        .selected-supp-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .selected-supp-field {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .selected-supp-field label {
-            font-size: 0.75em;
-            color: #888;
-        }
-
-        .selected-supp-field input,
-        .selected-supp-field select {
-            padding: 8px 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #E8E8E8;
             font-size: 0.9em;
         }
 
@@ -7501,7 +7478,7 @@
                     </div>
 
                     <div class="onboarding-field" style="margin-bottom: 16px;">
-                        <label>How do you identify? <span class="why-ask" data-tip="Some supplements have different dosing by biological sex">?</span></label>
+                        <label>Biological sex <span class="why-ask" data-tip="Used for accurate supplement dosing">?</span></label>
                         <div class="onboarding-pill-group">
                             <button class="ob-pill ${onboardingData.sex === 'male' ? 'selected' : ''}" onclick="selectSex('male')">
                                 Male ${onboardingData.sex === 'male' ? '<span class="pill-check">✓</span>' : ''}
@@ -7597,6 +7574,10 @@
         }
 
         function animateToNextStep() {
+            // Reset lifestyle selection mode when leaving step 2
+            if (onboardingStep === 2) {
+                lifestyleSelectionMode = null;
+            }
             const content = document.querySelector('.onboarding-step-content');
             if (content) {
                 content.classList.add('exiting');
@@ -7609,6 +7590,10 @@
         }
 
         function animateToPrevStep() {
+            // Reset lifestyle selection mode when leaving step 2
+            if (onboardingStep === 2) {
+                lifestyleSelectionMode = null;
+            }
             const content = document.querySelector('.onboarding-step-content');
             if (content) {
                 content.style.animation = 'slideOutLeft 0.25s ease-in reverse';
@@ -7911,34 +7896,13 @@
                 stack.supplements.every(s => selectedIds.includes(s.id))
             ).map(s => s.name);
 
-            // Build selected supplements cards
+            // Build selected supplements - compact pills
             const selectedCardsHTML = onboardingData.selectedSupplements.map((supp, idx) => `
-                <div class="selected-supp-card">
-                    <div class="selected-supp-header">
-                        <span class="selected-supp-name">${getSupplementIcon(supp.id)} ${escapeAttr(supp.name)}</span>
-                        <button class="selected-supp-remove" onclick="removeOnboardingSupplement(${idx})">✕</button>
-                    </div>
-                    <div class="selected-supp-fields">
-                        <div class="selected-supp-field dosage-field">
-                            <label>Dosage</label>
-                            <div class="dosage-input-wrapper">
-                                <input type="text" value="${escapeAttr(supp.dosage)}" placeholder="e.g. ${supp.typical_dose || ''}"
-                                       onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)"
-                                       style="font-size: 1em; padding: 10px 12px;">
-                                <span class="dosage-unit">${escapeAttr(supp.unit || '')}</span>
-                            </div>
-                        </div>
-                        <div class="selected-supp-field">
-                            <label>Taking for</label>
-                            <select onchange="updateOnboardingSupplementField(${idx}, 'duration', parseInt(this.value))"
-                                    style="font-size: 1em; padding: 10px 12px;">
-                                <option value="0" ${supp.duration === 0 ? 'selected' : ''}>Just starting</option>
-                                <option value="7" ${supp.duration === 7 ? 'selected' : ''}>~1 week</option>
-                                <option value="30" ${supp.duration === 30 ? 'selected' : ''}>~1 month</option>
-                                <option value="90" ${supp.duration === 90 ? 'selected' : ''}>3+ months</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="selected-supp-pill">
+                    <span class="selected-supp-icon">${getSupplementIcon(supp.id)}</span>
+                    <span class="selected-supp-name">${escapeAttr(supp.name)}</span>
+                    <span class="selected-supp-dose">${escapeAttr(supp.dosage)} ${escapeAttr(supp.unit || '')}</span>
+                    <button class="selected-supp-remove" onclick="removeOnboardingSupplement(${idx})">✕</button>
                 </div>
             `).join('');
 
@@ -7982,8 +7946,8 @@
                     </div>
 
                     ${hasSelected ? `
-                        <div class="selected-supps-section" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
-                            <div class="selected-supps-label">Your supplements (${onboardingData.selectedSupplements.length})</div>
+                        <div class="selected-supps-section" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <div class="selected-supps-label">Added (${onboardingData.selectedSupplements.length})</div>
                             ${selectedCardsHTML}
                         </div>
                     ` : ''}
@@ -8012,7 +7976,7 @@
                         dosage: supp.dosage,
                         typical_dose: supp.dosage,
                         unit: supp.unit,
-                        duration: 30
+                        duration: 0
                     });
                 }
             });
@@ -8092,7 +8056,7 @@
                     dosage: defaultDose,
                     typical_dose: typicalDose,
                     unit: unit || '',
-                    duration: 30 // Default to 1 month
+                    duration: 0 // Just starting
                 });
             }
             // Re-render current step (supplements is step 5)
