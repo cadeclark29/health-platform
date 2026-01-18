@@ -1289,11 +1289,27 @@
             background: rgba(34, 197, 94, 0.1);
         }
 
+        /* SVG Supplement Icons */
+        .supp-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #8B5CF6;
+            flex-shrink: 0;
+        }
+
         .supp-list-icon {
             font-size: 1.3em;
             margin-right: 12px;
             width: 28px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .supp-list-icon .supp-icon {
+            width: 22px;
+            height: 22px;
         }
 
         .supp-list-info {
@@ -3078,6 +3094,137 @@
             color: #A78BFA;
         }
 
+        .coming-soon-badge {
+            display: inline-block;
+            font-size: 0.65em;
+            font-weight: 600;
+            padding: 2px 6px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #fff;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+
+        /* Dispenser Section */
+        .dispenser-section {
+            display: none;
+        }
+
+        .dispenser-section.active {
+            display: block;
+        }
+
+        .dispenser-coming-soon {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .dispenser-hero-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dispenser-hero-icon svg {
+            width: 60px;
+            height: 60px;
+            stroke: #8B5CF6;
+        }
+
+        .dispenser-coming-soon h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #E8E8E8;
+            margin-bottom: 12px;
+        }
+
+        .dispenser-coming-soon p {
+            color: #888;
+            font-size: 1.1em;
+            max-width: 400px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .dispenser-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .dispenser-feature {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .dispenser-feature-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .dispenser-feature-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #8B5CF6;
+        }
+
+        .dispenser-feature h3 {
+            font-size: 1em;
+            font-weight: 600;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .dispenser-feature p {
+            font-size: 0.85em;
+            color: #888;
+            margin: 0;
+        }
+
+        .dispenser-preview-section {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .dispenser-preview-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .dispenser-preview-card {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .dispenser-preview-card h2 {
+            color: #888;
+        }
+
         /* Analytics Section */
         .analytics-section {
             display: none;
@@ -4439,7 +4586,7 @@
         <div id="no-user">
             <div class="card signup-card">
                 <div class="signup-header">
-                    <div class="signup-logo">💊</div>
+                    <div class="signup-logo"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                     <h2>Welcome to Dose</h2>
                     <p class="signup-subtitle">Personalized supplement recommendations powered by your data</p>
                 </div>
@@ -4458,11 +4605,11 @@
                         <span>Track supplement effects</span>
                     </div>
                     <div class="signup-feature">
-                        <span class="feature-icon">💍</span>
+                        <span class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg></span>
                         <span>Sync with Oura Ring</span>
                     </div>
                     <div class="signup-feature">
-                        <span class="feature-icon">🎯</span>
+                        <span class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
                         <span>Personalized dosing</span>
                     </div>
                 </div>
@@ -4493,6 +4640,9 @@
             <div class="main-nav">
                 <button class="main-nav-btn active" onclick="switchMainTab('dashboard')" id="nav-dashboard">Dashboard</button>
                 <button class="main-nav-btn" onclick="switchMainTab('analytics')" id="nav-analytics">Analytics</button>
+                <button class="main-nav-btn" onclick="switchMainTab('dispenser')" id="nav-dispenser">
+                    Dispenser <span class="coming-soon-badge">Soon</span>
+                </button>
             </div>
 
             <!-- Dashboard Section -->
@@ -4500,7 +4650,7 @@
 
             <!-- Getting Started Card (for new users) -->
             <div class="getting-started-card hidden" id="getting-started-card">
-                <h3>👋 Getting Started</h3>
+                <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" style="vertical-align: middle; margin-right: 8px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Getting Started</h3>
                 <p class="gs-subtitle">Complete these steps to get personalized insights</p>
 
                 <div class="gs-progress">
@@ -4546,7 +4696,7 @@
             <div class="oura-card" id="oura-card">
                 <div class="oura-header">
                     <div class="oura-brand">
-                        <div class="oura-logo">&#x1F48D;</div>
+                        <div class="oura-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg></div>
                         <div>
                             <div class="oura-title">Oura Ring</div>
                             <div class="oura-subtitle">Health data sync</div>
@@ -4609,7 +4759,7 @@
                 </div>
                 <div class="stack-pills" id="stack-pills">
                     <div class="stack-empty">
-                        <div class="stack-empty-icon">💊</div>
+                        <div class="stack-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                         <div class="stack-empty-text">Loading your supplements...</div>
                     </div>
                 </div>
@@ -4632,30 +4782,6 @@
                 <button class="time-btn" onclick="setTime(21)" id="time-btn-evening">Evening</button>
             </div>
 
-            <!-- Dispenser Card -->
-            <div class="card">
-                <h2>What do you need today?</h2>
-
-                <div class="dispenser-layout" id="dispenser-layout">
-                    <!-- AI Recommendation -->
-                    <div class="ai-recommendation" onclick="getAIRecommendation()" id="ai-recommendation">
-                        <div class="ai-icon">&#x2728;</div>
-                        <div class="ai-title">Smart Recommendation</div>
-                        <div class="ai-subtitle" id="ai-subtitle">Connect Oura for personalized insights</div>
-                    </div>
-
-                    <!-- Daily Foundation - Always visible below AI -->
-                    <div class="daily-foundation" onclick="selectDailyFoundation()" id="daily-foundation">
-                        <div class="df-icon">&#x1F48E;</div>
-                        <div class="df-name">Daily Foundation</div>
-                        <div class="df-contents">D3 + K2 + Omega-3</div>
-                        <div class="df-status" id="df-status">Tap to dispense</div>
-                    </div>
-
-                    <!-- Mix cards populated by JS -->
-                </div>
-            </div>
-
             <!-- Tracking Card -->
             <div class="card" id="tracking-card">
                 <h2>Your Supplement Intake</h2>
@@ -4667,7 +4793,7 @@
 
                 <div class="tracking-content" id="tracking-content">
                     <div class="empty-state">
-                        <div class="emoji">&#x1F48A;</div>
+                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                         <div>No supplements taken yet</div>
                     </div>
                 </div>
@@ -4675,27 +4801,10 @@
                 <!-- Saturation Gauge -->
                 <div class="saturation-gauge" id="saturation-gauge">
                     <div class="saturation-title">
-                        <span>&#x26A1;</span> Saturation Tracking
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Saturation Tracking
                     </div>
                     <div id="saturation-content">
                         <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Custom Blends Card -->
-            <div class="card" id="custom-blends-card">
-                <div class="custom-blends-header">
-                    <h2>Your Custom Blends</h2>
-                    <button class="btn-create-blend" onclick="openBlendBuilder()">+ Create Blend</button>
-                </div>
-                <div id="custom-blends-list">
-                    <div class="empty-state">
-                        <div class="emoji">&#x1F9EA;</div>
-                        <div>No custom blends yet</div>
-                        <div style="font-size: 0.8em; color: #333; margin-top: 6px;">
-                            Create your own supplement combinations
-                        </div>
                     </div>
                 </div>
             </div>
@@ -4713,7 +4822,7 @@
                     <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Supplements you're currently taking. Add start dates to track their effects on your health.</p>
                     <div class="supplements-grid" id="supplements-grid">
                         <div class="supplements-empty">
-                            <div class="supplements-empty-icon">💊</div>
+                            <div class="supplements-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                             <div>No supplements tracked yet</div>
                             <div style="font-size: 0.85em; margin-top: 6px;">Add the supplements you're currently taking</div>
                         </div>
@@ -4776,7 +4885,7 @@
                     <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Compare your health metrics before and after starting each supplement. ● high confidence, ◐ medium, ○ low</p>
                     <div class="outcome-cards" id="outcome-cards">
                         <div class="empty-state">
-                            <div class="emoji">&#x1F4CA;</div>
+                            <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
                             <div>Add supplement start dates to see analysis</div>
                         </div>
                     </div>
@@ -4836,6 +4945,112 @@
                     </div>
                 </div>
             </div><!-- End Analytics Section -->
+
+            <!-- Dispenser Section -->
+            <div class="dispenser-section" id="dispenser-section">
+                <!-- Coming Soon Hero -->
+                <div class="dispenser-coming-soon">
+                    <div class="dispenser-hero-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3v2m8-2v2M3 10h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                            <circle cx="12" cy="15" r="3"/>
+                            <path d="M12 13v4m-2-2h4"/>
+                        </svg>
+                    </div>
+                    <h2>Dose Dispenser</h2>
+                    <p>Smart hardware that automatically dispenses your personalized supplement stack. Coming soon.</p>
+
+                    <div class="dispenser-features">
+                        <div class="dispenser-feature">
+                            <div class="dispenser-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+                                </svg>
+                            </div>
+                            <h3>Auto-Dispense</h3>
+                            <p>Precise doses at the right time</p>
+                        </div>
+                        <div class="dispenser-feature">
+                            <div class="dispenser-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <h3>Smart Tracking</h3>
+                            <p>Automatic logging when you dispense</p>
+                        </div>
+                        <div class="dispenser-feature">
+                            <div class="dispenser-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </div>
+                            <h3>Refill Alerts</h3>
+                            <p>Never run out of supplements</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview: What the dispenser will offer -->
+                <div class="dispenser-preview-section">
+                    <div class="dispenser-preview-label">Preview: What you'll be able to dispense</div>
+
+                    <!-- Dispenser Card -->
+                    <div class="card dispenser-preview-card">
+                        <h2>What do you need today?</h2>
+
+                        <div class="dispenser-layout" id="dispenser-layout">
+                            <!-- AI Recommendation -->
+                            <div class="ai-recommendation" id="ai-recommendation">
+                                <div class="ai-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                    </svg>
+                                </div>
+                                <div class="ai-title">Smart Recommendation</div>
+                                <div class="ai-subtitle" id="ai-subtitle">Connect Oura for personalized insights</div>
+                            </div>
+
+                            <!-- Daily Foundation -->
+                            <div class="daily-foundation" id="daily-foundation">
+                                <div class="df-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </div>
+                                <div class="df-name">Daily Foundation</div>
+                                <div class="df-contents">D3 + K2 + Omega-3</div>
+                                <div class="df-status" id="df-status">Coming with dispenser</div>
+                            </div>
+
+                            <!-- Mix cards populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Custom Blends Card -->
+                    <div class="card dispenser-preview-card" id="custom-blends-card">
+                        <div class="custom-blends-header">
+                            <h2>Your Custom Blends</h2>
+                            <button class="btn-create-blend" onclick="openBlendBuilder()">+ Create Blend</button>
+                        </div>
+                        <div id="custom-blends-list">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0-6v6"/>
+                                    </svg>
+                                </div>
+                                <div>No custom blends yet</div>
+                                <div style="font-size: 0.8em; color: #666; margin-top: 6px;">
+                                    Create your own supplement combinations
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Dispenser Section -->
 
         </div>
     </div>
@@ -5441,26 +5656,37 @@
             goals: []
         };
 
-        // Icons for common supplements (used in onboarding search)
+        // SVG icons for supplements (clean, professional look)
         const SUPPLEMENT_ICONS = {
-            'vitamin_d3': '☀️',
-            'fish_oil': '🐟',
-            'magnesium': '🧲',
-            'magnesium_glycinate': '🧲',
-            'vitamin_b12': '🔴',
-            'b_complex': '🔴',
-            'ashwagandha': '🌿',
-            'zinc': '⚡',
-            'creatine': '💪',
-            'protein_powder': '🥤',
-            'melatonin': '🌙',
-            'vitamin_c': '🍊',
-            'iron': '🔩',
-            'calcium': '🦴',
-            'probiotics': '🦠',
-            'collagen': '✨',
-            'turmeric': '🟡',
-            'default': '💊'
+            'vitamin_d3': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+            'fish_oil': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8" ry="5"/><path d="M20 12c2 0 3-1 3-2s-1-2-3-2m0 8c2 0 3 1 3 2s-1 2-3 2"/></svg>',
+            'omega3': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8" ry="5"/><path d="M20 12c2 0 3-1 3-2s-1-2-3-2"/></svg>',
+            'magnesium': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>',
+            'magnesium_glycinate': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>',
+            'vitamin_b12': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+            'b_complex': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 8h4a2 2 0 010 4H9m0-4v8m0-4h4a2 2 0 010 4H9"/></svg>',
+            'ashwagandha': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V8M7 12c-2-2-2-5 0-7 2-2 5-2 7 0m-7 7c-2 2-2 5 0 7m7-7c2-2 2-5 0-7m0 7c2 2 2 5 0 7"/></svg>',
+            'zinc': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            'creatine': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/><circle cx="12" cy="12" r="9"/></svg>',
+            'protein_powder': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2h8l2 4v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6l2-4z"/><path d="M6 6h12"/></svg>',
+            'melatonin': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>',
+            'vitamin_c': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9a3 3 0 00-6 0v6a3 3 0 006 0"/></svg>',
+            'iron': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>',
+            'calcium': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 002 2h8a2 2 0 002-2V4z"/><path d="M10 8h4M10 12h4M10 16h2"/></svg>',
+            'probiotics': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>',
+            'collagen': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15 8l6 1-4.5 4 1.5 6-6-3-6 3 1.5-6L3 9l6-1 3-6z"/></svg>',
+            'turmeric': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
+            'l_theanine': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+            'caffeine': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>',
+            'multivitamin': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg>',
+            'electrolytes': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+            'lions_mane': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="6"/><path d="M12 16v6M8 18l4-2 4 2"/></svg>',
+            'rhodiola': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V8M7 12c-2-2-2-5 0-7 2-2 5-2 7 0m0 0c2 2 2 5 0 7"/></svg>',
+            'gaba': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>',
+            'glycine': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>',
+            'coq10': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+            'elderberry': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 12v10M8 16l4-4 4 4"/></svg>',
+            'default': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg>'
         };
 
         function getSupplementIcon(id) {
@@ -5556,7 +5782,7 @@
         function getStepAboutYouHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">👤</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                     <h2>About You</h2>
                     <p class="onboarding-subtitle">Help us personalize your supplement doses</p>
 
@@ -5623,7 +5849,7 @@
         function getStepLifestyleHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">🌍</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
                     <h2>Your Lifestyle</h2>
                     <p class="onboarding-subtitle">This helps us optimize your recommendations</p>
 
@@ -5732,7 +5958,7 @@
         function getStepSleepHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">😴</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
                     <h2>Your Sleep Style</h2>
                     <p class="onboarding-subtitle">When do you feel most energized?</p>
 
@@ -5782,7 +6008,7 @@
         function getStepOuraHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">💍</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg></div>
                     <h2>Connect Oura Ring</h2>
                     <p class="onboarding-subtitle">Sync your sleep and recovery data for personalized insights</p>
 
@@ -5848,7 +6074,7 @@
 
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">💊</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                     <h2>What do you take?</h2>
                     <p class="onboarding-subtitle">Search and add your supplements</p>
 
@@ -5986,10 +6212,10 @@
         // Step 3: Set Goal (multi-select)
         function getStepGoalHTML() {
             const goals = [
-                { id: 'sleep', icon: '😴', name: 'Better Sleep' },
-                { id: 'recovery', icon: '💪', name: 'Recovery & Performance' },
-                { id: 'energy', icon: '⚡', name: 'Energy & Focus' },
-                { id: 'wellness', icon: '🌿', name: 'General Wellness' }
+                { id: 'sleep', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>', name: 'Better Sleep' },
+                { id: 'recovery', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', name: 'Recovery & Performance' },
+                { id: 'energy', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', name: 'Energy & Focus' },
+                { id: 'wellness', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V8M7 12c-2-2-2-5 0-7 2-2 5-2 7 0m0 0c2 2 2 5 0 7"/><path d="M7 12c-2 2-2 5 0 7m7-7c2 2 2 5 0 7"/></svg>', name: 'General Wellness' }
             ];
 
             // Ensure goals is an array
@@ -6010,7 +6236,7 @@
 
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration">🎯</div>
+                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
                     <h2>What's your focus?</h2>
                     <p class="onboarding-subtitle">Select all that apply</p>
 
@@ -6588,7 +6814,7 @@
             if (customBlends.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="emoji">&#x1F9EA;</div>
+                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0-6v6"/></svg></div>
                         <div>No custom blends yet</div>
                         <div style="font-size: 0.8em; color: #333; margin-top: 6px;">
                             Create your own supplement combinations
@@ -6949,7 +7175,7 @@
             if (supplements.length === 0) {
                 content.innerHTML = `
                     <div class="empty-state">
-                        <div class="emoji">&#x1F48A;</div>
+                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                         <div>No supplements taken ${isWeekly ? 'this week' : 'yet'}</div>
                     </div>
                 `;
@@ -7445,19 +7671,25 @@
         function switchMainTab(tab) {
             document.getElementById('nav-dashboard').classList.toggle('active', tab === 'dashboard');
             document.getElementById('nav-analytics').classList.toggle('active', tab === 'analytics');
+            document.getElementById('nav-dispenser').classList.toggle('active', tab === 'dispenser');
 
             const dashboardSection = document.getElementById('dashboard-section');
             const analyticsSection = document.getElementById('analytics-section');
+            const dispenserSection = document.getElementById('dispenser-section');
+
+            // Hide all sections first
+            dashboardSection.classList.add('hidden-section');
+            analyticsSection.classList.remove('active');
+            dispenserSection.classList.remove('active');
 
             if (tab === 'dashboard') {
                 dashboardSection.classList.remove('hidden-section');
-                analyticsSection.classList.remove('active');
-                // Load Today's Stack (needs analytics data)
                 loadTodaysStackData();
-            } else {
-                dashboardSection.classList.add('hidden-section');
+            } else if (tab === 'analytics') {
                 analyticsSection.classList.add('active');
                 loadAnalyticsData();
+            } else if (tab === 'dispenser') {
+                dispenserSection.classList.add('active');
             }
         }
 
@@ -7934,7 +8166,7 @@
             if (supplements.length === 0) {
                 container.innerHTML = `
                     <div class="stack-empty">
-                        <div class="stack-empty-icon">✨</div>
+                        <div class="stack-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M12 2L15 8l6 1-4.5 4 1.5 6-6-3-6 3 1.5-6L3 9l6-1 3-6z"/></svg></div>
                         <div class="stack-empty-text">Start Your Supplement Journey</div>
                         <div class="stack-empty-hint">Add the supplements you take daily and track their impact on your health</div>
                         <div class="quick-add-buttons">
@@ -8086,7 +8318,7 @@
             if (starts.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="emoji">&#x1F4CA;</div>
+                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
                         <div>Add supplement start dates to see analysis</div>
                     </div>
                 `;
@@ -8109,7 +8341,7 @@
 
             container.innerHTML = cards.length > 0 ? cards.join('') : `
                 <div class="empty-state">
-                    <div class="emoji">&#x1F4CA;</div>
+                    <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
                     <div>Not enough data yet for analysis</div>
                 </div>
             `;
@@ -8709,7 +8941,7 @@
             if (supplements.length === 0) {
                 container.innerHTML = `
                     <div class="supplements-empty">
-                        <div class="supplements-empty-icon">💊</div>
+                        <div class="supplements-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
                         <div>No supplements tracked yet</div>
                         <div style="font-size: 0.85em; margin-top: 6px;">Add the supplements you're currently taking</div>
                     </div>
@@ -8794,40 +9026,6 @@
             } catch (e) {
                 showStatus('Error: ' + e.message, 'error');
             }
-        }
-
-        // Get supplement icon
-        function getSupplementIcon(id) {
-            const icons = {
-                vitamin_d3: '☀️',
-                fish_oil: '🐟',
-                omega3: '🐟',
-                magnesium: '🧲',
-                magnesium_glycinate: '🧲',
-                zinc: '⚡',
-                b_complex: '🅱️',
-                vitamin_b12: '🅱️',
-                creatine: '💪',
-                protein_powder: '🥛',
-                melatonin: '🌙',
-                probiotics: '🦠',
-                iron: '🔩',
-                vitamin_c: '🍊',
-                multivitamin: '💊',
-                caffeine: '☕',
-                ashwagandha: '🌿',
-                l_theanine: '🍵',
-                collagen: '✨',
-                coq10: '❤️',
-                turmeric: '🧡',
-                elderberry: '🫐',
-                lions_mane: '🍄',
-                rhodiola: '🌸',
-                glycine: '😴',
-                electrolytes: '💧',
-                blackseed_oil: '🖤',
-            };
-            return icons[id] || '💊';
         }
 
         // Format frequency
