@@ -6122,6 +6122,11 @@
                     const startDateStr = startDate.toISOString().split('T')[0];
 
                     try {
+                        // Combine dosage with unit for storage (e.g., "2000 IU", "400 mg")
+                        const fullDosage = supp.dosage && supp.unit
+                            ? `${supp.dosage} ${supp.unit}`
+                            : (supp.dosage || '');
+
                         await fetch(`/analytics/${currentUserId}/supplement-starts`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -6130,7 +6135,7 @@
                                 supplement_name: supp.name,
                                 start_date: startDateStr,
                                 is_manual: true,
-                                dosage: supp.dosage || ''
+                                dosage: fullDosage
                             })
                         });
 
