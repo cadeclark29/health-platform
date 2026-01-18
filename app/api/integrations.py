@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from app.db import get_db
 from app.models import User, HealthData
@@ -455,4 +455,84 @@ async def add_mock_data(
         "status": "mock_data_added",
         "scenario": scenario,
         "data": data.to_dict()
+    }
+
+
+@router.post("/{user_id}/mock-history")
+async def add_mock_history(
+    user_id: str,
+    days: int = 30,
+    db: Session = Depends(get_db)
+):
+    """
+    Add historical mock health data for testing progress features.
+
+    Creates data for the specified number of days with realistic variation.
+    Earlier days have lower scores, recent days have higher scores to simulate improvement.
+    """
+    import random
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Clear existing mock data first
+    db.query(HealthData).filter(
+        HealthData.user_id == user_id,
+        HealthData.source == "mock"
+    ).delete()
+    db.commit()
+
+    records_added = []
+    base_date = datetime.utcnow()
+
+    for i in range(days):
+        days_ago = days - i - 1
+        record_date = base_date - timedelta(days=days_ago)
+
+        # Simulate improvement over time
+        # Earlier days (higher days_ago) have lower base scores
+        # Recent days have higher scores
+        progress_factor = i / days  # 0 to 1 as we get more recent
+
+        # Base scores that improve over time
+        base_sleep = 60 + (progress_factor * 20) + random.uniform(-5, 5)
+        base_hrv = 55 + (progress_factor * 25) + random.uniform(-8, 8)
+        base_recovery = 58 + (progress_factor * 22) + random.uniform(-6, 6)
+        base_strain = 40 + random.uniform(-10, 20)
+
+        # Clamp values to realistic ranges
+        sleep_score = max(40, min(95, base_sleep))
+        hrv_score = max(30, min(100, base_hrv))
+        recovery_score = max(35, min(95, base_recovery))
+        strain_score = max(20, min(90, base_strain))
+
+        health_data = HealthData(
+            user_id=user_id,
+            source="mock",
+            timestamp=record_date,
+            sleep_score=round(sleep_score, 1),
+            hrv_score=round(hrv_score, 1),
+            recovery_score=round(recovery_score, 1),
+            strain_score=round(strain_score, 1),
+            resting_hr=random.randint(52, 65),
+            sleep_duration_hrs=round(6.5 + random.uniform(0, 2), 1),
+            deep_sleep_pct=random.randint(15, 25),
+            rem_sleep_pct=random.randint(18, 28)
+        )
+        db.add(health_data)
+        records_added.append({
+            "date": record_date.strftime("%Y-%m-%d"),
+            "sleep": round(sleep_score, 1),
+            "hrv": round(hrv_score, 1),
+            "recovery": round(recovery_score, 1)
+        })
+
+    db.commit()
+
+    return {
+        "status": "mock_history_added",
+        "days": days,
+        "records": len(records_added),
+        "sample": records_added[-5:]  # Last 5 days
     }
