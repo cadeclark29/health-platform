@@ -2082,8 +2082,509 @@
         }
 
         @keyframes scaleIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes checkmarkDraw {
+            0% { stroke-dashoffset: 50; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-30px); opacity: 0; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes fieldComplete {
+            0% { border-color: rgba(255, 255, 255, 0.1); }
+            50% { border-color: #22C55E; box-shadow: 0 0 12px rgba(34, 197, 94, 0.3); }
+            100% { border-color: rgba(34, 197, 94, 0.5); }
+        }
+
+        /* Enhanced Progress Bar */
+        .onboarding-progress {
+            position: relative;
+        }
+
+        .progress-bar-bg {
+            position: absolute;
+            top: 50%;
+            left: 32px;
+            right: 32px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #22C55E);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
+
+        .progress-step {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Step Content Transitions */
+        .onboarding-step-content {
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        .onboarding-step-content.exiting {
+            animation: slideOutLeft 0.3s ease-in forwards;
+        }
+
+        /* Enhanced Micro-copy */
+        .onboarding-microcopy {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            font-size: 0.85em;
+            color: #A78BFA;
+            text-align: left;
+        }
+
+        .onboarding-microcopy svg {
+            flex-shrink: 0;
+        }
+
+        /* Why We Ask Tooltip */
+        .why-ask {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 0.7em;
+            cursor: help;
+            margin-left: 4px;
+            position: relative;
+        }
+
+        .why-ask:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #E8E8E8;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced Pill Buttons */
+        .ob-pill {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ob-pill::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .ob-pill.selected::before {
+            opacity: 1;
+        }
+
+        .ob-pill .pill-check {
+            display: none;
+            margin-left: 6px;
+            color: #8B5CF6;
+        }
+
+        .ob-pill.selected .pill-check {
+            display: inline;
+        }
+
+        /* Combined Height Input */
+        .height-combined {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .height-combined input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #E8E8E8;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .height-combined input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+
+        .unit-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 2px;
+        }
+
+        .unit-toggle button {
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+
+        .unit-toggle button.active {
+            background: rgba(139, 92, 246, 0.3);
+            color: #E8E8E8;
+        }
+
+        /* Field Complete Animation */
+        .onboarding-field input.complete,
+        .onboarding-field select.complete {
+            animation: fieldComplete 0.5s ease-out forwards;
+        }
+
+        /* Enhanced Lifestyle Cards (Full Selection Mode) */
+        .lifestyle-selection-panel {
+            position: absolute;
+            inset: 0;
+            background: #121212;
+            z-index: 10;
+            animation: slideInRight 0.3s ease-out;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lifestyle-selection-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .lifestyle-selection-header button {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 1.2em;
+        }
+
+        .lifestyle-selection-header h3 {
+            color: #E8E8E8;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .lifestyle-selection-options {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .lifestyle-selection-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lifestyle-selection-option:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .lifestyle-selection-option.selected {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .lifestyle-selection-option .option-icon {
+            font-size: 1.5em;
+            width: 40px;
+            text-align: center;
+        }
+
+        .lifestyle-selection-option .option-content {
+            flex: 1;
+        }
+
+        .lifestyle-selection-option .option-label {
+            color: #E8E8E8;
+            font-weight: 500;
+            display: block;
+        }
+
+        .lifestyle-selection-option .option-desc {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .lifestyle-selection-option .option-check {
+            color: #8B5CF6;
+            font-size: 1.2em;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .lifestyle-selection-option.selected .option-check {
+            opacity: 1;
+        }
+
+        /* Lifestyle Card Enhanced */
+        .lifestyle-card.selected {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .lifestyle-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #8B5CF6;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .lifestyle-card {
+            position: relative;
+        }
+
+        /* Benefits List */
+        .benefits-list {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .benefit-item .benefit-check {
+            color: #22C55E;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .benefit-item strong {
+            color: #E8E8E8;
+        }
+
+        /* Skip Later Enhanced */
+        .skip-later-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: color 0.2s;
+        }
+
+        .skip-later-btn:hover {
+            color: #E8E8E8;
+        }
+
+        .skip-later-btn .skip-subtext {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Common Stacks Section */
+        .stacks-section {
+            margin-bottom: 20px;
+        }
+
+        .stacks-label {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stack-cards {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .stack-card {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            min-width: 140px;
+        }
+
+        .stack-card:hover {
+            border-color: #8B5CF6;
+            transform: translateY(-2px);
+        }
+
+        .stack-card.added {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .stack-name {
+            color: #E8E8E8;
+            font-weight: 500;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .stack-items {
+            color: #888;
+            font-size: 0.75em;
+        }
+
+        /* Goal Max Selection Warning */
+        .goal-limit-hint {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: -16px;
+            margin-bottom: 20px;
+        }
+
+        .goal-limit-hint.at-limit {
+            color: #F59E0B;
+        }
+
+        /* Goal Selected Pulse */
+        .goal-option.selected {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        /* Confetti Container */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        /* Enhanced Completion */
+        .completion-checkmark {
+            position: relative;
+        }
+
+        .completion-checkmark svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .completion-checkmark svg path {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkmarkDraw 0.8s ease-out 0.3s forwards;
+        }
+
+        .personalized-summary {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .personalized-summary p {
+            color: #A78BFA;
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            font-size: 1.1em;
+            padding: 18px;
+        }
+
+        .cta-primary::after {
+            content: ' →';
         }
 
         .completion-summary {
@@ -6923,15 +7424,21 @@
             const progressContainer = document.querySelector('.onboarding-progress');
             if (!progressContainer) return;
 
-            // Build progress indicator HTML dynamically for 6 steps
-            let progressHTML = '';
+            // Calculate progress percentage
+            const progressPercent = ((currentStep - 1) / (ONBOARDING_TOTAL_STEPS - 1)) * 100;
+
+            // Build progress indicator HTML with animated bar
+            let progressHTML = `
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+                </div>
+            `;
+
             for (let i = 1; i <= ONBOARDING_TOTAL_STEPS; i++) {
                 const isActive = i === currentStep;
                 const isCompleted = i < currentStep;
-                progressHTML += `<div class="progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">${i}</div>`;
-                if (i < ONBOARDING_TOTAL_STEPS) {
-                    progressHTML += `<div class="progress-line ${isCompleted ? 'completed' : ''}"></div>`;
-                }
+                const icon = isCompleted ? '✓' : i;
+                progressHTML += `<div class="progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">${icon}</div>`;
             }
             progressContainer.innerHTML = progressHTML;
         }
@@ -6947,60 +7454,100 @@
         }
 
         // Step 1: About You (age, sex, height, weight)
+        let heightUnit = 'imperial'; // 'imperial' or 'metric'
+
         function getStepAboutYouHTML() {
+            const heightDisplay = heightUnit === 'imperial'
+                ? `${onboardingData.height_feet || ''}'${onboardingData.height_inches || ''}"`.replace("'\"", '')
+                : onboardingData.height_cm || '';
+
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
                     <h2>About You</h2>
                     <p class="onboarding-subtitle">Help us personalize your supplement doses</p>
 
-                    <div class="onboarding-form-grid">
-                        <div class="onboarding-field">
-                            <label>Age</label>
-                            <input type="number" id="ob-age" placeholder="30" min="18" max="100"
-                                   value="${onboardingData.age || ''}"
-                                   onchange="onboardingData.age = parseInt(this.value)">
-                        </div>
-                        <div class="onboarding-field">
-                            <label>Sex</label>
-                            <div class="onboarding-pill-group">
-                                <button class="ob-pill ${onboardingData.sex === 'male' ? 'selected' : ''}" onclick="selectSex('male')">Male</button>
-                                <button class="ob-pill ${onboardingData.sex === 'female' ? 'selected' : ''}" onclick="selectSex('female')">Female</button>
-                                <button class="ob-pill ${onboardingData.sex === 'other' ? 'selected' : ''}" onclick="selectSex('other')">Other</button>
-                            </div>
+                    <div class="onboarding-microcopy">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span>We use this to calculate safe, effective doses for your body</span>
+                    </div>
+
+                    <div class="onboarding-field" style="margin-bottom: 16px;">
+                        <label>How do you identify? <span class="why-ask" data-tip="Some supplements have different dosing by biological sex">?</span></label>
+                        <div class="onboarding-pill-group">
+                            <button class="ob-pill ${onboardingData.sex === 'male' ? 'selected' : ''}" onclick="selectSex('male')">
+                                Male ${onboardingData.sex === 'male' ? '<span class="pill-check">✓</span>' : ''}
+                            </button>
+                            <button class="ob-pill ${onboardingData.sex === 'female' ? 'selected' : ''}" onclick="selectSex('female')">
+                                Female ${onboardingData.sex === 'female' ? '<span class="pill-check">✓</span>' : ''}
+                            </button>
+                            <button class="ob-pill ${onboardingData.sex === 'other' ? 'selected' : ''}" onclick="selectSex('other')">
+                                Other ${onboardingData.sex === 'other' ? '<span class="pill-check">✓</span>' : ''}
+                            </button>
                         </div>
                     </div>
 
                     <div class="onboarding-form-grid">
                         <div class="onboarding-field">
-                            <label>Height</label>
-                            <div class="height-inputs">
-                                <input type="number" id="ob-height-ft" placeholder="5" min="3" max="8"
-                                       value="${onboardingData.height_feet || ''}"
-                                       onchange="onboardingData.height_feet = parseInt(this.value)">
-                                <span class="height-unit">ft</span>
-                                <input type="number" id="ob-height-in" placeholder="10" min="0" max="11"
-                                       value="${onboardingData.height_inches || ''}"
-                                       onchange="onboardingData.height_inches = parseInt(this.value)">
-                                <span class="height-unit">in</span>
-                            </div>
+                            <label>Age <span class="why-ask" data-tip="Vitamin needs change with age">?</span></label>
+                            <input type="number" id="ob-age" placeholder="30" min="18" max="100"
+                                   value="${onboardingData.age || ''}"
+                                   onchange="onboardingData.age = parseInt(this.value); markFieldComplete(this)">
                         </div>
                         <div class="onboarding-field">
-                            <label>Weight</label>
+                            <label>Weight <span class="why-ask" data-tip="Many doses scale with body weight">?</span></label>
                             <div class="weight-input">
                                 <input type="number" id="ob-weight" placeholder="170" step="1"
                                        value="${onboardingData.weight_lbs || ''}"
-                                       onchange="onboardingData.weight_lbs = parseFloat(this.value)">
+                                       onchange="onboardingData.weight_lbs = parseFloat(this.value); markFieldComplete(this)">
                                 <span class="weight-unit">lbs</span>
                             </div>
                         </div>
                     </div>
 
-                    <button class="onboarding-btn primary" onclick="nextOnboardingStep()">
+                    <div class="onboarding-field" style="margin-bottom: 24px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between;">
+                            Height
+                            <div class="unit-toggle">
+                                <button class="${heightUnit === 'imperial' ? 'active' : ''}" onclick="toggleHeightUnit('imperial')">ft/in</button>
+                                <button class="${heightUnit === 'metric' ? 'active' : ''}" onclick="toggleHeightUnit('metric')">cm</button>
+                            </div>
+                        </label>
+                        ${heightUnit === 'imperial' ? `
+                            <div class="height-inputs">
+                                <input type="number" id="ob-height-ft" placeholder="5" min="3" max="8"
+                                       value="${onboardingData.height_feet || ''}"
+                                       onchange="onboardingData.height_feet = parseInt(this.value); markFieldComplete(this)">
+                                <span class="height-unit">ft</span>
+                                <input type="number" id="ob-height-in" placeholder="10" min="0" max="11"
+                                       value="${onboardingData.height_inches || ''}"
+                                       onchange="onboardingData.height_inches = parseInt(this.value); markFieldComplete(this)">
+                                <span class="height-unit">in</span>
+                            </div>
+                        ` : `
+                            <div class="height-combined">
+                                <input type="number" id="ob-height-cm" placeholder="178" min="100" max="250"
+                                       value="${onboardingData.height_cm || ''}"
+                                       onchange="updateHeightFromCm(this.value); markFieldComplete(this)">
+                                <span class="height-unit">cm</span>
+                            </div>
+                        `}
+                    </div>
+
+                    <button class="onboarding-btn primary" onclick="animateToNextStep()">
                         Continue
                     </button>
-                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
-                        Skip for now
+                    <button class="skip-later-btn" onclick="animateToNextStep()">
+                        <span>Skip for now</span>
+                        <span class="skip-subtext">You can add this later in settings</span>
                     </button>
                 </div>
             `;
@@ -7008,49 +7555,142 @@
 
         function selectSex(value) {
             onboardingData.sex = value;
-            document.querySelectorAll('.onboarding-pill-group .ob-pill').forEach(btn => {
-                btn.classList.toggle('selected', btn.textContent.toLowerCase() === value);
-            });
+            renderOnboardingStep(1);
+        }
+
+        function toggleHeightUnit(unit) {
+            heightUnit = unit;
+            renderOnboardingStep(1);
+        }
+
+        function updateHeightFromCm(cm) {
+            const totalInches = Math.round(parseFloat(cm) / 2.54);
+            onboardingData.height_feet = Math.floor(totalInches / 12);
+            onboardingData.height_inches = totalInches % 12;
+            onboardingData.height_cm = parseFloat(cm);
+        }
+
+        function markFieldComplete(input) {
+            if (input.value) {
+                input.classList.add('complete');
+            }
+        }
+
+        function animateToNextStep() {
+            const content = document.querySelector('.onboarding-step-content');
+            if (content) {
+                content.classList.add('exiting');
+                setTimeout(() => {
+                    nextOnboardingStep();
+                }, 250);
+            } else {
+                nextOnboardingStep();
+            }
+        }
+
+        function animateToPrevStep() {
+            const content = document.querySelector('.onboarding-step-content');
+            if (content) {
+                content.style.animation = 'slideOutLeft 0.25s ease-in reverse';
+                setTimeout(() => {
+                    prevOnboardingStep();
+                }, 200);
+            } else {
+                prevOnboardingStep();
+            }
         }
 
         // Step 2: Lifestyle (region, activity, work, diet)
+        let lifestyleSelectionMode = null; // null = grid view, 'region'/'activity'/'work'/'diet' = selection mode
+
         function getStepLifestyleHTML() {
+            // If we're in selection mode, show the selection panel
+            if (lifestyleSelectionMode) {
+                return getLifestyleSelectionHTML(lifestyleSelectionMode);
+            }
+
+            const completedCount = [
+                onboardingData.region,
+                onboardingData.activity_level,
+                onboardingData.work_environment,
+                onboardingData.diet_type
+            ].filter(Boolean).length;
+
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </div>
                     <h2>Your Lifestyle</h2>
-                    <p class="onboarding-subtitle">This helps us optimize your recommendations</p>
+                    <p class="onboarding-subtitle">Tap each card to customize your profile</p>
 
                     <div class="lifestyle-grid">
-                        <div class="lifestyle-card" onclick="showLifestyleOptions('region')">
-                            <span class="lifestyle-icon"><svg class="lifestyle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                        <div class="lifestyle-card ${onboardingData.region ? 'selected' : ''}" onclick="openLifestyleSelection('region')">
+                            <span class="lifestyle-icon">📍</span>
                             <span class="lifestyle-label">Location</span>
-                            <span class="lifestyle-value" id="lifestyle-region">${getRegionLabel(onboardingData.region) || 'Select'}</span>
+                            <span class="lifestyle-value">${getRegionLabel(onboardingData.region) || 'Tap to select'}</span>
                         </div>
-                        <div class="lifestyle-card" onclick="showLifestyleOptions('activity')">
-                            <span class="lifestyle-icon"><svg class="lifestyle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="5" r="3"/><path d="M5 20l3-8 4 2 3-4 4 4"/></svg></span>
+                        <div class="lifestyle-card ${onboardingData.activity_level ? 'selected' : ''}" onclick="openLifestyleSelection('activity')">
+                            <span class="lifestyle-icon">🏃</span>
                             <span class="lifestyle-label">Activity</span>
-                            <span class="lifestyle-value" id="lifestyle-activity">${getActivityLabel(onboardingData.activity_level) || 'Select'}</span>
+                            <span class="lifestyle-value">${getActivityLabel(onboardingData.activity_level) || 'Tap to select'}</span>
                         </div>
-                        <div class="lifestyle-card" onclick="showLifestyleOptions('work')">
-                            <span class="lifestyle-icon"><svg class="lifestyle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></span>
+                        <div class="lifestyle-card ${onboardingData.work_environment ? 'selected' : ''}" onclick="openLifestyleSelection('work')">
+                            <span class="lifestyle-icon">💼</span>
                             <span class="lifestyle-label">Work</span>
-                            <span class="lifestyle-value" id="lifestyle-work">${getWorkLabel(onboardingData.work_environment) || 'Select'}</span>
+                            <span class="lifestyle-value">${getWorkLabel(onboardingData.work_environment) || 'Tap to select'}</span>
                         </div>
-                        <div class="lifestyle-card" onclick="showLifestyleOptions('diet')">
-                            <span class="lifestyle-icon"><svg class="lifestyle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2C6.48 2 2 6 2 11h20c0-5-4.48-9-10-9z"/><path d="M4 11v1c0 4.42 3.58 8 8 8s8-3.58 8-8v-1H4z"/></svg></span>
+                        <div class="lifestyle-card ${onboardingData.diet_type ? 'selected' : ''}" onclick="openLifestyleSelection('diet')">
+                            <span class="lifestyle-icon">🥗</span>
                             <span class="lifestyle-label">Diet</span>
-                            <span class="lifestyle-value" id="lifestyle-diet">${getDietLabel(onboardingData.diet_type) || 'Select'}</span>
+                            <span class="lifestyle-value">${getDietLabel(onboardingData.diet_type) || 'Tap to select'}</span>
                         </div>
-                    </div>
-
-                    <div class="lifestyle-options hidden" id="lifestyle-options">
-                        <!-- Populated dynamically -->
                     </div>
 
                     <div class="onboarding-nav">
-                        <button class="onboarding-btn back" onclick="prevOnboardingStep()">← Back</button>
-                        <button class="onboarding-btn primary" onclick="nextOnboardingStep()">Continue</button>
+                        <button class="onboarding-btn back" onclick="animateToPrevStep()">← Back</button>
+                        <button class="onboarding-btn primary" onclick="animateToNextStep()">
+                            ${completedCount > 0 ? 'Continue' : 'Skip for now'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getLifestyleSelectionHTML(field) {
+            const options = LIFESTYLE_OPTIONS[field];
+            const dataKey = field === 'activity' ? 'activity_level' : field === 'work' ? 'work_environment' : field === 'diet' ? 'diet_type' : field;
+            const currentValue = onboardingData[dataKey];
+            const titles = { region: 'Where do you live?', activity: 'How active are you?', work: 'What\'s your work like?', diet: 'What\'s your diet?' };
+            const icons = {
+                region: { northern: '🏔️', central: '🌆', southern: '☀️', gulf: '🌴' },
+                activity: { sedentary: '🪑', light: '🚶', moderate: '🏋️', active: '🏃', athlete: '🏆' },
+                work: { office: '🏢', remote: '🏠', outdoor: '🌳', shift: '🌙' },
+                diet: { omnivore: '🍖', vegetarian: '🥬', vegan: '🌱' }
+            };
+
+            return `
+                <div class="onboarding-step-content" style="text-align: left;">
+                    <div class="lifestyle-selection-header">
+                        <button onclick="closeLifestyleSelection()">←</button>
+                        <h3>${titles[field]}</h3>
+                    </div>
+
+                    <div class="lifestyle-selection-options">
+                        ${options.map(opt => `
+                            <div class="lifestyle-selection-option ${opt.value === currentValue ? 'selected' : ''}"
+                                 onclick="selectLifestyleAndClose('${field}', '${opt.value}')">
+                                <span class="option-icon">${icons[field][opt.value] || '•'}</span>
+                                <div class="option-content">
+                                    <span class="option-label">${opt.label}</span>
+                                    <span class="option-desc">${opt.desc}</span>
+                                </div>
+                                <span class="option-check">✓</span>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
@@ -7058,27 +7698,27 @@
 
         const LIFESTYLE_OPTIONS = {
             region: [
-                { value: 'northern', label: 'Northern', desc: 'Seattle, Boston, Chicago' },
-                { value: 'central', label: 'Central', desc: 'NYC, Denver, SF' },
-                { value: 'southern', label: 'Southern', desc: 'LA, Phoenix, Atlanta' },
-                { value: 'gulf', label: 'Gulf/Florida', desc: 'Miami, Houston' }
+                { value: 'northern', label: 'Northern US', desc: 'Seattle, Boston, Minneapolis, Chicago' },
+                { value: 'central', label: 'Central US', desc: 'NYC, Denver, SF, Philadelphia' },
+                { value: 'southern', label: 'Southern US', desc: 'LA, Phoenix, Atlanta, Dallas' },
+                { value: 'gulf', label: 'Gulf / Florida', desc: 'Miami, Houston, New Orleans' }
             ],
             activity: [
                 { value: 'sedentary', label: 'Sedentary', desc: 'Desk job, minimal exercise' },
-                { value: 'light', label: 'Light', desc: 'Exercise 1-2x/week' },
-                { value: 'moderate', label: 'Moderate', desc: 'Exercise 3-4x/week' },
-                { value: 'active', label: 'Active', desc: 'Exercise 5-6x/week' },
+                { value: 'light', label: 'Lightly Active', desc: 'Exercise 1-2x per week' },
+                { value: 'moderate', label: 'Moderately Active', desc: 'Exercise 3-4x per week' },
+                { value: 'active', label: 'Very Active', desc: 'Exercise 5-6x per week' },
                 { value: 'athlete', label: 'Athlete', desc: 'Intense training daily' }
             ],
             work: [
-                { value: 'office', label: 'Office', desc: 'Indoor workplace' },
-                { value: 'remote', label: 'Remote', desc: 'Work from home' },
+                { value: 'office', label: 'Office', desc: 'Indoor workplace, limited sunlight' },
+                { value: 'remote', label: 'Remote / Hybrid', desc: 'Work from home' },
                 { value: 'outdoor', label: 'Outdoor', desc: 'Outside most of the day' },
-                { value: 'shift', label: 'Shift Work', desc: 'Irregular hours' }
+                { value: 'shift', label: 'Shift Work', desc: 'Irregular or night hours' }
             ],
             diet: [
-                { value: 'omnivore', label: 'Omnivore', desc: 'Eat everything' },
-                { value: 'vegetarian', label: 'Vegetarian', desc: 'No meat' },
+                { value: 'omnivore', label: 'Omnivore', desc: 'Eat everything including meat' },
+                { value: 'vegetarian', label: 'Vegetarian', desc: 'No meat, but eggs & dairy OK' },
                 { value: 'vegan', label: 'Vegan', desc: 'No animal products' }
             ]
         };
@@ -7088,113 +7728,116 @@
         function getWorkLabel(v) { return LIFESTYLE_OPTIONS.work.find(o => o.value === v)?.label; }
         function getDietLabel(v) { return LIFESTYLE_OPTIONS.diet.find(o => o.value === v)?.label; }
 
-        let currentLifestyleField = null;
-
-        function showLifestyleOptions(field) {
-            currentLifestyleField = field;
-            const container = document.getElementById('lifestyle-options');
-            const options = LIFESTYLE_OPTIONS[field];
-            const dataKey = field === 'activity' ? 'activity_level' : field === 'work' ? 'work_environment' : field === 'diet' ? 'diet_type' : field;
-            const currentValue = onboardingData[dataKey];
-
-            container.innerHTML = options.map(opt => `
-                <div class="lifestyle-option ${opt.value === currentValue ? 'selected' : ''}"
-                     onclick="selectLifestyleOption('${field}', '${opt.value}', '${opt.label}')">
-                    <span class="option-label">${opt.label}</span>
-                    <span class="option-desc">${opt.desc}</span>
-                </div>
-            `).join('');
-
-            container.classList.remove('hidden');
+        function openLifestyleSelection(field) {
+            lifestyleSelectionMode = field;
+            renderOnboardingStep(2);
         }
 
-        function selectLifestyleOption(field, value, label) {
+        function closeLifestyleSelection() {
+            lifestyleSelectionMode = null;
+            renderOnboardingStep(2);
+        }
+
+        function selectLifestyleAndClose(field, value) {
             const dataKey = field === 'activity' ? 'activity_level' : field === 'work' ? 'work_environment' : field === 'diet' ? 'diet_type' : field;
             onboardingData[dataKey] = value;
-            document.getElementById(`lifestyle-${field}`).textContent = label;
-            document.getElementById('lifestyle-options').classList.add('hidden');
-
-            // Update card to show selected
-            document.querySelectorAll('.lifestyle-card').forEach(card => {
-                if (card.querySelector(`#lifestyle-${field}`)) {
-                    card.classList.add('selected');
-                }
-            });
+            lifestyleSelectionMode = null;
+            renderOnboardingStep(2);
         }
 
         // Step 3: Sleep (chronotype)
         function getStepSleepHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                    </div>
                     <h2>Your Sleep Style</h2>
                     <p class="onboarding-subtitle">When do you feel most energized?</p>
 
                     <div class="chronotype-options">
                         <div class="chronotype-card ${onboardingData.chronotype === 'early_bird' ? 'selected' : ''}"
                              onclick="selectChronotype('early_bird')">
-                            <span class="chronotype-icon"><svg class="chronotype-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M17 18a5 5 0 00-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/></svg></span>
-                            <span class="chronotype-label">Early Bird</span>
-                            <span class="chronotype-desc">I'm most productive in the morning</span>
+                            <span class="chronotype-icon">🌅</span>
+                            <div>
+                                <span class="chronotype-label">Early Bird</span>
+                                <span class="chronotype-desc">I'm most productive in the morning</span>
+                            </div>
                         </div>
                         <div class="chronotype-card ${onboardingData.chronotype === 'night_owl' ? 'selected' : ''}"
                              onclick="selectChronotype('night_owl')">
-                            <span class="chronotype-icon"><svg class="chronotype-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
-                            <span class="chronotype-label">Night Owl</span>
-                            <span class="chronotype-desc">I come alive in the evening</span>
+                            <span class="chronotype-icon">🌙</span>
+                            <div>
+                                <span class="chronotype-label">Night Owl</span>
+                                <span class="chronotype-desc">I come alive in the evening</span>
+                            </div>
                         </div>
                         <div class="chronotype-card ${onboardingData.chronotype === 'neutral' ? 'selected' : ''}"
                              onclick="selectChronotype('neutral')">
-                            <span class="chronotype-icon"><svg class="chronotype-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 8h14l-2 8H7l-2-8z"/><circle cx="12" cy="3" r="1"/></svg></span>
-                            <span class="chronotype-label">Flexible</span>
-                            <span class="chronotype-desc">I adapt to any schedule</span>
+                            <span class="chronotype-icon">⚖️</span>
+                            <div>
+                                <span class="chronotype-label">Flexible</span>
+                                <span class="chronotype-desc">I adapt to any schedule</span>
+                            </div>
                         </div>
                     </div>
 
-                    <button class="onboarding-btn primary" onclick="nextOnboardingStep()">
-                        Continue
-                    </button>
-                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
-                        Skip for now
-                    </button>
-                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
-                        ← Back
-                    </button>
+                    <div class="onboarding-nav">
+                        <button class="onboarding-btn back" onclick="animateToPrevStep()">← Back</button>
+                        <button class="onboarding-btn primary" onclick="animateToNextStep()">
+                            ${onboardingData.chronotype ? 'Continue' : 'Skip for now'}
+                        </button>
+                    </div>
                 </div>
             `;
         }
 
         function selectChronotype(value) {
             onboardingData.chronotype = value;
-            document.querySelectorAll('.chronotype-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.currentTarget.classList.add('selected');
+            renderOnboardingStep(3);
         }
 
         // Step 4: Connect Oura
         function getStepOuraHTML() {
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="9"/>
+                            <circle cx="12" cy="12" r="5"/>
+                            <circle cx="12" cy="12" r="1"/>
+                        </svg>
+                    </div>
                     <h2>Connect Oura Ring</h2>
-                    <p class="onboarding-subtitle">Sync your sleep and recovery data for personalized insights</p>
+                    <p class="onboarding-subtitle">Unlock personalized insights with your health data</p>
 
-                    <div class="onboarding-feature-card">
-                        <div class="feature-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
-                        <div class="feature-text">
-                            <strong>Connect Your Oura Ring</strong>
-                            <p>We use your sleep and recovery data to personalize supplement recommendations</p>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <span class="benefit-check">✓</span>
+                            <span><strong>Personalized sleep recommendations</strong> based on your actual sleep scores</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-check">✓</span>
+                            <span><strong>Recovery-based dosing</strong> — adjust supplements based on how rested you are</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-check">✓</span>
+                            <span><strong>Track supplement impact</strong> on your HRV, sleep quality & readiness</span>
                         </div>
                     </div>
 
                     <button class="onboarding-btn primary" onclick="startOuraConnectionOnboarding()">
                         Connect Oura Ring
                     </button>
-                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
-                        Skip for now
+
+                    <button class="skip-later-btn" onclick="animateToNextStep()">
+                        <span>I'll connect later</span>
+                        <span class="skip-subtext">You can always connect from your dashboard</span>
                     </button>
-                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+
+                    <button class="onboarding-btn back" style="margin-top: 8px;" onclick="animateToPrevStep()">
                         ← Back
                     </button>
                 </div>
@@ -7207,9 +7850,46 @@
             connectOura();
         }
 
-        // Step 2: Add Supplements
+        // Common supplement stacks for quick-add
+        const COMMON_STACKS = [
+            {
+                name: 'Sleep Stack',
+                icon: '😴',
+                supplements: [
+                    { id: 'magnesium_glycinate', name: 'Magnesium Glycinate', dosage: '400', unit: 'mg' },
+                    { id: 'glycine', name: 'Glycine', dosage: '3', unit: 'g' },
+                    { id: 'l_theanine', name: 'L-Theanine', dosage: '200', unit: 'mg' }
+                ]
+            },
+            {
+                name: 'Daily Essentials',
+                icon: '✨',
+                supplements: [
+                    { id: 'vitamin_d3', name: 'Vitamin D3', dosage: '5000', unit: 'IU' },
+                    { id: 'fish_oil', name: 'Omega-3 Fish Oil', dosage: '2000', unit: 'mg' },
+                    { id: 'magnesium_glycinate', name: 'Magnesium', dosage: '400', unit: 'mg' }
+                ]
+            },
+            {
+                name: 'Focus Stack',
+                icon: '🧠',
+                supplements: [
+                    { id: 'lions_mane', name: "Lion's Mane", dosage: '500', unit: 'mg' },
+                    { id: 'l_theanine', name: 'L-Theanine', dosage: '200', unit: 'mg' },
+                    { id: 'caffeine', name: 'Caffeine', dosage: '100', unit: 'mg' }
+                ]
+            }
+        ];
+
+        // Step 5: Add Supplements
         function getStepSupplementsHTML() {
             const hasSelected = onboardingData.selectedSupplements.length > 0;
+            const selectedIds = onboardingData.selectedSupplements.map(s => s.id);
+
+            // Check which stacks have all supplements added
+            const addedStacks = COMMON_STACKS.filter(stack =>
+                stack.supplements.every(s => selectedIds.includes(s.id))
+            ).map(s => s.name);
 
             // Build selected supplements cards
             const selectedCardsHTML = onboardingData.selectedSupplements.map((supp, idx) => `
@@ -7223,13 +7903,15 @@
                             <label>Dosage</label>
                             <div class="dosage-input-wrapper">
                                 <input type="text" value="${escapeAttr(supp.dosage)}" placeholder="e.g. ${supp.typical_dose || ''}"
-                                       onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)">
+                                       onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)"
+                                       style="font-size: 1em; padding: 10px 12px;">
                                 <span class="dosage-unit">${escapeAttr(supp.unit || '')}</span>
                             </div>
                         </div>
                         <div class="selected-supp-field">
                             <label>Taking for</label>
-                            <select onchange="updateOnboardingSupplementField(${idx}, 'duration', parseInt(this.value))">
+                            <select onchange="updateOnboardingSupplementField(${idx}, 'duration', parseInt(this.value))"
+                                    style="font-size: 1em; padding: 10px 12px;">
                                 <option value="0" ${supp.duration === 0 ? 'selected' : ''}>Just starting</option>
                                 <option value="7" ${supp.duration === 7 ? 'selected' : ''}>~1 week</option>
                                 <option value="30" ${supp.duration === 30 ? 'selected' : ''}>~1 month</option>
@@ -7242,35 +7924,81 @@
 
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <rect x="6" y="4" width="12" height="16" rx="6"/>
+                            <path d="M6 12h12"/>
+                        </svg>
+                    </div>
                     <h2>What do you take?</h2>
-                    <p class="onboarding-subtitle">Search and add your supplements</p>
+                    <p class="onboarding-subtitle">Add your current supplements to track</p>
+
+                    <div class="stacks-section">
+                        <div class="stacks-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                            </svg>
+                            Quick add a stack
+                        </div>
+                        <div class="stack-cards">
+                            ${COMMON_STACKS.map(stack => `
+                                <div class="stack-card ${addedStacks.includes(stack.name) ? 'added' : ''}"
+                                     onclick="addStack('${stack.name}')">
+                                    <div class="stack-name">${stack.icon} ${stack.name}</div>
+                                    <div class="stack-items">${stack.supplements.map(s => s.name.split(' ')[0]).join(' + ')}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
 
                     <div class="supp-search-container">
                         <input type="text" class="supp-search-input" id="onboarding-supp-search"
-                               placeholder="Search supplements..."
+                               placeholder="🔍 Search supplements..."
                                oninput="filterOnboardingSupplements(this.value)">
                     </div>
 
-                    <div class="supp-list-container" id="onboarding-supp-list">
+                    <div class="supp-list-container" id="onboarding-supp-list" style="max-height: 180px;">
                         <!-- Populated by JS -->
                     </div>
 
                     ${hasSelected ? `
-                        <div class="selected-supps-section">
+                        <div class="selected-supps-section" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
                             <div class="selected-supps-label">Your supplements (${onboardingData.selectedSupplements.length})</div>
                             ${selectedCardsHTML}
                         </div>
                     ` : ''}
 
-                    <button class="onboarding-btn ${hasSelected ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
-                        ${hasSelected ? 'Continue' : 'Skip for now'}
-                    </button>
-                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
-                        ← Back
-                    </button>
+                    <div class="onboarding-nav" style="margin-top: 16px;">
+                        <button class="onboarding-btn back" onclick="animateToPrevStep()">← Back</button>
+                        <button class="onboarding-btn ${hasSelected ? 'primary' : 'secondary'}" onclick="animateToNextStep()">
+                            ${hasSelected ? 'Continue' : 'Skip for now'}
+                        </button>
+                    </div>
                 </div>
             `;
+        }
+
+        function addStack(stackName) {
+            const stack = COMMON_STACKS.find(s => s.name === stackName);
+            if (!stack) return;
+
+            const selectedIds = onboardingData.selectedSupplements.map(s => s.id);
+
+            stack.supplements.forEach(supp => {
+                if (!selectedIds.includes(supp.id)) {
+                    onboardingData.selectedSupplements.push({
+                        id: supp.id,
+                        name: supp.name,
+                        dosage: supp.dosage,
+                        typical_dose: supp.dosage,
+                        unit: supp.unit,
+                        duration: 30
+                    });
+                }
+            });
+
+            renderOnboardingStep(5);
+            setTimeout(() => filterOnboardingSupplements(''), 10);
         }
 
         // Filter supplements in onboarding search
@@ -7377,13 +8105,15 @@
             }
         }
 
-        // Step 3: Set Goal (multi-select)
+        // Step 6: Set Goal (multi-select, max 3)
+        const MAX_GOALS = 3;
+
         function getStepGoalHTML() {
             const goals = [
-                { id: 'sleep', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>', name: 'Better Sleep' },
-                { id: 'recovery', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', name: 'Recovery & Performance' },
-                { id: 'energy', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', name: 'Energy & Focus' },
-                { id: 'wellness', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V8M7 12c-2-2-2-5 0-7 2-2 5-2 7 0m0 0c2 2 2 5 0 7"/><path d="M7 12c-2 2-2 5 0 7m7-7c2 2 2 5 0 7"/></svg>', name: 'General Wellness' }
+                { id: 'sleep', icon: '😴', name: 'Better Sleep', desc: 'Fall asleep faster, wake up refreshed' },
+                { id: 'recovery', icon: '💪', name: 'Recovery & Performance', desc: 'Bounce back faster from workouts' },
+                { id: 'energy', icon: '⚡', name: 'Energy & Focus', desc: 'Stay sharp and energized all day' },
+                { id: 'wellness', icon: '🌿', name: 'General Wellness', desc: 'Support overall health & longevity' }
             ];
 
             // Ensure goals is an array
@@ -7391,33 +8121,53 @@
                 onboardingData.goals = [];
             }
 
-            const goalsHTML = goals.map(goal => `
-                <div class="goal-option ${onboardingData.goals.includes(goal.id) ? 'selected' : ''}"
-                     onclick="toggleOnboardingGoal('${goal.id}')">
-                    <span class="goal-icon">${goal.icon}</span>
-                    <span class="goal-name">${goal.name}</span>
-                    <span class="goal-check">${onboardingData.goals.includes(goal.id) ? '✓' : ''}</span>
-                </div>
-            `).join('');
+            const selectedCount = onboardingData.goals.length;
+            const atLimit = selectedCount >= MAX_GOALS;
 
-            const hasGoals = onboardingData.goals.length > 0;
+            const goalsHTML = goals.map(goal => {
+                const isSelected = onboardingData.goals.includes(goal.id);
+                const isDisabled = atLimit && !isSelected;
+                return `
+                    <div class="goal-option ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}"
+                         onclick="${isDisabled ? '' : `toggleOnboardingGoal('${goal.id}')`}"
+                         style="${isDisabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                        <span class="goal-icon">${goal.icon}</span>
+                        <span class="goal-name">${goal.name}</span>
+                        <span class="goal-check">${isSelected ? '✓' : ''}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const hasGoals = selectedCount > 0;
 
             return `
                 <div class="onboarding-step-content">
-                    <div class="onboarding-illustration"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+                    <div class="onboarding-illustration">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="6"/>
+                            <circle cx="12" cy="12" r="2"/>
+                        </svg>
+                    </div>
                     <h2>What's your focus?</h2>
-                    <p class="onboarding-subtitle">Select all that apply</p>
+                    <p class="onboarding-subtitle">Select up to ${MAX_GOALS} priorities</p>
+
+                    ${selectedCount > 0 ? `
+                        <p class="goal-limit-hint ${atLimit ? 'at-limit' : ''}" style="text-align: center; margin-bottom: 16px;">
+                            ${selectedCount} of ${MAX_GOALS} selected ${atLimit ? '(max reached)' : ''}
+                        </p>
+                    ` : ''}
 
                     <div class="goal-options">
                         ${goalsHTML}
                     </div>
 
-                    <button class="onboarding-btn ${hasGoals ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
-                        ${hasGoals ? 'Continue' : 'Skip for now'}
-                    </button>
-                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
-                        ← Back
-                    </button>
+                    <div class="onboarding-nav">
+                        <button class="onboarding-btn back" onclick="animateToPrevStep()">← Back</button>
+                        <button class="onboarding-btn ${hasGoals ? 'primary' : 'secondary'}" onclick="animateToNextStep()">
+                            ${hasGoals ? 'Continue' : 'Skip for now'}
+                        </button>
+                    </div>
                 </div>
             `;
         }
@@ -7432,8 +8182,8 @@
             if (idx > -1) {
                 // Remove it
                 onboardingData.goals.splice(idx, 1);
-            } else {
-                // Add it
+            } else if (onboardingData.goals.length < MAX_GOALS) {
+                // Add it only if under limit
                 onboardingData.goals.push(goal);
             }
 
@@ -7444,59 +8194,99 @@
         // Completion Screen
         function getCompletionHTML() {
             const profileComplete = onboardingData.age && onboardingData.sex && onboardingData.height_feet && onboardingData.weight_lbs;
-            const profileStatus = profileComplete
-                ? '<span class="summary-icon">✓</span> Profile complete'
-                : '<span class="summary-icon">—</span> Profile (complete later)';
-
             const lifestyleComplete = onboardingData.region || onboardingData.activity_level || onboardingData.work_environment || onboardingData.diet_type;
-            const lifestyleStatus = lifestyleComplete
-                ? '<span class="summary-icon">✓</span> Lifestyle preferences set'
-                : '<span class="summary-icon">—</span> Lifestyle (set later)';
-
-            const ouraStatus = onboardingData.ouraConnected || ouraConnected
-                ? '<span class="summary-icon">✓</span> Oura Ring connected'
-                : '<span class="summary-icon">—</span> Oura Ring (connect later)';
-
             const suppCount = onboardingData.selectedSupplements.length;
-            const suppStatus = suppCount > 0
-                ? `<span class="summary-icon">✓</span> ${suppCount} supplement${suppCount > 1 ? 's' : ''} added`
-                : '<span class="summary-icon">—</span> No supplements added';
+            const goalsArray = onboardingData.goals || [];
+            const hasGoals = goalsArray.length > 0;
 
+            // Build personalized summary
             const goalNames = {
                 sleep: 'Better Sleep',
                 recovery: 'Recovery & Performance',
                 energy: 'Energy & Focus',
                 wellness: 'General Wellness'
             };
-            const goalsArray = onboardingData.goals || [];
-            const hasGoals = goalsArray.length > 0;
-            const goalsList = goalsArray.map(g => goalNames[g] || g).join(', ');
-            const goalStatus = hasGoals
-                ? `<span class="summary-icon">✓</span> Goals: ${goalsList}`
-                : '<span class="summary-icon">—</span> No goals set';
+            const primaryGoal = hasGoals ? goalNames[goalsArray[0]] : 'your health goals';
+            const regionText = onboardingData.region ? {
+                northern: 'Northern US sunlight levels',
+                central: 'Central US conditions',
+                southern: 'Southern US sun exposure',
+                gulf: 'Gulf region climate'
+            }[onboardingData.region] : 'your location';
+
+            // Trigger confetti on mount
+            setTimeout(() => triggerConfetti(), 300);
 
             return `
                 <div class="onboarding-step-content">
-                    <div class="completion-checkmark">✓</div>
+                    <div class="completion-checkmark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12l5 5L20 7"/>
+                        </svg>
+                    </div>
                     <h2>You're all set!</h2>
                     <p class="onboarding-subtitle">Your personalized dashboard is ready</p>
 
-                    <div class="completion-summary">
-                        <div class="summary-item ${profileComplete ? 'completed' : ''}">${profileStatus}</div>
-                        <div class="summary-item ${lifestyleComplete ? 'completed' : ''}">${lifestyleStatus}</div>
-                        <div class="summary-item ${(onboardingData.ouraConnected || ouraConnected) ? 'completed' : ''}">${ouraStatus}</div>
-                        <div class="summary-item ${suppCount > 0 ? 'completed' : ''}">${suppStatus}</div>
-                        <div class="summary-item ${hasGoals ? 'completed' : ''}">${goalStatus}</div>
+                    <div class="personalized-summary">
+                        <p>
+                            Based on your profile, we'll focus on <strong>${primaryGoal}</strong>
+                            ${onboardingData.region ? ` with recommendations optimized for ${regionText}` : ''}.
+                            ${suppCount > 0 ? ` We're tracking ${suppCount} supplement${suppCount > 1 ? 's' : ''} for you.` : ''}
+                        </p>
                     </div>
 
-                    <button class="onboarding-btn primary" id="complete-onboarding-btn" onclick="completeOnboarding()">
-                        Go to Dashboard
+                    <div class="completion-summary">
+                        <div class="summary-item ${profileComplete ? 'completed' : ''}">
+                            <span class="summary-icon">${profileComplete ? '✓' : '○'}</span>
+                            ${profileComplete ? 'Profile complete' : 'Profile (complete later in settings)'}
+                        </div>
+                        <div class="summary-item ${lifestyleComplete ? 'completed' : ''}">
+                            <span class="summary-icon">${lifestyleComplete ? '✓' : '○'}</span>
+                            ${lifestyleComplete ? 'Lifestyle preferences set' : 'Lifestyle (set later)'}
+                        </div>
+                        <div class="summary-item ${(onboardingData.ouraConnected || ouraConnected) ? 'completed' : ''}">
+                            <span class="summary-icon">${(onboardingData.ouraConnected || ouraConnected) ? '✓' : '○'}</span>
+                            ${(onboardingData.ouraConnected || ouraConnected) ? 'Oura Ring connected' : 'Oura Ring (connect later)'}
+                        </div>
+                        <div class="summary-item ${suppCount > 0 ? 'completed' : ''}">
+                            <span class="summary-icon">${suppCount > 0 ? '✓' : '○'}</span>
+                            ${suppCount > 0 ? `${suppCount} supplement${suppCount > 1 ? 's' : ''} tracked` : 'No supplements added'}
+                        </div>
+                        <div class="summary-item ${hasGoals ? 'completed' : ''}">
+                            <span class="summary-icon">${hasGoals ? '✓' : '○'}</span>
+                            ${hasGoals ? `Focus: ${goalsArray.map(g => goalNames[g]).join(', ')}` : 'No focus areas set'}
+                        </div>
+                    </div>
+
+                    <button class="onboarding-btn primary cta-primary" id="complete-onboarding-btn" onclick="completeOnboarding()">
+                        Start Your Journey
                     </button>
-                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                    <button class="onboarding-btn back" onclick="animateToPrevStep()">
                         ← Back
                     </button>
                 </div>
             `;
+        }
+
+        // Confetti celebration
+        function triggerConfetti() {
+            const colors = ['#8B5CF6', '#22C55E', '#F59E0B', '#EC4899', '#3B82F6'];
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(confetti);
+            }
+
+            // Clean up after animation
+            setTimeout(() => container.remove(), 4000);
         }
 
         async function completeOnboarding() {
