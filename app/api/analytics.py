@@ -497,7 +497,7 @@ def get_supplement_library():
     """Get the list of common supplements for manual entry."""
     return {
         "supplements": [
-            {"id": s[0], "name": s[1], "typical_dose": s[2]}
+            {"id": s[0], "name": s[1], "typical_dose": s[2], "unit": s[3]}
             for s in SupplementStart.SUPPLEMENT_LIBRARY
         ],
         "frequencies": [

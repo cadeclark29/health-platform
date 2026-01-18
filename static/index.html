@@ -1145,6 +1145,24 @@
             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
         }
 
+        .onboarding-btn.primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
         .onboarding-btn.secondary {
             background: transparent;
             color: #888;
@@ -1392,6 +1410,24 @@
         .selected-supp-field select:focus {
             outline: none;
             border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .dosage-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dosage-input-wrapper input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dosage-unit {
+            font-size: 0.85em;
+            color: #8B5CF6;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
         /* Goal Options */
@@ -5786,10 +5822,13 @@
                         <button class="selected-supp-remove" onclick="removeOnboardingSupplement(${idx})">✕</button>
                     </div>
                     <div class="selected-supp-fields">
-                        <div class="selected-supp-field">
+                        <div class="selected-supp-field dosage-field">
                             <label>Dosage</label>
-                            <input type="text" value="${escapeAttr(supp.dosage)}" placeholder="e.g. 2000 IU"
-                                   onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)">
+                            <div class="dosage-input-wrapper">
+                                <input type="text" value="${escapeAttr(supp.dosage)}" placeholder="e.g. ${supp.typical_dose || ''}"
+                                       onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)">
+                                <span class="dosage-unit">${escapeAttr(supp.unit || '')}</span>
+                            </div>
                         </div>
                         <div class="selected-supp-field">
                             <label>Taking for</label>
@@ -5849,16 +5888,16 @@
             } else {
                 // Fallback list
                 supplements = [
-                    { id: 'vitamin_d3', name: 'Vitamin D3', typical_dose: '2000-5000 IU' },
-                    { id: 'fish_oil', name: 'Fish Oil / Omega-3', typical_dose: '1000-2000mg' },
-                    { id: 'magnesium_glycinate', name: 'Magnesium Glycinate', typical_dose: '200-400mg' },
-                    { id: 'vitamin_b12', name: 'Vitamin B12', typical_dose: '500-1000mcg' },
-                    { id: 'ashwagandha', name: 'Ashwagandha', typical_dose: '300-600mg' },
-                    { id: 'zinc', name: 'Zinc', typical_dose: '15-30mg' },
-                    { id: 'melatonin', name: 'Melatonin', typical_dose: '0.5-5mg' },
-                    { id: 'creatine', name: 'Creatine', typical_dose: '3-5g' },
-                    { id: 'vitamin_c', name: 'Vitamin C', typical_dose: '500-1000mg' },
-                    { id: 'b_complex', name: 'B-Complex', typical_dose: '1 capsule' }
+                    { id: 'vitamin_d3', name: 'Vitamin D3', typical_dose: '2000-5000', unit: 'IU' },
+                    { id: 'fish_oil', name: 'Fish Oil / Omega-3', typical_dose: '1000-2000', unit: 'mg' },
+                    { id: 'magnesium_glycinate', name: 'Magnesium Glycinate', typical_dose: '200-400', unit: 'mg' },
+                    { id: 'vitamin_b12', name: 'Vitamin B12', typical_dose: '500-1000', unit: 'mcg' },
+                    { id: 'ashwagandha', name: 'Ashwagandha', typical_dose: '300-600', unit: 'mg' },
+                    { id: 'zinc', name: 'Zinc', typical_dose: '15-30', unit: 'mg' },
+                    { id: 'melatonin', name: 'Melatonin', typical_dose: '0.5-5', unit: 'mg' },
+                    { id: 'creatine', name: 'Creatine', typical_dose: '3-5', unit: 'g' },
+                    { id: 'vitamin_c', name: 'Vitamin C', typical_dose: '500-1000', unit: 'mg' },
+                    { id: 'b_complex', name: 'B-Complex', typical_dose: '1', unit: 'capsule' }
                 ];
             }
 
@@ -5878,13 +5917,14 @@
 
             container.innerHTML = filtered.map(supp => {
                 const isSelected = selectedIds.includes(supp.id);
+                const doseDisplay = supp.unit ? `${supp.typical_dose} ${supp.unit}` : supp.typical_dose;
                 return `
                     <div class="supp-list-item ${isSelected ? 'selected' : ''}"
-                         onclick="toggleOnboardingSupplementFromSearch('${supp.id}', '${supp.name.replace(/'/g, "\\'")}', '${(supp.typical_dose || '').replace(/'/g, "\\'")}')">
+                         onclick="toggleOnboardingSupplementFromSearch('${supp.id}', '${supp.name.replace(/'/g, "\\'")}', '${(supp.typical_dose || '').replace(/'/g, "\\'")}', '${(supp.unit || '').replace(/'/g, "\\'")}')">
                         <span class="supp-list-icon">${getSupplementIcon(supp.id)}</span>
                         <div class="supp-list-info">
                             <div class="supp-list-name">${supp.name}</div>
-                            <div class="supp-list-dose">${supp.typical_dose || ''}</div>
+                            <div class="supp-list-dose">${doseDisplay || ''}</div>
                         </div>
                         <span class="supp-list-check">✓</span>
                     </div>
@@ -5893,7 +5933,7 @@
         }
 
         // Toggle supplement from search list
-        function toggleOnboardingSupplementFromSearch(id, name, typicalDose) {
+        function toggleOnboardingSupplementFromSearch(id, name, typicalDose, unit) {
             const idx = onboardingData.selectedSupplements.findIndex(s => s.id === id);
             if (idx > -1) {
                 // Remove it
@@ -5905,6 +5945,8 @@
                     id: id,
                     name: name,
                     dosage: defaultDose,
+                    typical_dose: typicalDose,
+                    unit: unit || '',
                     duration: 30 // Default to 1 month
                 });
             }
@@ -6050,7 +6092,7 @@
                         <div class="summary-item ${hasGoals ? 'completed' : ''}">${goalStatus}</div>
                     </div>
 
-                    <button class="onboarding-btn primary" onclick="completeOnboarding()">
+                    <button class="onboarding-btn primary" id="complete-onboarding-btn" onclick="completeOnboarding()">
                         Go to Dashboard
                     </button>
                     <button class="onboarding-btn back" onclick="prevOnboardingStep()">
@@ -6061,6 +6103,13 @@
         }
 
         async function completeOnboarding() {
+            // Show loading state
+            const btn = document.getElementById('complete-onboarding-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span> Setting up...';
+            }
+
             // Save supplements if any were selected
             if (onboardingData.selectedSupplements.length > 0) {
                 for (const supp of onboardingData.selectedSupplements) {
