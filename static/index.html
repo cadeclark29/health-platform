@@ -1926,7 +1926,7 @@
             margin-bottom: 4px;
         }
 
-        .selected-supp-pill {
+        .selected-supp-tag {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -7337,7 +7337,7 @@
             'glycine': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>',
             'coq10': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
             'elderberry': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 12v10M8 16l4-4 4 4"/></svg>',
-            'default': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg>'
+            'default': '<svg class="supp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 17l-6.3 4 2.3-7-6-4.6h7.6L12 2z"/></svg>'
         };
 
         function getSupplementIcon(id) {
@@ -7898,7 +7898,7 @@
 
             // Build selected supplements - compact pills
             const selectedCardsHTML = onboardingData.selectedSupplements.map((supp, idx) => `
-                <div class="selected-supp-pill">
+                <div class="selected-supp-tag">
                     <span class="selected-supp-icon">${getSupplementIcon(supp.id)}</span>
                     <span class="selected-supp-name">${escapeAttr(supp.name)}</span>
                     <span class="selected-supp-dose">${escapeAttr(supp.dosage)} ${escapeAttr(supp.unit || '')}</span>
@@ -8708,7 +8708,7 @@
                 card.className = 'mix-card';
                 card.onclick = () => selectMix(mix.id);
                 card.innerHTML = `
-                    <div class="mix-icon">${mix.icon || '&#x1F48A;'}</div>
+                    <div class="mix-icon">${mix.icon || '✨'}</div>
                     <div class="mix-name">${mix.name}</div>
                     <div class="mix-desc">${mix.description}</div>
                 `;
@@ -8896,7 +8896,7 @@
 
             content.innerHTML = `
                 <div class="modal-header">
-                    <div class="modal-icon">${data.mix_icon || '&#x1F48A;'}</div>
+                    <div class="modal-icon">${data.mix_icon || '✨'}</div>
                     <div class="modal-title">${data.mix_name}</div>
                     <div class="modal-subtitle">${data.mix_description || 'Your personalized supplement mix'}</div>
                 </div>
@@ -9045,7 +9045,7 @@
                         </div>
                         <div class="dropping-supplements" id="dropping">
                             ${supplements.map((s, i) => `
-                                <span class="dropping-pill" style="animation-delay: ${0.2 * i}s">&#x1F48A;</span>
+                                <span class="dropping-pill" style="animation-delay: ${0.2 * i}s">✦</span>
                             `).join('')}
                         </div>
                     </div>
@@ -11619,7 +11619,7 @@
                 case 'meal': return '🍽️';
                 case 'flexible': return '⏰';
                 case 'anytime': return '✓';
-                default: return '💊';
+                default: return '✦';
             }
         }
 
