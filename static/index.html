@@ -5404,7 +5404,7 @@
                                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                             </svg>
                         </div>
-                        <div class="smart-rec-label">Today's Recommendation</div>
+                        <div class="smart-rec-label">Daily Check-in</div>
                     </div>
 
                     <div class="smart-rec-main" id="smart-rec-main">
@@ -8566,11 +8566,10 @@
             }
         }
 
-        // Store current recommendation data
-        let currentRecommendation = null;
-        let todaysLogs = {}; // Track what's been logged today
+        // Track what's been logged today
+        let todaysLogs = {};
 
-        // Load Smart Recommendation for Dashboard
+        // Load Daily Check-in card for Dashboard
         async function loadSmartRecommendation() {
             if (!currentUserId) return;
 
@@ -8588,7 +8587,7 @@
                 mainEl.innerHTML = `
                     <div class="smart-rec-empty">
                         <div class="smart-rec-empty-title">Add supplements to get started</div>
-                        <div class="smart-rec-empty-text">We'll analyze your health data and recommend when to take them</div>
+                        <div class="smart-rec-empty-text">Track your daily stack and see how it impacts your health</div>
                         <button class="smart-rec-take-btn" onclick="openAddManualSupplement()" style="width: auto; padding: 12px 24px;">
                             + Add Your First Supplement
                         </button>
@@ -8600,16 +8599,8 @@
                 return;
             }
 
-            // Show loading state
-            mainEl.innerHTML = `
-                <div class="smart-rec-loading">
-                    <div class="smart-rec-loading-spinner"></div>
-                    <span>Analyzing your health data...</span>
-                </div>
-            `;
-
             try {
-                // Get current hour for time-based recommendation
+                // Get current hour for time-based display
                 const currentHour = new Date().getHours();
                 const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening';
                 const today = new Date().toISOString().split('T')[0];
@@ -8631,37 +8622,26 @@
                     todaysLogs[s.supplement_id] === timeOfDay
                 );
 
-                // Fetch smart recommendation for context
-                const res = await fetch(`/mixes/${currentUserId}/smart?time_override=${currentHour}`);
-
-                let healthSummary = {};
-                if (res.ok) {
-                    const data = await res.json();
-                    currentRecommendation = data;
-                    healthSummary = data.health_summary || {};
-                }
-
-                const hasHealthData = healthSummary.sleep_score || healthSummary.hrv_score || healthSummary.recovery_score;
-
-                // Get previous day's data for trend comparison
+                // Get health data from analyticsData (already loaded)
                 const healthData = analyticsData?.health_data || [];
-                const trends = calculateHealthTrends(healthData, healthSummary);
+                const latestHealth = healthData.length > 0
+                    ? [...healthData].sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+                    : null;
 
-                // Build recommendation reason based on health data
-                let reasonText = 'Based on your supplement routine';
-                if (hasHealthData) {
-                    if (healthSummary.sleep_score < 70) {
-                        reasonText = `Sleep score at ${Math.round(healthSummary.sleep_score)} — prioritize recovery today`;
-                    } else if (healthSummary.recovery_score > 80) {
-                        reasonText = `Recovery at ${Math.round(healthSummary.recovery_score)} — you're well-rested!`;
-                    } else if (healthSummary.hrv_score) {
-                        reasonText = `HRV at ${Math.round(healthSummary.hrv_score)} — stay consistent`;
-                    }
+                const hasHealthData = latestHealth && (latestHealth.sleep_score || latestHealth.hrv_score || latestHealth.recovery_score);
+
+                // Calculate trends
+                const trends = hasHealthData ? calculateHealthTrends(healthData, latestHealth) : { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
+
+                // Simple informational subtitle
+                let subtitleText = `${supplements.length} supplement${supplements.length > 1 ? 's' : ''} in your stack`;
+                if (allLoggedForPeriod) {
+                    subtitleText = "All logged for this period ✓";
                 }
 
                 mainEl.innerHTML = `
                     <div class="smart-rec-title">${getTimeGreeting()} Stack</div>
-                    <div class="smart-rec-reason">${reasonText}</div>
+                    <div class="smart-rec-reason">${subtitleText}</div>
                 `;
 
                 // Show supplements list
@@ -8682,9 +8662,9 @@
 
                 // Show metrics if we have health data
                 if (hasHealthData) {
-                    document.getElementById('rec-sleep').textContent = Math.round(healthSummary.sleep_score) || '--';
-                    document.getElementById('rec-hrv').textContent = Math.round(healthSummary.hrv_score) || '--';
-                    document.getElementById('rec-recovery').textContent = Math.round(healthSummary.recovery_score) || '--';
+                    document.getElementById('rec-sleep').textContent = Math.round(latestHealth.sleep_score) || '--';
+                    document.getElementById('rec-hrv').textContent = Math.round(latestHealth.hrv_score) || '--';
+                    document.getElementById('rec-recovery').textContent = Math.round(latestHealth.recovery_score) || '--';
 
                     // Add trend indicators
                     document.getElementById('rec-sleep-trend').innerHTML = getTrendIcon(trends.sleep);
@@ -8730,7 +8710,7 @@
                 }
 
             } catch (e) {
-                console.error('Error loading recommendation:', e);
+                console.error('Error loading daily check-in:', e);
                 mainEl.innerHTML = `
                     <div class="smart-rec-empty">
                         <div class="smart-rec-empty-title">Your Daily Stack</div>
@@ -8749,27 +8729,6 @@
             return 'Evening';
         }
 
-        // Format recommendation reason with emphasis
-        function formatRecommendationReason(reason, healthSummary) {
-            if (!reason) return 'Based on your current supplement routine';
-
-            // Highlight metrics in the reason
-            let formatted = reason;
-            if (healthSummary.sleep_score) {
-                formatted = formatted.replace(
-                    new RegExp(`(${healthSummary.sleep_score})`),
-                    '<strong>$1</strong>'
-                );
-            }
-            if (healthSummary.hrv_score) {
-                formatted = formatted.replace(
-                    new RegExp(`(${healthSummary.hrv_score})`),
-                    '<strong>$1</strong>'
-                );
-            }
-            return formatted;
-        }
-
         // Calculate health trends
         function calculateHealthTrends(healthData, current) {
             const trends = { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
@@ -8778,7 +8737,7 @@
 
             // Get yesterday's data (second most recent)
             const sorted = [...healthData].sort((a, b) =>
-                new Date(b.timestamp) - new Date(a.timestamp)
+                new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp)
             );
 
             if (sorted.length >= 2) {
