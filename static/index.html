@@ -5388,6 +5388,12 @@
             return SUPPLEMENT_ICONS[id] || SUPPLEMENT_ICONS['default'];
         }
 
+        // Helper to escape HTML attributes
+        function escapeAttr(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         function showOnboarding() {
             document.getElementById('onboarding-modal').classList.remove('hidden');
             onboardingStep = 1;
@@ -5728,13 +5734,13 @@
             const selectedCardsHTML = onboardingData.selectedSupplements.map((supp, idx) => `
                 <div class="selected-supp-card">
                     <div class="selected-supp-header">
-                        <span class="selected-supp-name">${getSupplementIcon(supp.id)} ${supp.name}</span>
+                        <span class="selected-supp-name">${getSupplementIcon(supp.id)} ${escapeAttr(supp.name)}</span>
                         <button class="selected-supp-remove" onclick="removeOnboardingSupplement(${idx})">✕</button>
                     </div>
                     <div class="selected-supp-fields">
                         <div class="selected-supp-field">
                             <label>Dosage</label>
-                            <input type="text" value="${supp.dosage}" placeholder="e.g. 2000 IU"
+                            <input type="text" value="${escapeAttr(supp.dosage)}" placeholder="e.g. 2000 IU"
                                    onchange="updateOnboardingSupplementField(${idx}, 'dosage', this.value)">
                         </div>
                         <div class="selected-supp-field">
