@@ -15,12 +15,12 @@ router = APIRouter()
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
-    # Required profile fields for personalized dosing (imperial units)
-    age: int
-    sex: str  # "male", "female", "other"
-    height_feet: int
-    height_inches: int
-    weight_lbs: float
+    # Profile fields for personalized dosing (optional - collected in onboarding)
+    age: Optional[int] = None
+    sex: Optional[str] = None  # "male", "female", "other"
+    height_feet: Optional[int] = None
+    height_inches: Optional[int] = None
+    weight_lbs: Optional[float] = None
     # Lifestyle quiz fields
     region: Optional[str] = None  # northern, central, southern, gulf
     activity_level: Optional[str] = None  # sedentary, light, moderate, active, athlete
