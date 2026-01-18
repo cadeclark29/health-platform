@@ -6928,6 +6928,9 @@
             const params = new URLSearchParams(window.location.search);
             const wasOnboarding = localStorage.getItem('onboardingInProgress') === 'true';
 
+            console.log('checkOuraCallback - URL params:', window.location.search);
+            console.log('checkOuraCallback - wasOnboarding:', wasOnboarding);
+
             if (params.get('oura_connected') === 'true') {
                 showStatus('Oura Ring connected successfully!', 'success');
                 // Clean URL
@@ -6935,7 +6938,10 @@
 
                 // Resume onboarding if it was in progress
                 if (wasOnboarding) {
+                    console.log('Resuming onboarding after successful Oura connect');
                     resumeOnboardingAfterOAuth(true);
+                } else {
+                    console.log('Not in onboarding, showing dashboard');
                 }
             } else if (params.get('oura_error')) {
                 showStatus('Failed to connect Oura: ' + params.get('oura_error'), 'error');
@@ -6943,13 +6949,16 @@
 
                 // Resume onboarding even on error (let user skip Oura)
                 if (wasOnboarding) {
+                    console.log('Resuming onboarding after Oura error');
                     resumeOnboardingAfterOAuth(false);
                 }
             }
         }
 
         // Resume onboarding after Oura OAuth redirect
-        function resumeOnboardingAfterOAuth(ouraConnected) {
+        function resumeOnboardingAfterOAuth(ouraConnectedStatus) {
+            console.log('Resuming onboarding after OAuth, connected:', ouraConnectedStatus);
+
             // Restore saved onboarding data
             const savedData = localStorage.getItem('onboardingData');
             const savedStep = localStorage.getItem('onboardingStep');
@@ -6959,11 +6968,17 @@
                     onboardingData = JSON.parse(savedData);
                 } catch (e) {
                     console.error('Failed to parse saved onboarding data');
+                    // Reset to defaults if parse fails
+                    onboardingData = {
+                        age: null, sex: null, height_feet: null, height_inches: null, weight_lbs: null,
+                        region: null, activity_level: null, work_environment: null, diet_type: null,
+                        chronotype: null, ouraConnected: false, selectedSupplements: [], goals: []
+                    };
                 }
             }
 
             // Mark Oura as connected in onboarding data
-            onboardingData.ouraConnected = ouraConnected;
+            onboardingData.ouraConnected = ouraConnectedStatus;
 
             // Clean up localStorage
             localStorage.removeItem('onboardingData');
@@ -6971,10 +6986,16 @@
             // Keep onboardingInProgress until completion
 
             // Show onboarding modal and go to the right step
-            document.getElementById('onboarding-modal').classList.remove('hidden');
-            lastRenderedStep = 0; // Reset to ensure animation plays
-            const resumeStep = parseInt(savedStep) || 5;
-            renderOnboardingStep(resumeStep);
+            const modal = document.getElementById('onboarding-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                lastRenderedStep = 0; // Reset to ensure animation plays
+                const resumeStep = parseInt(savedStep) || 5;
+                console.log('Rendering onboarding step:', resumeStep);
+                renderOnboardingStep(resumeStep);
+            } else {
+                console.error('Onboarding modal not found');
+            }
         }
 
         // Status messages
