@@ -628,32 +628,66 @@
 
         .smart-rec-supp-list {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 8px;
         }
 
         .smart-rec-supp-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 20px;
-            font-size: 0.85em;
-            color: #C4B5FD;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
         }
 
         .smart-rec-supp-item.logged {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.08);
+            border-color: rgba(34, 197, 94, 0.25);
+        }
+
+        .smart-rec-supp-timing {
+            font-size: 1.1em;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .smart-rec-supp-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .supp-name {
+            font-weight: 500;
+            font-size: 0.95em;
+            color: #E8E8E8;
+            margin-bottom: 2px;
+        }
+
+        .smart-rec-supp-item.logged .supp-name {
             color: #86EFAC;
         }
 
+        .supp-timing-note {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .smart-rec-supp-dose {
+            font-size: 0.85em;
+            color: #A78BFA;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .smart-rec-supp-check {
-            width: 14px;
-            height: 14px;
+            width: 18px;
+            height: 18px;
             color: #22C55E;
+            flex-shrink: 0;
         }
 
         .smart-rec-take-btn.logged {
@@ -773,6 +807,137 @@
 
         .progress-summary strong {
             color: #C4B5FD;
+        }
+
+        /* Impact Summary Section */
+        .impact-summary-section {
+            margin-bottom: 20px;
+        }
+
+        .impact-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .impact-summary-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .impact-summary-header .view-all {
+            font-size: 0.85em;
+            color: #A78BFA;
+            cursor: pointer;
+        }
+
+        .impact-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .impact-card {
+            display: flex;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            transition: all 0.2s;
+        }
+
+        .impact-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .impact-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        .impact-card-icon.positive {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .impact-card-icon.negative {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .impact-card-icon.neutral {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .impact-card-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .impact-card-name {
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .impact-card-detail {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .impact-card-metric {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .impact-card-metric.positive {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .impact-card-metric.negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .impact-card-metric.neutral {
+            background: rgba(255, 255, 255, 0.08);
+            color: #888;
+        }
+
+        .impact-card-metric.loading {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+        }
+
+        .impact-card-days {
+            font-size: 0.8em;
+            color: #666;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .impact-empty {
+            text-align: center;
+            padding: 24px;
+            color: #666;
+            font-size: 0.9em;
         }
 
         /* Main Dispenser Layout */
@@ -5496,6 +5661,17 @@
                 <div class="progress-summary" id="progress-summary"></div>
             </div>
 
+            <!-- Supplement Impact Summary -->
+            <div class="card impact-summary-section" id="impact-summary-section">
+                <div class="impact-summary-header">
+                    <h3>Supplement Impact</h3>
+                    <span class="view-all" onclick="switchMainTab('analytics')">View Details →</span>
+                </div>
+                <div class="impact-cards" id="impact-cards">
+                    <div class="impact-empty">Loading impact data...</div>
+                </div>
+            </div>
+
             <!-- Your Stack - Quick Log -->
             <div class="card todays-stack-card">
                 <div class="todays-stack-header">
@@ -8561,6 +8737,8 @@
                 loadSmartRecommendation();
                 // Load progress card
                 loadProgressCard();
+                // Load impact summary
+                loadImpactSummary();
             } catch (e) {
                 console.error('Error loading Your Stack:', e);
             }
@@ -8644,16 +8822,26 @@
                     <div class="smart-rec-reason">${subtitleText}</div>
                 `;
 
-                // Show supplements list
+                // Show supplements list with timing guidance
                 const suppListContainer = document.getElementById('smart-rec-supp-list');
                 if (suppListContainer && suppListEl) {
                     suppListContainer.innerHTML = supplements.map(s => {
                         const isLogged = todaysLogs[s.supplement_id] === timeOfDay;
                         const name = s.supplement_name || s.supplement_id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        const guidance = SUPPLEMENT_GUIDANCE[s.supplement_id] || {};
+                        const timingIcon = getTimingIcon(guidance.timing);
+                        const timingNote = guidance.timingNote || 'Take as directed';
+                        const dose = s.dosage || '';
+
                         return `
                             <div class="smart-rec-supp-item ${isLogged ? 'logged' : ''}">
+                                <div class="smart-rec-supp-timing">${timingIcon}</div>
+                                <div class="smart-rec-supp-info">
+                                    <div class="supp-name">${name}</div>
+                                    <div class="supp-timing-note">${timingNote}</div>
+                                </div>
+                                ${dose ? `<div class="smart-rec-supp-dose">${dose}</div>` : ''}
                                 ${isLogged ? '<svg class="smart-rec-supp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                                ${name}
                             </div>
                         `;
                     }).join('');
@@ -8873,7 +9061,7 @@
 
             // Sort health data by date
             const sorted = [...healthData].sort((a, b) =>
-                new Date(b.timestamp) - new Date(a.timestamp)
+                new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp)
             );
 
             // Get recent (last 7 days) vs previous (7-30 days ago) averages
@@ -8950,6 +9138,152 @@
             } else {
                 summaryEl.style.display = 'none';
             }
+        }
+
+        // Load Impact Summary for Dashboard
+        async function loadImpactSummary() {
+            if (!currentUserId) return;
+
+            const section = document.getElementById('impact-summary-section');
+            const cardsContainer = document.getElementById('impact-cards');
+            if (!section || !cardsContainer) return;
+
+            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+            const healthData = analyticsData?.health_data || [];
+
+            // Hide if no supplements
+            if (supplements.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            // Build impact cards for each supplement
+            const cards = [];
+
+            for (const supp of supplements) {
+                const guidance = SUPPLEMENT_GUIDANCE[supp.supplement_id] || {};
+                const affectedMetrics = guidance.affectedMetrics || ['recovery_score'];
+                const loadingDays = guidance.loadingDays || 28;
+                const primaryMetric = affectedMetrics[0];
+
+                const startDate = new Date(supp.start_date);
+                const today = new Date();
+                const daysOn = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+                // Get health data before and after start
+                const beforeData = healthData.filter(h => {
+                    const d = new Date(h.date);
+                    return d < startDate && d >= new Date(startDate - 14 * 24 * 60 * 60 * 1000);
+                });
+
+                const afterData = healthData.filter(h => {
+                    const d = new Date(h.date);
+                    return d >= startDate;
+                });
+
+                // Calculate averages for primary metric
+                const calcAvg = (data, field) => {
+                    const values = data.filter(d => d[field] != null).map(d => d[field]);
+                    return values.length >= 3 ? values.reduce((a, b) => a + b, 0) / values.length : null;
+                };
+
+                const beforeAvg = calcAvg(beforeData, primaryMetric);
+                const afterAvg = calcAvg(afterData, primaryMetric);
+
+                // Determine metric display name
+                const metricNames = {
+                    sleep_score: 'Sleep',
+                    hrv_score: 'HRV',
+                    recovery_score: 'Recovery',
+                    resting_hr: 'Resting HR'
+                };
+                const metricName = metricNames[primaryMetric] || primaryMetric;
+
+                // Calculate change
+                let changeText = '';
+                let changeClass = 'neutral';
+                let iconClass = 'neutral';
+
+                if (daysOn < 7) {
+                    // Not enough data yet
+                    changeText = `Day ${daysOn} of ~${loadingDays}`;
+                    changeClass = 'loading';
+                    iconClass = 'neutral';
+                } else if (beforeAvg !== null && afterAvg !== null) {
+                    const change = afterAvg - beforeAvg;
+                    const changePct = Math.round((change / beforeAvg) * 100);
+
+                    // For resting HR, lower is better
+                    const isPositive = primaryMetric === 'resting_hr' ? change < 0 : change > 0;
+
+                    if (Math.abs(changePct) < 3) {
+                        changeText = `${metricName} stable`;
+                        changeClass = 'neutral';
+                        iconClass = 'neutral';
+                    } else {
+                        const sign = changePct > 0 ? '+' : '';
+                        changeText = `${metricName} ${sign}${changePct}%`;
+                        changeClass = isPositive ? 'positive' : 'negative';
+                        iconClass = isPositive ? 'positive' : 'negative';
+                    }
+                } else {
+                    changeText = 'Gathering data...';
+                    changeClass = 'loading';
+                    iconClass = 'neutral';
+                }
+
+                const name = supp.supplement_name || supp.supplement_id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                const icon = getTimingIcon(guidance.timing);
+
+                cards.push({
+                    name,
+                    icon,
+                    daysOn,
+                    loadingDays,
+                    changeText,
+                    changeClass,
+                    iconClass,
+                    startDate: supp.start_date
+                });
+            }
+
+            // Sort by days on (longest first)
+            cards.sort((a, b) => b.daysOn - a.daysOn);
+
+            // Render cards (max 3 for dashboard)
+            const displayCards = cards.slice(0, 3);
+
+            if (displayCards.length === 0) {
+                cardsContainer.innerHTML = '<div class="impact-empty">Add supplements to track their impact</div>';
+                return;
+            }
+
+            cardsContainer.innerHTML = displayCards.map(card => `
+                <div class="impact-card">
+                    <div class="impact-card-icon ${card.iconClass}">${card.icon}</div>
+                    <div class="impact-card-content">
+                        <div class="impact-card-name">${card.name}</div>
+                        <div class="impact-card-detail">Started ${formatDate(card.startDate)}</div>
+                        <span class="impact-card-metric ${card.changeClass}">${card.changeText}</span>
+                    </div>
+                    <div class="impact-card-days">${card.daysOn}d</div>
+                </div>
+            `).join('');
+        }
+
+        // Format date for display
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'today';
+            if (diffDays === 1) return 'yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
         // Load all analytics data
@@ -9889,6 +10223,230 @@
 
         // Supplement library data
         let supplementLibrary = null;
+
+        // Supplement guidance: timing, dosage notes, and affected metrics
+        const SUPPLEMENT_GUIDANCE = {
+            vitamin_d3: {
+                timing: "morning",
+                timingNote: "Take with breakfast (fat helps absorption)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 60,
+                dosePerKg: null, // flat dose
+                notes: "Fat-soluble, takes 2-3 months to change blood levels"
+            },
+            fish_oil: {
+                timing: "meal",
+                timingNote: "Take with any meal",
+                affectedMetrics: ["hrv_score", "recovery_score"],
+                loadingDays: 28,
+                dosePerKg: null,
+                notes: "Reduces inflammation, supports heart health"
+            },
+            magnesium: {
+                timing: "evening",
+                timingNote: "Take 1-2hr before bed",
+                affectedMetrics: ["sleep_score", "hrv_score"],
+                loadingDays: 14,
+                dosePerKg: 4, // ~4mg per kg body weight
+                notes: "Promotes relaxation and sleep quality"
+            },
+            magnesium_glycinate: {
+                timing: "evening",
+                timingNote: "Take 1-2hr before bed",
+                affectedMetrics: ["sleep_score", "hrv_score"],
+                loadingDays: 14,
+                dosePerKg: 4,
+                notes: "Best form for sleep, highly absorbable"
+            },
+            zinc: {
+                timing: "evening",
+                timingNote: "Take with dinner (not with magnesium)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 21,
+                dosePerKg: null,
+                notes: "Don't take at same time as magnesium"
+            },
+            ashwagandha: {
+                timing: "evening",
+                timingNote: "Take in evening for stress/sleep",
+                affectedMetrics: ["hrv_score", "recovery_score", "sleep_score"],
+                loadingDays: 28,
+                dosePerKg: null,
+                notes: "Adaptogen, reduces cortisol over time"
+            },
+            l_theanine: {
+                timing: "flexible",
+                timingNote: "Morning for focus, evening for calm",
+                affectedMetrics: ["hrv_score", "sleep_score"],
+                loadingDays: 1, // works quickly
+                dosePerKg: null,
+                notes: "Works within 30-60 minutes"
+            },
+            melatonin: {
+                timing: "evening",
+                timingNote: "Take 30-60min before bed",
+                affectedMetrics: ["sleep_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Start with lowest effective dose (0.5-1mg)"
+            },
+            creatine: {
+                timing: "anytime",
+                timingNote: "Take anytime, consistency matters",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 28,
+                dosePerKg: 0.03, // ~3g for 100kg person
+                notes: "Takes 2-4 weeks to saturate muscles"
+            },
+            glycine: {
+                timing: "evening",
+                timingNote: "Take before bed",
+                affectedMetrics: ["sleep_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Improves sleep quality, works quickly"
+            },
+            rhodiola: {
+                timing: "morning",
+                timingNote: "Take in morning on empty stomach",
+                affectedMetrics: ["recovery_score", "hrv_score"],
+                loadingDays: 14,
+                dosePerKg: null,
+                notes: "Adaptogen for energy and stress"
+            },
+            gaba: {
+                timing: "evening",
+                timingNote: "Take 30-60min before bed",
+                affectedMetrics: ["sleep_score", "hrv_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Promotes relaxation"
+            },
+            vitamin_b12: {
+                timing: "morning",
+                timingNote: "Take in morning (can be energizing)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 30,
+                dosePerKg: null,
+                notes: "Essential for vegans/vegetarians"
+            },
+            b_complex: {
+                timing: "morning",
+                timingNote: "Take with breakfast",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 14,
+                dosePerKg: null,
+                notes: "Can be energizing, avoid late in day"
+            },
+            coq10: {
+                timing: "morning",
+                timingNote: "Take with breakfast (fat helps)",
+                affectedMetrics: ["recovery_score", "hrv_score"],
+                loadingDays: 28,
+                dosePerKg: null,
+                notes: "Supports cellular energy production"
+            },
+            lions_mane: {
+                timing: "morning",
+                timingNote: "Take in morning for cognitive benefits",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 28,
+                dosePerKg: null,
+                notes: "Supports brain health and focus"
+            },
+            turmeric: {
+                timing: "meal",
+                timingNote: "Take with meals (fat + black pepper help)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 28,
+                dosePerKg: null,
+                notes: "Anti-inflammatory, pair with black pepper"
+            },
+            collagen: {
+                timing: "anytime",
+                timingNote: "Take anytime, consistency matters",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 60,
+                dosePerKg: null,
+                notes: "Takes 2-3 months to see skin/joint benefits"
+            },
+            iron: {
+                timing: "morning",
+                timingNote: "Take on empty stomach (not with calcium)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 60,
+                dosePerKg: null,
+                notes: "Vitamin C improves absorption"
+            },
+            probiotics: {
+                timing: "morning",
+                timingNote: "Take on empty stomach in morning",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 14,
+                dosePerKg: null,
+                notes: "Best on empty stomach"
+            },
+            electrolytes: {
+                timing: "flexible",
+                timingNote: "During/after exercise or in morning",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Hydration support"
+            },
+            caffeine: {
+                timing: "morning",
+                timingNote: "Take before noon (avoid late day)",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Avoid within 8-10hr of bedtime"
+            },
+            vitamin_c: {
+                timing: "anytime",
+                timingNote: "Take anytime with food",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 7,
+                dosePerKg: null,
+                notes: "Water-soluble, excess is excreted"
+            },
+            multivitamin: {
+                timing: "morning",
+                timingNote: "Take with breakfast",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 30,
+                dosePerKg: null,
+                notes: "General nutritional insurance"
+            },
+            protein_powder: {
+                timing: "flexible",
+                timingNote: "Post-workout or anytime for protein needs",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 1,
+                dosePerKg: null,
+                notes: "Aim for ~1.6g protein/kg body weight daily"
+            },
+            elderberry: {
+                timing: "anytime",
+                timingNote: "Take daily for immune support",
+                affectedMetrics: ["recovery_score"],
+                loadingDays: 7,
+                dosePerKg: null,
+                notes: "Immune support"
+            }
+        };
+
+        // Get timing icon based on timing type
+        function getTimingIcon(timing) {
+            switch(timing) {
+                case 'morning': return '☀️';
+                case 'evening': return '🌙';
+                case 'meal': return '🍽️';
+                case 'flexible': return '⏰';
+                case 'anytime': return '✓';
+                default: return '💊';
+            }
+        }
 
         // Load supplement library
         async function loadSupplementLibrary() {
