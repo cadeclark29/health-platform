@@ -1072,6 +1072,28 @@
             background: linear-gradient(90deg, #8B5CF6, #7C3AED);
         }
 
+        /* Onboarding navigation buttons */
+        .onboarding-nav {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .onboarding-nav .onboarding-btn {
+            flex: 1;
+        }
+
+        .onboarding-btn.back {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        .onboarding-btn.back:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #E8E8E8;
+        }
+
         .onboarding-feature-card {
             display: flex;
             align-items: flex-start;
@@ -1290,12 +1312,20 @@
         /* Selected Supplements Section */
         .selected-supps-section {
             margin-bottom: 16px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         .selected-supps-label {
             font-size: 0.85em;
             color: #888;
             margin-bottom: 8px;
+            position: sticky;
+            top: 0;
+            background: #121212;
+            padding: 4px 0;
+            z-index: 1;
         }
 
         .selected-supp-card {
@@ -1380,6 +1410,7 @@
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+            position: relative;
         }
 
         .goal-option:hover {
@@ -1401,6 +1432,15 @@
         .goal-option .goal-name {
             color: #E8E8E8;
             font-weight: 500;
+        }
+
+        .goal-option .goal-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #8B5CF6;
+            font-size: 1.2em;
+            font-weight: bold;
         }
 
         /* Completion */
@@ -5358,8 +5398,8 @@
             ouraConnected: false,
             // Step 5: Supplements
             selectedSupplements: [], // { id, name, dosage, duration }
-            // Step 6: Goal
-            goal: null
+            // Step 6: Goals (multi-select)
+            goals: []
         };
 
         // Icons for common supplements (used in onboarding search)
@@ -5410,7 +5450,7 @@
                 chronotype: null,
                 ouraConnected: false,
                 selectedSupplements: [],
-                goal: null
+                goals: []
             };
             renderOnboardingStep(1);
         }
@@ -5465,6 +5505,12 @@
 
         function nextOnboardingStep() {
             renderOnboardingStep(onboardingStep + 1);
+        }
+
+        function prevOnboardingStep() {
+            if (onboardingStep > 1) {
+                renderOnboardingStep(onboardingStep - 1);
+            }
         }
 
         // Step 1: About You (age, sex, height, weight)
@@ -5569,12 +5615,10 @@
                         <!-- Populated dynamically -->
                     </div>
 
-                    <button class="onboarding-btn primary" onclick="nextOnboardingStep()">
-                        Continue
-                    </button>
-                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
-                        Skip for now
-                    </button>
+                    <div class="onboarding-nav">
+                        <button class="onboarding-btn back" onclick="prevOnboardingStep()">← Back</button>
+                        <button class="onboarding-btn primary" onclick="nextOnboardingStep()">Continue</button>
+                    </div>
                 </div>
             `;
         }
@@ -5680,6 +5724,9 @@
                     <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
                         Skip for now
                     </button>
+                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                        ← Back
+                    </button>
                 </div>
             `;
         }
@@ -5690,8 +5737,6 @@
                 card.classList.remove('selected');
             });
             event.currentTarget.classList.add('selected');
-            // Auto-advance after brief delay
-            setTimeout(() => nextOnboardingStep(), 400);
         }
 
         // Step 4: Connect Oura
@@ -5715,6 +5760,9 @@
                     </button>
                     <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
                         Skip for now
+                    </button>
+                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                        ← Back
                     </button>
                 </div>
             `;
@@ -5781,6 +5829,9 @@
 
                     <button class="onboarding-btn ${hasSelected ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
                         ${hasSelected ? 'Continue' : 'Skip for now'}
+                    </button>
+                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                        ← Back
                     </button>
                 </div>
             `;
@@ -5887,7 +5938,7 @@
             }
         }
 
-        // Step 3: Set Goal
+        // Step 3: Set Goal (multi-select)
         function getStepGoalHTML() {
             const goals = [
                 { id: 'sleep', icon: '😴', name: 'Better Sleep' },
@@ -5896,38 +5947,59 @@
                 { id: 'wellness', icon: '🌿', name: 'General Wellness' }
             ];
 
+            // Ensure goals is an array
+            if (!Array.isArray(onboardingData.goals)) {
+                onboardingData.goals = [];
+            }
+
             const goalsHTML = goals.map(goal => `
-                <div class="goal-option ${onboardingData.goal === goal.id ? 'selected' : ''}"
-                     onclick="selectOnboardingGoal('${goal.id}')">
+                <div class="goal-option ${onboardingData.goals.includes(goal.id) ? 'selected' : ''}"
+                     onclick="toggleOnboardingGoal('${goal.id}')">
                     <span class="goal-icon">${goal.icon}</span>
                     <span class="goal-name">${goal.name}</span>
+                    <span class="goal-check">${onboardingData.goals.includes(goal.id) ? '✓' : ''}</span>
                 </div>
             `).join('');
+
+            const hasGoals = onboardingData.goals.length > 0;
 
             return `
                 <div class="onboarding-step-content">
                     <div class="onboarding-illustration">🎯</div>
                     <h2>What's your focus?</h2>
-                    <p class="onboarding-subtitle">This helps us personalize your recommendations</p>
+                    <p class="onboarding-subtitle">Select all that apply</p>
 
                     <div class="goal-options">
                         ${goalsHTML}
                     </div>
 
-                    <button class="onboarding-btn secondary" onclick="nextOnboardingStep()">
-                        Skip for now
+                    <button class="onboarding-btn ${hasGoals ? 'primary' : 'secondary'}" onclick="nextOnboardingStep()">
+                        ${hasGoals ? 'Continue' : 'Skip for now'}
+                    </button>
+                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                        ← Back
                     </button>
                 </div>
             `;
         }
 
-        function selectOnboardingGoal(goal) {
-            onboardingData.goal = goal;
-            // Update UI
-            document.querySelectorAll('.goal-option').forEach(el => el.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            // Auto-advance after short delay
-            setTimeout(() => nextOnboardingStep(), 400);
+        function toggleOnboardingGoal(goal) {
+            // Ensure goals is an array
+            if (!Array.isArray(onboardingData.goals)) {
+                onboardingData.goals = [];
+            }
+
+            const idx = onboardingData.goals.indexOf(goal);
+            if (idx > -1) {
+                // Remove it
+                onboardingData.goals.splice(idx, 1);
+            } else {
+                // Add it
+                onboardingData.goals.push(goal);
+            }
+
+            // Re-render the step to update UI
+            renderOnboardingStep(6);
         }
 
         // Completion Screen
@@ -5957,9 +6029,12 @@
                 energy: 'Energy & Focus',
                 wellness: 'General Wellness'
             };
-            const goalStatus = onboardingData.goal
-                ? `<span class="summary-icon">✓</span> Goal: ${goalNames[onboardingData.goal]}`
-                : '<span class="summary-icon">—</span> No goal set';
+            const goalsArray = onboardingData.goals || [];
+            const hasGoals = goalsArray.length > 0;
+            const goalsList = goalsArray.map(g => goalNames[g] || g).join(', ');
+            const goalStatus = hasGoals
+                ? `<span class="summary-icon">✓</span> Goals: ${goalsList}`
+                : '<span class="summary-icon">—</span> No goals set';
 
             return `
                 <div class="onboarding-step-content">
@@ -5972,11 +6047,14 @@
                         <div class="summary-item ${lifestyleComplete ? 'completed' : ''}">${lifestyleStatus}</div>
                         <div class="summary-item ${(onboardingData.ouraConnected || ouraConnected) ? 'completed' : ''}">${ouraStatus}</div>
                         <div class="summary-item ${suppCount > 0 ? 'completed' : ''}">${suppStatus}</div>
-                        <div class="summary-item ${onboardingData.goal ? 'completed' : ''}">${goalStatus}</div>
+                        <div class="summary-item ${hasGoals ? 'completed' : ''}">${goalStatus}</div>
                     </div>
 
                     <button class="onboarding-btn primary" onclick="completeOnboarding()">
                         Go to Dashboard
+                    </button>
+                    <button class="onboarding-btn back" onclick="prevOnboardingStep()">
+                        ← Back
                     </button>
                 </div>
             `;
@@ -6036,8 +6114,11 @@
                 // Add sleep/chronotype if provided
                 if (onboardingData.chronotype) profileData.chronotype = onboardingData.chronotype;
 
-                // Add goal if provided
-                if (onboardingData.goal) profileData.health_goal = onboardingData.goal;
+                // Add goals if provided (save first as primary health_goal, all in goals array)
+                if (onboardingData.goals && onboardingData.goals.length > 0) {
+                    profileData.health_goal = onboardingData.goals[0]; // Primary goal
+                    profileData.goals = onboardingData.goals; // All goals
+                }
 
                 await fetch(`/users/${currentUserId}`, {
                     method: 'PATCH',
@@ -6050,6 +6131,7 @@
 
             // Close modal and refresh data
             closeOnboarding();
+            await loadAnalyticsData(); // Reload analytics to get new supplements
             loadAllData();
             showStatus('Welcome to Dose! Your dashboard is ready.', 'success');
         }
