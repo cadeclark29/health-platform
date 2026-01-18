@@ -940,6 +940,140 @@
             font-size: 0.9em;
         }
 
+        /* Your Coach Says Section */
+        .coach-section {
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.04) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+        }
+
+        .coach-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .coach-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #E8E8E8;
+        }
+
+        .coach-icon {
+            color: #A78BFA;
+        }
+
+        .coach-status {
+            font-size: 0.75em;
+            color: #666;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .coach-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .coach-loading {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .coach-loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #A78BFA;
+            border-radius: 50%;
+            animation: coachPulse 1.4s ease-in-out infinite;
+        }
+
+        .coach-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .coach-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes coachPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .coach-recommendation {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .coach-recommendation:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .coach-rec-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1em;
+        }
+
+        .coach-rec-icon.action { background: rgba(34, 197, 94, 0.15); }
+        .coach-rec-icon.insight { background: rgba(59, 130, 246, 0.15); }
+        .coach-rec-icon.warning { background: rgba(251, 191, 36, 0.15); }
+        .coach-rec-icon.tip { background: rgba(139, 92, 246, 0.15); }
+
+        .coach-rec-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .coach-rec-title {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #E8E8E8;
+            margin-bottom: 4px;
+        }
+
+        .coach-rec-detail {
+            font-size: 0.82em;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .coach-rec-tag {
+            font-size: 0.7em;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .coach-rec-tag.priority { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+        .coach-rec-tag.optimize { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+        .coach-rec-tag.learn { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+        .coach-rec-tag.timing { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
+
+        .coach-empty {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
         /* Main Dispenser Layout */
         .dispenser-layout {
             display: grid;
@@ -4645,6 +4779,25 @@
             margin-bottom: 12px;
         }
 
+        .insight-mechanism {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.8em;
+            color: #A0A0A0;
+            line-height: 1.45;
+        }
+
+        .insight-mechanism-icon {
+            flex-shrink: 0;
+            color: #A78BFA;
+            margin-top: 1px;
+        }
+
         .insight-supp-name {
             font-weight: 600;
             color: #E8E8E8;
@@ -5110,6 +5263,52 @@
         /* When empty state is the only child, don't use grid */
         .stack-pills:has(.stack-empty:only-child) {
             display: block;
+        }
+
+        /* When stack sections are present, use flex column */
+        .stack-pills:has(.stack-section) {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stack-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .stack-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .stack-section-icon {
+            color: #A78BFA;
+            flex-shrink: 0;
+        }
+
+        .stack-section-title {
+            font-weight: 600;
+            color: #E8E8E8;
+            font-size: 0.95em;
+        }
+
+        .stack-section-hint {
+            font-size: 0.75em;
+            color: #666;
+            margin-left: auto;
+        }
+
+        .stack-section-pills {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
         }
 
         .stack-pill {
@@ -6309,6 +6508,26 @@
                 </div>
             </div>
 
+            <!-- Your Coach Says - Personalized Recommendations -->
+            <div class="card coach-section" id="coach-section">
+                <div class="coach-header">
+                    <div class="coach-title">
+                        <svg class="coach-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                            <path d="M12 2L15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        <span>Your Coach Says</span>
+                    </div>
+                    <span class="coach-status" id="coach-status">Analyzing...</span>
+                </div>
+                <div class="coach-content" id="coach-content">
+                    <div class="coach-loading">
+                        <div class="coach-loading-dot"></div>
+                        <div class="coach-loading-dot"></div>
+                        <div class="coach-loading-dot"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Your Stack - Quick Log -->
             <div class="card todays-stack-card">
                 <div class="todays-stack-header">
@@ -6910,6 +7129,61 @@
         let healthChart = null;
         let analyticsData = null;
         let supplementList = []; // List of all supplements for dropdown
+
+        // Supplement timing - determines Morning vs Evening stack
+        const SUPPLEMENT_TIMING = {
+            // Evening supplements (take before bed)
+            'magnesium_glycinate': 'evening',
+            'magnesium': 'evening',
+            'glycine': 'evening',
+            'melatonin': 'evening',
+            'l_theanine': 'evening',
+            'ashwagandha': 'evening',
+            'valerian': 'evening',
+            'gaba': 'evening',
+            'zinc': 'evening',  // Better absorbed at night, away from other minerals
+
+            // Morning supplements (take with breakfast or AM)
+            'vitamin_d3': 'morning',
+            'vitamin_d': 'morning',
+            'fish_oil': 'morning',
+            'omega_3': 'morning',
+            'vitamin_b12': 'morning',
+            'vitamin_b_complex': 'morning',
+            'iron': 'morning',
+            'coq10': 'morning',
+            'alpha_lipoic_acid': 'morning',
+            'creatine': 'morning',  // Timing flexible, but morning is common
+            'caffeine': 'morning',
+            'rhodiola': 'morning',
+            'cordyceps': 'morning',
+            'lions_mane': 'morning',
+
+            // Default: morning for unspecified supplements
+        };
+
+        // Supplement mechanisms - explains WHY each supplement works
+        const SUPPLEMENT_MECHANISMS = {
+            'magnesium_glycinate': 'Glycine crosses the blood-brain barrier, promoting GABA activity for deeper sleep. Magnesium relaxes muscles and calms the nervous system.',
+            'magnesium': 'Regulates neurotransmitters and melatonin production. Deficiency is linked to poor sleep quality.',
+            'glycine': 'Acts on NMDA receptors to lower core body temperature, a key trigger for sleep onset.',
+            'vitamin_d3': 'Regulates circadian rhythm genes and supports immune function. Most people are deficient, especially in winter.',
+            'vitamin_d': 'Supports calcium absorption and immune function. Low levels correlate with poor sleep and mood.',
+            'fish_oil': 'EPA/DHA reduce inflammation markers and support brain cell membrane fluidity, improving neural signaling.',
+            'omega_3': 'Essential fatty acids that reduce systemic inflammation and support cardiovascular and cognitive function.',
+            'vitamin_b12': 'Critical for red blood cell formation and neurological function. Deficiency causes fatigue and brain fog.',
+            'l_theanine': 'Promotes alpha brain waves associated with calm alertness. Increases GABA, serotonin, and dopamine.',
+            'ashwagandha': 'Adaptogen that reduces cortisol levels by up to 30%. Supports HPA axis recovery from chronic stress.',
+            'creatine': 'Increases phosphocreatine stores in muscles and brain. Supports ATP regeneration for power output and cognitive function.',
+            'coq10': 'Essential for mitochondrial energy production. Levels decline with age and statin use.',
+            'zinc': 'Cofactor for 300+ enzymes. Supports immune function and testosterone production. Best absorbed at night.',
+            'iron': 'Carries oxygen in hemoglobin. Deficiency causes fatigue. Take with vitamin C for better absorption.',
+            'melatonin': 'Directly signals sleep onset to the brain. Best for jet lag and shift work, not long-term use.',
+            'rhodiola': 'Adaptogen that increases stress resistance and reduces mental fatigue by modulating cortisol.',
+            'caffeine': 'Blocks adenosine receptors, reducing perceived fatigue. Half-life of 5-6 hours.',
+            'lions_mane': 'Stimulates nerve growth factor (NGF) production, supporting neuroplasticity and cognitive function.',
+            'cordyceps': 'Increases ATP production and oxygen utilization. Traditionally used for endurance and vitality.',
+        };
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -9978,6 +10252,8 @@
                 loadProgressCard();
                 // Load impact summary
                 loadImpactSummary();
+                // Load coaching recommendations
+                loadCoachingRecommendations();
             } catch (e) {
                 console.error('Error loading Your Stack:', e);
             }
@@ -10525,6 +10801,189 @@
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
+        // Load coaching recommendations for dashboard
+        function loadCoachingRecommendations() {
+            const section = document.getElementById('coach-section');
+            const content = document.getElementById('coach-content');
+            const status = document.getElementById('coach-status');
+
+            if (!section || !content) return;
+
+            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+            const healthData = analyticsData?.health_data || [];
+            const logs = analyticsData?.supplement_logs || [];
+
+            // Hide if no data to analyze
+            if (supplements.length === 0 && healthData.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            const recommendations = [];
+
+            // ======= Generate personalized recommendations =======
+
+            // 1. Check for low adherence supplements
+            supplements.forEach(supp => {
+                const suppLogs = logs.filter(l => l.supplement_id === supp.supplement_id && l.taken);
+                const startDate = new Date(supp.start_date);
+                const daysOn = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+
+                if (daysOn > 7) {
+                    const adherence = Math.round((suppLogs.length / daysOn) * 100);
+                    if (adherence < 70) {
+                        const suppName = supp.supplement_name || formatSupplementName(supp.supplement_id);
+                        recommendations.push({
+                            type: 'warning',
+                            icon: '⚡',
+                            title: `Boost your ${suppName} consistency`,
+                            detail: `${adherence}% adherence over ${daysOn} days. Most supplements need consistent daily use for 2-4 weeks to show results. Try setting a phone reminder!`,
+                            tag: 'priority',
+                            tagText: 'Priority'
+                        });
+                    }
+                }
+            });
+
+            // 2. Check for positive trends
+            if (healthData.length >= 14) {
+                const recent7 = healthData.slice(-7);
+                const prev7 = healthData.slice(-14, -7);
+
+                const calcAvg = (data, field) => {
+                    const vals = data.filter(d => d[field] != null).map(d => d[field]);
+                    return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+                };
+
+                const recentSleep = calcAvg(recent7, 'sleep_score');
+                const prevSleep = calcAvg(prev7, 'sleep_score');
+
+                if (recentSleep && prevSleep && recentSleep > prevSleep + 3) {
+                    const improvement = Math.round(recentSleep - prevSleep);
+                    recommendations.push({
+                        type: 'insight',
+                        icon: '📈',
+                        title: `Sleep improving +${improvement} pts`,
+                        detail: `Your sleep score has improved significantly over the past week. Keep up your current supplement routine and sleep habits!`,
+                        tag: 'optimize',
+                        tagText: 'Working'
+                    });
+                }
+
+                const recentHRV = calcAvg(recent7, 'hrv_score');
+                const prevHRV = calcAvg(prev7, 'hrv_score');
+
+                if (recentHRV && prevHRV && recentHRV > prevHRV + 5) {
+                    const improvement = Math.round(recentHRV - prevHRV);
+                    recommendations.push({
+                        type: 'insight',
+                        icon: '💓',
+                        title: `HRV trending up +${improvement} ms`,
+                        detail: `Your HRV is improving, indicating better recovery and stress resilience. This often correlates with magnesium and sleep quality improvements.`,
+                        tag: 'optimize',
+                        tagText: 'Working'
+                    });
+                }
+            }
+
+            // 3. Check for supplements near their "loading period" completion
+            supplements.forEach(supp => {
+                const guidance = SUPPLEMENT_GUIDANCE[supp.supplement_id] || {};
+                const loadingDays = guidance.loadingDays || 28;
+                const startDate = new Date(supp.start_date);
+                const daysOn = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+                const suppName = supp.supplement_name || formatSupplementName(supp.supplement_id);
+
+                if (daysOn >= loadingDays - 3 && daysOn <= loadingDays + 7) {
+                    recommendations.push({
+                        type: 'tip',
+                        icon: '🎯',
+                        title: `${suppName}: Results window`,
+                        detail: `You've been taking ${suppName} for ${daysOn} days. This is typically when you should start seeing measurable effects. Check your Impact Analysis!`,
+                        tag: 'learn',
+                        tagText: 'Milestone'
+                    });
+                }
+            });
+
+            // 4. Timing optimization tips
+            const hasMorningSupps = supplements.some(s => (SUPPLEMENT_TIMING[s.supplement_id] || 'morning') === 'morning');
+            const hasEveningSupps = supplements.some(s => SUPPLEMENT_TIMING[s.supplement_id] === 'evening');
+
+            if (hasMorningSupps && hasEveningSupps) {
+                // User has both morning and evening supplements - give timing tip
+                const eveningSupps = supplements
+                    .filter(s => SUPPLEMENT_TIMING[s.supplement_id] === 'evening')
+                    .map(s => s.supplement_name || formatSupplementName(s.supplement_id));
+
+                if (eveningSupps.length > 0 && recommendations.length < 2) {
+                    recommendations.push({
+                        type: 'tip',
+                        icon: '🌙',
+                        title: 'Evening timing reminder',
+                        detail: `Take ${eveningSupps.slice(0, 2).join(' and ')} 1-2 hours before bed for best results. They support relaxation and sleep quality.`,
+                        tag: 'timing',
+                        tagText: 'Timing'
+                    });
+                }
+            }
+
+            // 5. New supplement guidance
+            const newSupplements = supplements.filter(s => {
+                const daysOn = Math.floor((new Date() - new Date(s.start_date)) / (1000 * 60 * 60 * 24));
+                return daysOn <= 7;
+            });
+
+            newSupplements.forEach(supp => {
+                const suppName = supp.supplement_name || formatSupplementName(supp.supplement_id);
+                const guidance = SUPPLEMENT_GUIDANCE[supp.supplement_id] || {};
+                const loadingDays = guidance.loadingDays || 28;
+                const mechanism = SUPPLEMENT_MECHANISMS[supp.supplement_id];
+
+                if (recommendations.length < 4 && mechanism) {
+                    recommendations.push({
+                        type: 'tip',
+                        icon: '📚',
+                        title: `Getting started with ${suppName}`,
+                        detail: `Most people see results in ${loadingDays} days. Keep logging daily - we'll track your progress automatically.`,
+                        tag: 'learn',
+                        tagText: 'New'
+                    });
+                }
+            });
+
+            // ======= Render recommendations =======
+
+            // Limit to top 3 most relevant
+            const topRecs = recommendations.slice(0, 3);
+
+            if (topRecs.length === 0) {
+                // No specific recommendations - show general encouragement
+                status.textContent = 'All good!';
+                content.innerHTML = `
+                    <div class="coach-empty">
+                        <div style="font-size: 1.5em; margin-bottom: 8px;">✨</div>
+                        <div>You're on track! Keep logging your supplements daily.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            status.textContent = `${topRecs.length} recommendation${topRecs.length > 1 ? 's' : ''}`;
+
+            content.innerHTML = topRecs.map(rec => `
+                <div class="coach-recommendation">
+                    <div class="coach-rec-icon ${rec.type}">${rec.icon}</div>
+                    <div class="coach-rec-content">
+                        <div class="coach-rec-title">${rec.title}</div>
+                        <div class="coach-rec-detail">${rec.detail}</div>
+                        <span class="coach-rec-tag ${rec.tag}">${rec.tagText}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Load all analytics data
         async function loadAnalyticsData() {
             if (!currentUserId) return;
@@ -10612,6 +11071,10 @@
                         badgeText = `${sign}${insight.change_pct}%`;
                     }
 
+                    // Get mechanism explanation for this supplement
+                    const suppIdLower = (insight.supplement_id || insight.supplement_name.toLowerCase().replace(/\s+/g, '_')).toLowerCase();
+                    const mechanism = SUPPLEMENT_MECHANISMS[suppIdLower] || SUPPLEMENT_MECHANISMS[suppIdLower.replace('-', '_')];
+
                     html += `
                         <div class="insight-card ${cardClass}">
                             <div class="insight-header">
@@ -10621,6 +11084,16 @@
                                 </div>
                                 <div class="insight-badge ${badgeClass}">${badgeText}</div>
                             </div>
+                            ${mechanism ? `
+                            <div class="insight-mechanism">
+                                <svg class="insight-mechanism-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <span>${mechanism}</span>
+                            </div>
+                            ` : ''}
                     `;
 
                     if (hasData) {
@@ -10988,7 +11461,7 @@
             renderTodaysStack(activeSupplements, loggedOnDate);
         }
 
-        // Render Today's Stack pills
+        // Render Today's Stack pills - split into Morning and Evening sections
         function renderTodaysStack(supplements, loggedToday) {
             const container = document.getElementById('stack-pills');
             if (!container) return;
@@ -11013,7 +11486,22 @@
                 return;
             }
 
-            let html = supplements.map(supp => {
+            // Split supplements into morning and evening based on SUPPLEMENT_TIMING
+            const morningSupps = [];
+            const eveningSupps = [];
+
+            supplements.forEach(supp => {
+                const suppId = supp.supplement_id;
+                const timing = SUPPLEMENT_TIMING[suppId] || 'morning'; // Default to morning
+                if (timing === 'evening') {
+                    eveningSupps.push(supp);
+                } else {
+                    morningSupps.push(supp);
+                }
+            });
+
+            // Helper to render a single pill
+            const renderPill = (supp) => {
                 const suppId = supp.supplement_id;
                 const suppName = supp.supplement_name || formatSupplementName(suppId);
                 const dosage = supp.dosage || '';
@@ -11030,7 +11518,53 @@
                         <div class="stack-pill-time">${isTaken ? (timeTaken === 'morning' ? 'AM' : 'PM') : ''}</div>
                     </div>
                 `;
-            }).join('');
+            };
+
+            let html = '';
+
+            // Morning Stack
+            if (morningSupps.length > 0) {
+                html += `
+                    <div class="stack-section">
+                        <div class="stack-section-header">
+                            <svg class="stack-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                <circle cx="12" cy="12" r="5"/>
+                                <line x1="12" y1="1" x2="12" y2="3"/>
+                                <line x1="12" y1="21" x2="12" y2="23"/>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                <line x1="1" y1="12" x2="3" y2="12"/>
+                                <line x1="21" y1="12" x2="23" y2="12"/>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                            </svg>
+                            <span class="stack-section-title">Morning Stack</span>
+                            <span class="stack-section-hint">Take with breakfast</span>
+                        </div>
+                        <div class="stack-section-pills">
+                            ${morningSupps.map(renderPill).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Evening Stack
+            if (eveningSupps.length > 0) {
+                html += `
+                    <div class="stack-section">
+                        <div class="stack-section-header">
+                            <svg class="stack-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                            </svg>
+                            <span class="stack-section-title">Evening Stack</span>
+                            <span class="stack-section-hint">Take 1-2hr before bed</span>
+                        </div>
+                        <div class="stack-section-pills">
+                            ${eveningSupps.map(renderPill).join('')}
+                        </div>
+                    </div>
+                `;
+            }
 
             // Add the "Add supplement" pill
             html += `
