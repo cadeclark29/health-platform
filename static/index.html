@@ -6783,11 +6783,18 @@
                     // Show onboarding to collect profile data
                     showOnboarding();
                 } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error creating account', 'error');
+                    // Handle both JSON and plain text error responses
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const err = await res.json();
+                        showStatus(err.detail || 'Error creating account', 'error');
+                    } else {
+                        const text = await res.text();
+                        showStatus(text || 'Error creating account. Please try again.', 'error');
+                    }
                 }
             } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
+                showStatus('Unable to connect. Please check your internet and try again.', 'error');
             }
         }
 
@@ -7730,11 +7737,18 @@
                     loadAllData();
                     showStatus('Welcome back!', 'success');
                 } else {
-                    const err = await res.json();
-                    showStatus(err.detail || 'Error signing in', 'error');
+                    // Handle both JSON and plain text error responses
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const err = await res.json();
+                        showStatus(err.detail || 'Error signing in', 'error');
+                    } else {
+                        const text = await res.text();
+                        showStatus(text || 'Error signing in. Please try again.', 'error');
+                    }
                 }
             } catch (e) {
-                showStatus('Error: ' + e.message, 'error');
+                showStatus('Unable to connect. Please check your internet and try again.', 'error');
             }
         }
 

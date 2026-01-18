@@ -92,45 +92,56 @@ class UserSignIn(BaseModel):
 @router.post("", response_model=UserResponse)
 def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     """Create a new user."""
-    # Check if email already exists
-    existing = db.query(User).filter(User.email == user_data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    try:
+        # Check if email already exists
+        existing = db.query(User).filter(User.email == user_data.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
 
-    user = User(
-        name=user_data.name,
-        email=user_data.email,
-        age=user_data.age,
-        sex=user_data.sex,
-        height_feet=user_data.height_feet,
-        height_inches=user_data.height_inches,
-        weight_lbs=user_data.weight_lbs,
-        region=user_data.region,
-        activity_level=user_data.activity_level,
-        work_environment=user_data.work_environment,
-        diet_type=user_data.diet_type,
-        bedtime=user_data.bedtime,
-        wake_time=user_data.wake_time,
-        chronotype=user_data.chronotype,
-        allergies=user_data.allergies,
-        medications=user_data.medications,
-        goals=user_data.goals
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        user = User(
+            name=user_data.name,
+            email=user_data.email,
+            age=user_data.age,
+            sex=user_data.sex,
+            height_feet=user_data.height_feet,
+            height_inches=user_data.height_inches,
+            weight_lbs=user_data.weight_lbs,
+            region=user_data.region,
+            activity_level=user_data.activity_level,
+            work_environment=user_data.work_environment,
+            diet_type=user_data.diet_type,
+            bedtime=user_data.bedtime,
+            wake_time=user_data.wake_time,
+            chronotype=user_data.chronotype,
+            allergies=user_data.allergies,
+            medications=user_data.medications,
+            goals=user_data.goals
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-    return _user_to_response(user)
+        return _user_to_response(user)
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to create account: {str(e)}")
 
 
 @router.post("/signin", response_model=UserResponse)
 def sign_in(signin_data: UserSignIn, db: Session = Depends(get_db)):
     """Sign in with an existing email."""
-    user = db.query(User).filter(User.email == signin_data.email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="No account found with this email")
+    try:
+        user = db.query(User).filter(User.email == signin_data.email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="No account found with this email")
 
-    return _user_to_response(user)
+        return _user_to_response(user)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to sign in: {str(e)}")
 
 
 @router.get("/{user_id}", response_model=UserResponse)
