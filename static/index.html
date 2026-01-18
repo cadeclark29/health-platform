@@ -1415,19 +1415,22 @@
         .dosage-input-wrapper {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .dosage-input-wrapper input {
             flex: 1;
             min-width: 0;
+            max-width: calc(100% - 50px);
         }
 
         .dosage-unit {
             font-size: 0.85em;
             color: #8B5CF6;
-            font-weight: 500;
+            font-weight: 600;
             white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 30px;
         }
 
         /* Goal Options */
