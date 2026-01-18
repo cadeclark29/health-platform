@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     whoop_client_secret: str = ""
     database_url: str = "sqlite:///./health_platform.db"
 
+    # Twilio Configuration for SMS
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_phone_number: str = ""  # Your Twilio phone number
+
 
 @lru_cache
 def get_settings() -> Settings:

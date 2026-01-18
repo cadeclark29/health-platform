@@ -9,16 +9,19 @@ from typing import Optional
 
 from app.db.database import engine, Base
 from app.db import get_db
-from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes, analytics
+from app.api import users, dispenser, integrations, upload, checkins, interactions, mixes, analytics, notifications
 from app.api.mixes import blends_router
 from app.models import User
 from app.integrations import OuraIntegration
+from app.services.scheduler import start_scheduler, shutdown_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    start_scheduler()
     yield
+    shutdown_scheduler()
 
 
 app = FastAPI(
@@ -37,6 +40,7 @@ app.include_router(interactions.router, prefix="/interactions", tags=["interacti
 app.include_router(blends_router, prefix="/mixes/blends", tags=["blends"])  # Must be before mixes router
 app.include_router(mixes.router, prefix="/mixes", tags=["mixes"])
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 # Serve static files
 static_path = Path(__file__).resolve().parent.parent / "static"
@@ -157,6 +161,13 @@ def run_migrations(db: Session = Depends(get_db)):
         # Add new columns to users table for onboarding
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS health_goal VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_complete VARCHAR",
+        # SMS notification fields
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verification_code VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verification_expires TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS timezone VARCHAR DEFAULT 'America/New_York'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS notification_preferences JSONB DEFAULT '{}'",
     ]
 
     results = []

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, JSON, Integer, Float
+from sqlalchemy import Column, String, DateTime, JSON, Integer, Float, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -92,6 +92,20 @@ class User(Base):
     # OAuth tokens for wearables
     oura_token = Column(JSON, nullable=True)
     whoop_token = Column(JSON, nullable=True)
+
+    # SMS Notification Fields
+    phone_number = Column(String, nullable=True)  # E.164 format: +1234567890
+    phone_verified = Column(Boolean, default=False)
+    phone_verification_code = Column(String, nullable=True)
+    phone_verification_expires = Column(DateTime, nullable=True)
+    timezone = Column(String, default="America/New_York")  # IANA timezone
+    notification_preferences = Column(JSON, default=lambda: {
+        "sms_enabled": False,
+        "morning_reminder": True,
+        "evening_reminder": True,
+        "custom_morning_time": None,
+        "custom_evening_time": None,
+    })
 
     # Relationships
     health_data = relationship("HealthData", back_populates="user", cascade="all, delete-orphan")
