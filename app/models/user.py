@@ -93,18 +93,14 @@ class User(Base):
     oura_token = Column(JSON, nullable=True)
     whoop_token = Column(JSON, nullable=True)
 
-    # SMS Notification Fields
-    phone_number = Column(String, nullable=True)  # E.164 format: +1234567890
-    phone_verified = Column(Boolean, default=False)
-    phone_verification_code = Column(String, nullable=True)
-    phone_verification_expires = Column(DateTime, nullable=True)
-    timezone = Column(String, default="America/New_York")  # IANA timezone
+    # Push Notification Fields
+    push_subscription = Column(JSON, nullable=True)  # Web Push subscription object
     notification_preferences = Column(JSON, default=lambda: {
-        "sms_enabled": False,
+        "enabled": False,
         "morning_reminder": True,
         "evening_reminder": True,
-        "custom_morning_time": None,
-        "custom_evening_time": None,
+        "morning_time": "07:00",
+        "evening_time": "21:00",
     })
 
     # Relationships

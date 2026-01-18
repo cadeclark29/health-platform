@@ -3051,7 +3051,7 @@
             border-color: rgba(239, 68, 68, 0.5);
         }
 
-        /* SMS Settings Styles */
+        /* Notification Settings Styles */
         .setting-section {
             margin-bottom: 16px;
             padding-bottom: 16px;
@@ -3065,50 +3065,6 @@
             font-weight: 600;
         }
 
-        .phone-input-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .phone-input {
-            flex: 1;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.9em;
-        }
-
-        .phone-input:focus {
-            outline: none;
-            border-color: rgba(139, 92, 246, 0.5);
-        }
-
-        .verification-input {
-            flex: 1;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.1em;
-            text-align: center;
-            letter-spacing: 4px;
-        }
-
-        .verification-input:focus {
-            outline: none;
-            border-color: rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-small {
-            padding: 10px 14px;
-            font-size: 0.85em;
-            white-space: nowrap;
-        }
-
         .btn-text {
             background: none;
             border: none;
@@ -3116,6 +3072,7 @@
             cursor: pointer;
             font-size: 0.8em;
             padding: 4px 0;
+            display: block;
         }
 
         .btn-text:hover {
@@ -6344,49 +6301,35 @@
             </button>
         </div>
 
-        <!-- SMS Reminders Section -->
+        <!-- Push Notifications Section -->
         <div class="setting-section">
-            <h4>SMS Reminders</h4>
-            <div id="sms-phone-section">
-                <!-- Phone not verified state -->
-                <div id="sms-unverified" class="sms-verification-section">
-                    <p class="setting-hint">Get text reminders to take your supplements at the right time.</p>
-                    <div class="phone-input-row">
-                        <input type="tel" id="phone-input" placeholder="+1 (555) 555-5555" class="phone-input" maxlength="17">
-                        <button onclick="sendVerificationCode()" class="btn-primary btn-small" id="send-code-btn">Send Code</button>
-                    </div>
-                    <div id="verification-code-section" class="hidden">
-                        <p class="setting-hint">Enter the 6-digit code sent to your phone:</p>
-                        <div class="phone-input-row">
-                            <input type="text" id="verification-code" placeholder="123456" class="verification-input" maxlength="6">
-                            <button onclick="submitVerificationCode()" class="btn-primary btn-small">Verify</button>
-                        </div>
-                        <button onclick="resendVerificationCode()" class="btn-text" id="resend-btn">Resend code</button>
-                    </div>
+            <h4>Reminders</h4>
+            <div id="notification-section">
+                <!-- Permission not granted -->
+                <div id="notification-disabled">
+                    <p class="setting-hint">Get reminders to take your supplements at the right time.</p>
+                    <button onclick="enableNotifications()" class="btn-primary" style="width: 100%; margin-top: 8px;" id="enable-notifications-btn">
+                        Enable Notifications
+                    </button>
+                    <p class="setting-hint" id="notification-blocked-hint" style="display: none; color: #EF4444;">
+                        Notifications are blocked. Please enable them in your browser settings.
+                    </p>
                 </div>
 
-                <!-- Phone verified state -->
-                <div id="sms-verified" class="hidden">
+                <!-- Notifications enabled -->
+                <div id="notification-enabled" class="hidden">
                     <div class="verified-badge">
                         <span class="checkmark">&#x2713;</span>
-                        <span id="masked-phone">+1***5555</span> verified
+                        Notifications enabled
                     </div>
 
-                    <div class="toggle-row">
-                        <label>SMS Reminders</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="sms-enabled-toggle" onchange="toggleSMSEnabled()">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div id="reminder-options" class="reminder-options">
+                    <div class="reminder-options">
                         <div class="toggle-row">
                             <label>Morning reminder</label>
                             <div class="reminder-time-row">
-                                <input type="time" id="morning-time" class="time-input" onchange="updateReminderPrefs()">
+                                <input type="time" id="morning-time" class="time-input" value="07:00" onchange="updateNotificationPrefs()">
                                 <label class="toggle-switch small">
-                                    <input type="checkbox" id="morning-enabled" onchange="updateReminderPrefs()" checked>
+                                    <input type="checkbox" id="morning-enabled" onchange="updateNotificationPrefs()" checked>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -6394,16 +6337,17 @@
                         <div class="toggle-row">
                             <label>Evening reminder</label>
                             <div class="reminder-time-row">
-                                <input type="time" id="evening-time" class="time-input" onchange="updateReminderPrefs()">
+                                <input type="time" id="evening-time" class="time-input" value="21:00" onchange="updateNotificationPrefs()">
                                 <label class="toggle-switch small">
-                                    <input type="checkbox" id="evening-enabled" onchange="updateReminderPrefs()" checked>
+                                    <input type="checkbox" id="evening-enabled" onchange="updateNotificationPrefs()" checked>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <button onclick="removePhoneNumber()" class="btn-text btn-danger-text">Remove phone number</button>
+                    <button onclick="testNotification()" class="btn-text" style="margin-top: 8px;">Send test notification</button>
+                    <button onclick="disableNotifications()" class="btn-text btn-danger-text">Disable notifications</button>
                 </div>
             </div>
         </div>
@@ -8511,240 +8455,188 @@
 
         function openSettings() {
             document.getElementById('settings-panel').classList.remove('hidden');
-            loadSMSPreferences();
+            loadNotificationPreferences();
         }
 
-        // ========== SMS SETTINGS ==========
+        // ========== PUSH NOTIFICATIONS ==========
 
-        // Format phone number as user types
-        document.getElementById('phone-input')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 0 && !value.startsWith('1')) {
-                value = '1' + value;
+        // Notification state
+        let notificationTimers = [];
+
+        // Check if notifications are supported and load preferences
+        async function loadNotificationPreferences() {
+            if (!('Notification' in window)) {
+                document.getElementById('enable-notifications-btn').textContent = 'Not supported in this browser';
+                document.getElementById('enable-notifications-btn').disabled = true;
+                return;
             }
-            if (value.length > 11) value = value.slice(0, 11);
 
-            // Format as +1 (XXX) XXX-XXXX
-            if (value.length === 0) {
-                e.target.value = '';
-            } else if (value.length <= 1) {
-                e.target.value = '+' + value;
-            } else if (value.length <= 4) {
-                e.target.value = '+1 (' + value.slice(1);
-            } else if (value.length <= 7) {
-                e.target.value = '+1 (' + value.slice(1, 4) + ') ' + value.slice(4);
+            const permission = Notification.permission;
+
+            if (permission === 'granted') {
+                // Show enabled state
+                document.getElementById('notification-disabled').classList.add('hidden');
+                document.getElementById('notification-enabled').classList.remove('hidden');
+
+                // Load saved preferences from localStorage
+                const prefs = JSON.parse(localStorage.getItem('notificationPrefs') || '{}');
+                document.getElementById('morning-enabled').checked = prefs.morning_reminder !== false;
+                document.getElementById('evening-enabled').checked = prefs.evening_reminder !== false;
+                document.getElementById('morning-time').value = prefs.morning_time || '07:00';
+                document.getElementById('evening-time').value = prefs.evening_time || '21:00';
+
+                // Schedule notifications
+                scheduleNotifications();
+            } else if (permission === 'denied') {
+                document.getElementById('notification-blocked-hint').style.display = 'block';
+                document.getElementById('enable-notifications-btn').disabled = true;
             } else {
-                e.target.value = '+1 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7);
+                // Default state - show enable button
+                document.getElementById('notification-disabled').classList.remove('hidden');
+                document.getElementById('notification-enabled').classList.add('hidden');
             }
-        });
+        }
 
-        // Load SMS preferences
-        async function loadSMSPreferences() {
-            if (!currentUserId) return;
-
+        // Request notification permission
+        async function enableNotifications() {
             try {
-                const res = await fetch(`/notifications/${currentUserId}/preferences`);
-                if (!res.ok) return;
+                const permission = await Notification.requestPermission();
 
-                const prefs = await res.json();
+                if (permission === 'granted') {
+                    showStatus('Notifications enabled!', 'success');
 
-                if (prefs.phone_verified) {
-                    // Show verified state
-                    document.getElementById('sms-unverified').classList.add('hidden');
-                    document.getElementById('sms-verified').classList.remove('hidden');
-                    document.getElementById('masked-phone').textContent = prefs.phone_number || 'Phone';
+                    // Save default preferences
+                    const defaultPrefs = {
+                        enabled: true,
+                        morning_reminder: true,
+                        evening_reminder: true,
+                        morning_time: '07:00',
+                        evening_time: '21:00'
+                    };
+                    localStorage.setItem('notificationPrefs', JSON.stringify(defaultPrefs));
 
-                    // Set toggle states
-                    document.getElementById('sms-enabled-toggle').checked = prefs.sms_enabled;
-                    document.getElementById('morning-enabled').checked = prefs.morning_reminder;
-                    document.getElementById('evening-enabled').checked = prefs.evening_reminder;
+                    // Update UI
+                    loadNotificationPreferences();
 
-                    // Set times
-                    document.getElementById('morning-time').value = prefs.custom_morning_time || prefs.effective_morning_time || '07:00';
-                    document.getElementById('evening-time').value = prefs.custom_evening_time || prefs.effective_evening_time || '21:00';
-
-                    // Show/hide reminder options based on SMS enabled
-                    document.getElementById('reminder-options').style.display = prefs.sms_enabled ? 'block' : 'none';
-                } else {
-                    // Show unverified state
-                    document.getElementById('sms-unverified').classList.remove('hidden');
-                    document.getElementById('sms-verified').classList.add('hidden');
+                    // Show a test notification
+                    new Notification('Dose Reminders Enabled', {
+                        body: 'You\'ll get reminders to take your supplements.',
+                        icon: '/static/icon-192.png'
+                    });
+                } else if (permission === 'denied') {
+                    showStatus('Notifications blocked. Enable in browser settings.', 'error');
+                    document.getElementById('notification-blocked-hint').style.display = 'block';
                 }
             } catch (e) {
-                console.error('Error loading SMS preferences:', e);
+                showStatus('Error enabling notifications', 'error');
+                console.error('Notification error:', e);
             }
         }
 
-        // Send verification code
-        async function sendVerificationCode() {
-            if (!currentUserId) return;
+        // Disable notifications
+        function disableNotifications() {
+            // Clear scheduled notifications
+            notificationTimers.forEach(timer => clearTimeout(timer));
+            notificationTimers = [];
 
-            const phoneInput = document.getElementById('phone-input');
-            const phone = phoneInput.value.replace(/\D/g, '');
+            // Clear preferences
+            localStorage.removeItem('notificationPrefs');
 
-            if (phone.length !== 11) {
-                showStatus('Please enter a valid 10-digit US phone number', 'error');
-                return;
-            }
+            // Update UI
+            document.getElementById('notification-enabled').classList.add('hidden');
+            document.getElementById('notification-disabled').classList.remove('hidden');
 
-            const e164Phone = '+' + phone;
-            const btn = document.getElementById('send-code-btn');
-            btn.textContent = 'Sending...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`/notifications/${currentUserId}/phone/request-verification`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone_number: e164Phone })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showStatus('Verification code sent!', 'success');
-                    document.getElementById('verification-code-section').classList.remove('hidden');
-                    btn.textContent = 'Resend';
-                    btn.disabled = false;
-                } else {
-                    showStatus(data.detail || 'Failed to send code', 'error');
-                    btn.textContent = 'Send Code';
-                    btn.disabled = false;
-                }
-            } catch (e) {
-                showStatus('Error sending verification code', 'error');
-                btn.textContent = 'Send Code';
-                btn.disabled = false;
-            }
+            showStatus('Notifications disabled', 'success');
         }
 
-        // Resend verification code
-        async function resendVerificationCode() {
-            if (!currentUserId) return;
-
-            const btn = document.getElementById('resend-btn');
-            btn.textContent = 'Sending...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`/notifications/${currentUserId}/phone/resend`, {
-                    method: 'POST'
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showStatus('Verification code resent!', 'success');
-                } else {
-                    showStatus(data.detail || 'Failed to resend code', 'error');
-                }
-            } catch (e) {
-                showStatus('Error resending code', 'error');
-            } finally {
-                btn.textContent = 'Resend code';
-                btn.disabled = false;
-            }
-        }
-
-        // Submit verification code
-        async function submitVerificationCode() {
-            if (!currentUserId) return;
-
-            const code = document.getElementById('verification-code').value.trim();
-
-            if (code.length !== 6 || !/^\d+$/.test(code)) {
-                showStatus('Please enter a valid 6-digit code', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch(`/notifications/${currentUserId}/phone/verify`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showStatus('Phone verified successfully!', 'success');
-                    loadSMSPreferences();
-                } else {
-                    showStatus(data.detail || 'Invalid code', 'error');
-                }
-            } catch (e) {
-                showStatus('Error verifying code', 'error');
-            }
-        }
-
-        // Toggle SMS enabled
-        async function toggleSMSEnabled() {
-            if (!currentUserId) return;
-
-            const enabled = document.getElementById('sms-enabled-toggle').checked;
-            document.getElementById('reminder-options').style.display = enabled ? 'block' : 'none';
-
-            try {
-                await fetch(`/notifications/${currentUserId}/preferences`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sms_enabled: enabled })
-                });
-
-                showStatus(enabled ? 'SMS reminders enabled' : 'SMS reminders disabled', 'success');
-            } catch (e) {
-                showStatus('Error updating preferences', 'error');
-            }
-        }
-
-        // Update reminder preferences
-        async function updateReminderPrefs() {
-            if (!currentUserId) return;
-
+        // Update notification preferences
+        function updateNotificationPrefs() {
             const prefs = {
+                enabled: true,
                 morning_reminder: document.getElementById('morning-enabled').checked,
                 evening_reminder: document.getElementById('evening-enabled').checked,
-                custom_morning_time: document.getElementById('morning-time').value || null,
-                custom_evening_time: document.getElementById('evening-time').value || null
+                morning_time: document.getElementById('morning-time').value || '07:00',
+                evening_time: document.getElementById('evening-time').value || '21:00'
             };
+            localStorage.setItem('notificationPrefs', JSON.stringify(prefs));
 
-            try {
-                await fetch(`/notifications/${currentUserId}/preferences`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(prefs)
-                });
-            } catch (e) {
-                console.error('Error updating reminder preferences:', e);
-            }
+            // Reschedule notifications
+            scheduleNotifications();
         }
 
-        // Remove phone number
-        async function removePhoneNumber() {
-            if (!currentUserId) return;
+        // Schedule notifications for today
+        function scheduleNotifications() {
+            // Clear existing timers
+            notificationTimers.forEach(timer => clearTimeout(timer));
+            notificationTimers = [];
 
-            if (!confirm('Remove your phone number and disable SMS reminders?')) return;
+            if (Notification.permission !== 'granted') return;
 
-            try {
-                const res = await fetch(`/notifications/${currentUserId}/phone`, {
-                    method: 'DELETE'
-                });
+            const prefs = JSON.parse(localStorage.getItem('notificationPrefs') || '{}');
+            const now = new Date();
 
-                if (res.ok) {
-                    showStatus('Phone number removed', 'success');
-                    // Reset UI
-                    document.getElementById('sms-verified').classList.add('hidden');
-                    document.getElementById('sms-unverified').classList.remove('hidden');
-                    document.getElementById('phone-input').value = '';
-                    document.getElementById('verification-code').value = '';
-                    document.getElementById('verification-code-section').classList.add('hidden');
-                } else {
-                    showStatus('Error removing phone number', 'error');
+            // Schedule morning notification
+            if (prefs.morning_reminder !== false) {
+                const morningTime = prefs.morning_time || '07:00';
+                const [mHours, mMinutes] = morningTime.split(':').map(Number);
+                const morningDate = new Date();
+                morningDate.setHours(mHours, mMinutes, 0, 0);
+
+                if (morningDate > now) {
+                    const delay = morningDate - now;
+                    const timer = setTimeout(() => showSupplementReminder('morning'), delay);
+                    notificationTimers.push(timer);
                 }
-            } catch (e) {
-                showStatus('Error removing phone number', 'error');
+            }
+
+            // Schedule evening notification
+            if (prefs.evening_reminder !== false) {
+                const eveningTime = prefs.evening_time || '21:00';
+                const [eHours, eMinutes] = eveningTime.split(':').map(Number);
+                const eveningDate = new Date();
+                eveningDate.setHours(eHours, eMinutes, 0, 0);
+
+                if (eveningDate > now) {
+                    const delay = eveningDate - now;
+                    const timer = setTimeout(() => showSupplementReminder('evening'), delay);
+                    notificationTimers.push(timer);
+                }
             }
         }
+
+        // Show supplement reminder notification
+        function showSupplementReminder(timeOfDay) {
+            if (Notification.permission !== 'granted') return;
+
+            const greeting = timeOfDay === 'morning' ? 'Good morning!' : 'Evening reminder!';
+
+            new Notification(greeting, {
+                body: 'Time to take your supplements.',
+                icon: '/static/icon-192.png',
+                tag: `supplement-${timeOfDay}`,
+                requireInteraction: true
+            });
+        }
+
+        // Test notification
+        function testNotification() {
+            if (Notification.permission !== 'granted') {
+                showStatus('Please enable notifications first', 'error');
+                return;
+            }
+
+            new Notification('Test Notification', {
+                body: 'Your supplement reminders are working!',
+                icon: '/static/icon-192.png'
+            });
+        }
+
+        // Initialize notifications on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                scheduleNotifications();
+            }
+        });
 
         // Account Reset Functions
         function confirmResetAccount() {
