@@ -6437,6 +6437,16 @@
             <!-- Dashboard Section -->
             <div class="dashboard-section" id="dashboard-section">
 
+            <!-- Date Navigation -->
+            <div class="date-nav">
+                <button onclick="changeDate(-1)" title="Previous day">&#8592;</button>
+                <div class="date-display">
+                    <div class="day" id="date-day">Today</div>
+                    <div class="full-date" id="date-full">January 15, 2026</div>
+                </div>
+                <button onclick="changeDate(1)" title="Next day">&#8594;</button>
+            </div>
+
             <!-- Getting Started Card (for new users) -->
             <div class="getting-started-card hidden" id="getting-started-card">
                 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" style="vertical-align: middle; margin-right: 8px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Getting Started</h3>
@@ -6867,16 +6877,6 @@
                         <div class="stack-empty-text">Loading your supplements...</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Date Navigation -->
-            <div class="date-nav">
-                <button onclick="changeDate(-1)" title="Previous day">&#8592;</button>
-                <div class="date-display">
-                    <div class="day" id="date-day">Today</div>
-                    <div class="full-date" id="date-full">January 15, 2026</div>
-                </div>
-                <button onclick="changeDate(1)" title="Next day">&#8594;</button>
             </div>
 
             <!-- Time Selector -->
