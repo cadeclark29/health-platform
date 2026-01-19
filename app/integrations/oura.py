@@ -124,8 +124,19 @@ class OuraIntegration(WearableIntegration):
 
         # Extract latest values
         latest_sleep = sleep_data[-1] if sleep_data else {}
-        latest_detailed_sleep = detailed_sleep_data[-1] if detailed_sleep_data else {}
         latest_readiness = readiness_data[-1] if readiness_data else {}
+
+        # Find the best sleep session - prefer "long_sleep" (main sleep) over naps
+        latest_detailed_sleep = {}
+        for d in detailed_sleep_data:
+            if not latest_detailed_sleep:
+                latest_detailed_sleep = d
+            elif d.get("type") == "long_sleep" and latest_detailed_sleep.get("type") != "long_sleep":
+                latest_detailed_sleep = d
+            elif d.get("type") == latest_detailed_sleep.get("type"):
+                # Same type - prefer longer duration
+                if (d.get("total_sleep_duration") or 0) > (latest_detailed_sleep.get("total_sleep_duration") or 0):
+                    latest_detailed_sleep = d
 
         # Get actual HRV in milliseconds from detailed sleep data
         actual_hrv = latest_detailed_sleep.get("average_hrv")
@@ -167,13 +178,21 @@ class OuraIntegration(WearableIntegration):
                 headers=headers,
                 params={"start_date": str(start_date), "end_date": str(today)}
             )
-            # Index by day (sleep sessions have a "day" field)
+            # Index by day - prefer "long_sleep" (main sleep) over naps
             detailed_sleep_data = {}
             for d in detailed_sleep_response.json().get("data", []):
                 day = d.get("day")
                 if day:
-                    # Keep the latest sleep session for each day
-                    detailed_sleep_data[day] = d
+                    existing = detailed_sleep_data.get(day)
+                    # Prefer long_sleep type (main sleep session) over naps
+                    if not existing:
+                        detailed_sleep_data[day] = d
+                    elif d.get("type") == "long_sleep" and existing.get("type") != "long_sleep":
+                        detailed_sleep_data[day] = d
+                    elif d.get("type") == existing.get("type"):
+                        # Same type - prefer the one with longer duration
+                        if (d.get("total_sleep_duration") or 0) > (existing.get("total_sleep_duration") or 0):
+                            detailed_sleep_data[day] = d
 
             # Fetch readiness data
             readiness_response = await client.get(
