@@ -40,17 +40,41 @@ class RulesEngine:
             supplements[s["id"]] = SupplementConfig(**s)
         return supplements
 
-    def get_time_of_day(self, hour: int = None) -> str:
-        """Determine time of day category."""
+    def get_time_of_day(self, hour: int = None, user_bedtime: str = None) -> str:
+        """
+        Determine time of day category.
+
+        Categories:
+        - morning: Wake up through noon (5am-12pm)
+        - afternoon: Midday through pre-bedtime (12pm until 1hr before bedtime)
+        - bedtime: 1 hour before bedtime through early morning (default 9pm-5am)
+
+        Args:
+            hour: Override current hour (0-23)
+            user_bedtime: User's bedtime in "HH:MM" format (default "22:00")
+        """
         if hour is None:
             hour = datetime.now().hour
 
+        # Parse user's bedtime (default 22:00 / 10pm)
+        bedtime_hour = 22
+        if user_bedtime:
+            try:
+                bedtime_hour = int(user_bedtime.split(":")[0])
+            except (ValueError, IndexError):
+                pass
+
+        # Bedtime window starts 1 hour before actual bedtime
+        bedtime_start = bedtime_hour - 1
+        if bedtime_start < 0:
+            bedtime_start = 23
+
         if 5 <= hour < 12:
             return "morning"
-        elif 12 <= hour < 17:
+        elif 12 <= hour < bedtime_start:
             return "afternoon"
         else:
-            return "evening"
+            return "bedtime"
 
     def get_available_supplements(
         self,

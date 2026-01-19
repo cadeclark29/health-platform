@@ -6,7 +6,7 @@
       "unit": "mg",
       "max_daily_dose": 1500,
       "standard_dose": 500,
-      "time_windows": ["morning", "afternoon", "evening"],
+      "time_windows": ["morning", "afternoon", "bedtime"],
       "triggers": {
         "immune_support": true,
         "illness": true,
@@ -42,7 +42,7 @@
       "unit": "mg",
       "max_daily_dose": 400,
       "standard_dose": 200,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "poor_sleep": true,
         "high_stress": true,
@@ -92,7 +92,7 @@
       "unit": "mg",
       "max_daily_dose": 2000,
       "standard_dose": 1000,
-      "time_windows": ["morning", "afternoon", "evening"],
+      "time_windows": ["morning", "afternoon", "bedtime"],
       "triggers": {
         "high_strain": true,
         "recovery_needed": true,
@@ -113,7 +113,7 @@
       "unit": "mg",
       "max_daily_dose": 40,
       "standard_dose": 15,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "poor_recovery": true,
         "illness": true,
@@ -147,7 +147,7 @@
       "unit": "mg",
       "max_daily_dose": 400,
       "standard_dose": 200,
-      "time_windows": ["morning", "afternoon", "evening"],
+      "time_windows": ["morning", "afternoon", "bedtime"],
       "triggers": {
         "high_stress": true,
         "low_hrv": true,
@@ -167,7 +167,7 @@
       "unit": "mg",
       "max_daily_dose": 5,
       "standard_dose": 0.5,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "poor_sleep_onset": true,
         "poor_sleep": true
@@ -181,7 +181,7 @@
       "unit": "mg",
       "max_daily_dose": 3000,
       "standard_dose": 1000,
-      "time_windows": ["morning", "afternoon", "evening"],
+      "time_windows": ["morning", "afternoon", "bedtime"],
       "triggers": {
         "illness": true,
         "immune_support": true,
@@ -225,7 +225,7 @@
       "unit": "g",
       "max_daily_dose": 5,
       "standard_dose": 3,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "poor_sleep_quality": true,
         "sleep_optimization": true
@@ -239,7 +239,7 @@
       "unit": "mg",
       "max_daily_dose": 600,
       "standard_dose": 300,
-      "time_windows": ["morning", "evening"],
+      "time_windows": ["morning", "bedtime"],
       "triggers": {
         "high_stress": true,
         "low_hrv": true,
@@ -304,7 +304,7 @@
       "unit": "mg",
       "max_daily_dose": 1800,
       "standard_dose": 600,
-      "time_windows": ["morning", "evening"],
+      "time_windows": ["morning", "bedtime"],
       "triggers": {
         "illness": true,
         "immune_support": true,
@@ -333,7 +333,7 @@
       "unit": "mg",
       "max_daily_dose": 2000,
       "standard_dose": 1000,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "high_stress": true,
         "poor_sleep": true,
@@ -348,7 +348,7 @@
       "unit": "mg",
       "max_daily_dose": 100,
       "standard_dose": 50,
-      "time_windows": ["evening"],
+      "time_windows": ["bedtime"],
       "triggers": {
         "poor_sleep": true,
         "high_stress": true,

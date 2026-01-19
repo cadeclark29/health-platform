@@ -83,7 +83,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Night Drink",
         icon="🌙",
         description="Wind down and optimize sleep quality",
-        time_windows=["evening"],
+        time_windows=["bedtime"],
         components=[
             MixComponent("magnesium_glycinate", 1.0),
             MixComponent("glycine", 1.0),
@@ -115,7 +115,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Post-Workout",
         icon="💪",
         description="Accelerate recovery and reduce soreness",
-        time_windows=["morning", "afternoon", "evening"],
+        time_windows=["morning", "afternoon", "bedtime"],
         components=[
             MixComponent("creatine", 1.0),
             MixComponent("electrolytes", 1.0),
@@ -132,7 +132,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Stressed",
         icon="🧘",
         description="Calm your mind and lower cortisol",
-        time_windows=["morning", "afternoon", "evening"],
+        time_windows=["morning", "afternoon", "bedtime"],
         components=[
             MixComponent("ashwagandha", 1.0),
             MixComponent("l_theanine", 1.0),
@@ -148,7 +148,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Immune Boost",
         icon="🛡️",
         description="Support your immune system when feeling run down",
-        time_windows=["morning", "afternoon", "evening"],
+        time_windows=["morning", "afternoon", "bedtime"],
         components=[
             MixComponent("vitamin_c", 1.5),
             MixComponent("zinc", 1.0),
@@ -181,7 +181,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Recovery Day",
         icon="🔄",
         description="Rest day support for muscle repair",
-        time_windows=["morning", "afternoon", "evening"],
+        time_windows=["morning", "afternoon", "bedtime"],
         components=[
             MixComponent("omega_3", 1.0),
             MixComponent("magnesium_glycinate", 1.0),
@@ -215,7 +215,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Jet Lag Reset",
         icon="✈️",
         description="Reset your circadian rhythm after travel",
-        time_windows=["evening"],
+        time_windows=["bedtime"],
         components=[
             MixComponent("melatonin", 1.0),
             MixComponent("magnesium_glycinate", 1.0),
@@ -265,7 +265,7 @@ SUPPLEMENT_MIXES: Dict[str, SupplementMix] = {
         name="Daily Foundation",
         icon="💎",
         description="Essential daily nutrients for overall health",
-        time_windows=["morning", "afternoon", "evening"],
+        time_windows=["morning", "afternoon", "bedtime"],
         components=[
             MixComponent("vitamin_d3", 1.0),
             MixComponent("vitamin_k2", 1.0),
@@ -657,8 +657,8 @@ class MixEngine:
             # Need focus
             return "focus_mode"
 
-        # Evening recommendations
-        elif time_of_day == "evening":
+        # Bedtime recommendations
+        elif time_of_day == "bedtime":
             # High strain day
             if strain_score and strain_score > 70:
                 return "post_workout"
@@ -667,7 +667,7 @@ class MixEngine:
             if recovery_score and recovery_score < 55:
                 return "recovery_day"
 
-            # Default evening
+            # Default bedtime
             return "night_drink"
 
         return None

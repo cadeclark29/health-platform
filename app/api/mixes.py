@@ -150,8 +150,8 @@ async def get_smart_recommendation(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Get time of day
-    time_of_day = rules.get_time_of_day(time_override)
+    # Get time of day (using user's bedtime preference)
+    time_of_day = rules.get_time_of_day(time_override, user.bedtime)
 
     # Get latest health data
     health_data = db.query(HealthData).filter(
@@ -411,8 +411,8 @@ async def dispense_mix(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
-    # Check time window
-    time_of_day = rules.get_time_of_day(time_override)
+    # Check time window (using user's bedtime preference)
+    time_of_day = rules.get_time_of_day(time_override, user.bedtime)
     if time_of_day not in mix.time_windows:
         raise HTTPException(
             status_code=400,

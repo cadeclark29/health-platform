@@ -37,8 +37,8 @@ class RecommendationEngine:
         Returns:
             Dictionary with recommendations and reasoning
         """
-        # Step 1: Determine time of day
-        time_of_day = self.rules.get_time_of_day(time_override)
+        # Step 1: Determine time of day (using user's bedtime preference)
+        time_of_day = self.rules.get_time_of_day(time_override, user.bedtime)
 
         # Step 2: Get user's latest health data
         health_data = self._get_latest_health_data(user.id, db)

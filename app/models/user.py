@@ -103,6 +103,9 @@ class User(Base):
         "evening_time": "21:00",
     })
 
+    # Stack preferences
+    afternoon_stack_enabled = Column(Boolean, default=False)  # Show afternoon stack option
+
     # Relationships
     health_data = relationship("HealthData", back_populates="user", cascade="all, delete-orphan")
     dispense_logs = relationship("DispenseLog", back_populates="user", cascade="all, delete-orphan")

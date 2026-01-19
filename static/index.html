@@ -6985,8 +6985,8 @@
             <!-- Time Selector -->
             <div class="time-selector">
                 <button class="time-btn" onclick="setTime(7)" id="time-btn-morning">Morning</button>
-                <button class="time-btn active" onclick="setTime(14)" id="time-btn-afternoon">Afternoon</button>
-                <button class="time-btn" onclick="setTime(21)" id="time-btn-evening">Evening</button>
+                <button class="time-btn" onclick="setTime(14)" id="time-btn-afternoon" style="display: none;">Afternoon</button>
+                <button class="time-btn active" onclick="setTime(21)" id="time-btn-bedtime">Bedtime</button>
             </div>
 
             <!-- Tracking Card -->
@@ -7484,6 +7484,19 @@
             </div>
         </div>
 
+        <!-- Stack Preferences -->
+        <div class="setting-section">
+            <h4>Stack Preferences</h4>
+            <div class="toggle-row">
+                <label>Enable Afternoon Stack</label>
+                <label class="toggle-switch small">
+                    <input type="checkbox" id="afternoon-stack-toggle" onchange="toggleAfternoonStack()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <p class="setting-hint">Add a midday stack for pre-workout or afternoon energy supplements.</p>
+        </div>
+
         <div class="setting-row setting-danger">
             <label>Account</label>
             <button onclick="confirmResetAccount()" class="btn-danger" style="width: 100%; margin-top: 6px;">
@@ -7560,18 +7573,20 @@
         let analyticsData = null;
         let supplementList = []; // List of all supplements for dropdown
 
-        // Supplement timing - determines Morning vs Evening stack
+        // Supplement timing - determines Morning vs Bedtime stack
         const SUPPLEMENT_TIMING = {
-            // Evening supplements (take before bed)
-            'magnesium_glycinate': 'evening',
-            'magnesium': 'evening',
-            'glycine': 'evening',
-            'melatonin': 'evening',
-            'l_theanine': 'evening',
-            'ashwagandha': 'evening',
-            'valerian': 'evening',
-            'gaba': 'evening',
-            'zinc': 'evening',  // Better absorbed at night, away from other minerals
+            // Bedtime supplements (take 60 mins before bed)
+            'magnesium_glycinate': 'bedtime',
+            'magnesium': 'bedtime',
+            'glycine': 'bedtime',
+            'melatonin': 'bedtime',
+            'l_theanine': 'bedtime',
+            'ashwagandha': 'bedtime',
+            'valerian': 'bedtime',
+            'gaba': 'bedtime',
+            'zinc': 'bedtime',  // Better absorbed at night, away from other minerals
+            'apigenin': 'bedtime',
+            'magnesium_l_threonate': 'bedtime',
 
             // Morning supplements (take with breakfast or AM)
             'vitamin_d3': 'morning',
@@ -9695,6 +9710,18 @@
             document.getElementById('has-user').classList.remove('hidden');
             document.getElementById('display-name').textContent = user.name;
             document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+            // Show/hide afternoon stack based on user preference
+            const afternoonBtn = document.getElementById('time-btn-afternoon');
+            if (afternoonBtn) {
+                afternoonBtn.style.display = user.afternoon_stack_enabled ? 'inline-flex' : 'none';
+            }
+
+            // Initialize afternoon stack toggle in settings
+            initAfternoonStackToggle(user.afternoon_stack_enabled);
+
+            // Update time buttons based on current time
+            updateTimeButtons();
         }
 
         // Logout
@@ -9752,12 +9779,18 @@
 
         function updateTimeButtons() {
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Check if afternoon stack is visible
+            const afternoonBtn = document.getElementById('time-btn-afternoon');
+            const afternoonVisible = afternoonBtn && afternoonBtn.style.display !== 'none';
+
             if (currentTime < 12) {
                 document.getElementById('time-btn-morning').classList.add('active');
-            } else if (currentTime < 18) {
+            } else if (afternoonVisible && currentTime < 21) {
+                // If afternoon is enabled and before bedtime
                 document.getElementById('time-btn-afternoon').classList.add('active');
             } else {
-                document.getElementById('time-btn-evening').classList.add('active');
+                document.getElementById('time-btn-bedtime').classList.add('active');
             }
         }
 
@@ -9785,7 +9818,8 @@
             layout.querySelectorAll('.mix-card').forEach(card => card.remove());
 
             // Filter mixes by time of day and exclude daily_foundation
-            const currentPeriod = currentTime < 12 ? 'morning' : currentTime < 18 ? 'afternoon' : 'evening';
+            // Bedtime starts around 9pm (21:00) by default - 1hr before typical 10pm bedtime
+            const currentPeriod = currentTime < 12 ? 'morning' : currentTime < 21 ? 'afternoon' : 'bedtime';
             const filteredMixes = availableMixes.filter(mix => {
                 if (mix.id === 'daily_foundation') return false;
                 if (!mix.time_windows || mix.time_windows.length === 0) return true;
@@ -10086,7 +10120,7 @@
                     // Also add dispensed supplements to daily stack
                     const supplements = currentMixData.supplements || [];
                     if (supplements.length > 0) {
-                        const autoTime = currentTime < 12 ? 'morning' : 'evening';
+                        const autoTime = currentTime < 12 ? 'morning' : 'bedtime';
                         try {
                             await fetch(`/analytics/${currentUserId}/daily-checkin`, {
                                 method: 'POST',
@@ -10442,6 +10476,41 @@
             scheduleNotifications();
         }
 
+        // Toggle afternoon stack preference
+        async function toggleAfternoonStack() {
+            if (!currentUserId) return;
+
+            const enabled = document.getElementById('afternoon-stack-toggle').checked;
+            const afternoonBtn = document.getElementById('time-btn-afternoon');
+
+            // Update UI immediately
+            if (afternoonBtn) {
+                afternoonBtn.style.display = enabled ? 'inline-flex' : 'none';
+            }
+
+            // Save to backend
+            try {
+                await fetch(`/users/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ afternoon_stack_enabled: enabled })
+                });
+                showStatus(enabled ? 'Afternoon stack enabled' : 'Afternoon stack disabled', 'success');
+                updateTimeButtons();
+            } catch (e) {
+                console.error('Error updating afternoon stack preference:', e);
+                showStatus('Failed to save preference', 'error');
+            }
+        }
+
+        // Initialize afternoon stack toggle from user data
+        function initAfternoonStackToggle(enabled) {
+            const toggle = document.getElementById('afternoon-stack-toggle');
+            if (toggle) {
+                toggle.checked = enabled || false;
+            }
+        }
+
         // Schedule notifications for today
         function scheduleNotifications() {
             // Clear existing timers
@@ -10476,7 +10545,7 @@
 
                 if (eveningDate > now) {
                     const delay = eveningDate - now;
-                    const timer = setTimeout(() => showSupplementReminder('evening'), delay);
+                    const timer = setTimeout(() => showSupplementReminder('bedtime'), delay);
                     notificationTimers.push(timer);
                 }
             }
@@ -11045,7 +11114,7 @@
             try {
                 // Get current hour for time-based display
                 const currentHour = new Date().getHours();
-                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening';
+                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 21 ? 'afternoon' : 'bedtime';
                 const today = getLocalDateString(new Date());
 
                 // Fetch today's supplement logs to check what's already logged
@@ -11218,8 +11287,8 @@
 
                 const today = getLocalDateString(new Date());
                 const currentHour = new Date().getHours();
-                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening';
-                const period = currentHour < 12 ? 'Morning' : currentHour < 18 ? 'Afternoon' : 'Evening';
+                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 21 ? 'afternoon' : 'bedtime';
+                const period = currentHour < 12 ? 'Morning' : currentHour < 21 ? 'Afternoon' : 'Bedtime';
 
                 // Log each supplement
                 let loggedCount = 0;
@@ -11629,20 +11698,20 @@
 
             // 4. Timing optimization tips
             const hasMorningSupps = supplements.some(s => (SUPPLEMENT_TIMING[s.supplement_id] || 'morning') === 'morning');
-            const hasEveningSupps = supplements.some(s => SUPPLEMENT_TIMING[s.supplement_id] === 'evening');
+            const hasBedtimeSupps = supplements.some(s => SUPPLEMENT_TIMING[s.supplement_id] === 'bedtime');
 
-            if (hasMorningSupps && hasEveningSupps) {
-                // User has both morning and evening supplements - give timing tip
-                const eveningSupps = supplements
-                    .filter(s => SUPPLEMENT_TIMING[s.supplement_id] === 'evening')
+            if (hasMorningSupps && hasBedtimeSupps) {
+                // User has both morning and bedtime supplements - give timing tip
+                const bedtimeSupps = supplements
+                    .filter(s => SUPPLEMENT_TIMING[s.supplement_id] === 'bedtime')
                     .map(s => s.supplement_name || formatSupplementName(s.supplement_id));
 
-                if (eveningSupps.length > 0 && recommendations.length < 2) {
+                if (bedtimeSupps.length > 0 && recommendations.length < 2) {
                     recommendations.push({
                         type: 'tip',
                         icon: '🌙',
-                        title: 'Evening timing reminder',
-                        detail: `Take ${eveningSupps.slice(0, 2).join(' and ')} 1-2 hours before bed for best results. They support relaxation and sleep quality.`,
+                        title: 'Bedtime timing reminder',
+                        detail: `Take ${bedtimeSupps.slice(0, 2).join(' and ')} 60 minutes before bed for best results. They support relaxation and sleep quality.`,
                         tag: 'timing',
                         tagText: 'Timing'
                     });
@@ -12206,15 +12275,15 @@
                 return;
             }
 
-            // Split supplements into morning and evening based on SUPPLEMENT_TIMING
+            // Split supplements into morning and bedtime based on SUPPLEMENT_TIMING
             const morningSupps = [];
-            const eveningSupps = [];
+            const bedtimeSupps = [];
 
             supplements.forEach(supp => {
                 const suppId = supp.supplement_id;
                 const timing = SUPPLEMENT_TIMING[suppId] || 'morning'; // Default to morning
-                if (timing === 'evening') {
-                    eveningSupps.push(supp);
+                if (timing === 'bedtime') {
+                    bedtimeSupps.push(supp);
                 } else {
                     morningSupps.push(supp);
                 }
@@ -12268,19 +12337,19 @@
                 `;
             }
 
-            // Evening Stack
-            if (eveningSupps.length > 0) {
+            // Bedtime Stack
+            if (bedtimeSupps.length > 0) {
                 html += `
                     <div class="stack-section">
                         <div class="stack-section-header">
                             <svg class="stack-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                             </svg>
-                            <span class="stack-section-title">Evening Stack</span>
-                            <span class="stack-section-hint">Take 1-2hr before bed</span>
+                            <span class="stack-section-title">Bedtime Stack</span>
+                            <span class="stack-section-hint">Take 60 mins before bed</span>
                         </div>
                         <div class="stack-section-pills">
-                            ${eveningSupps.map(renderPill).join('')}
+                            ${bedtimeSupps.map(renderPill).join('')}
                         </div>
                     </div>
                 `;
@@ -12310,7 +12379,7 @@
             const selectedDateStr = getLocalDateString(currentDate);
 
             // Auto-detect AM/PM based on selected time (currentTime is the hour)
-            const autoTime = currentTime < 12 ? 'morning' : 'evening';
+            const autoTime = currentTime < 12 ? 'morning' : 'bedtime';
 
             // Optimistic UI update
             pill.classList.toggle('taken', !isCurrentlyTaken);
@@ -12736,7 +12805,7 @@
                 notes: "Reduces inflammation, supports heart health"
             },
             magnesium: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take 1-2hr before bed",
                 affectedMetrics: ["sleep_score", "hrv_score"],
                 loadingDays: 14,
@@ -12744,7 +12813,7 @@
                 notes: "Promotes relaxation and sleep quality"
             },
             magnesium_glycinate: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take 1-2hr before bed",
                 affectedMetrics: ["sleep_score", "hrv_score"],
                 loadingDays: 14,
@@ -12752,7 +12821,7 @@
                 notes: "Best form for sleep, highly absorbable"
             },
             zinc: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take with dinner (not with magnesium)",
                 affectedMetrics: ["recovery_score"],
                 loadingDays: 21,
@@ -12760,7 +12829,7 @@
                 notes: "Don't take at same time as magnesium"
             },
             ashwagandha: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take in evening for stress/sleep",
                 affectedMetrics: ["hrv_score", "recovery_score", "sleep_score"],
                 loadingDays: 28,
@@ -12776,7 +12845,7 @@
                 notes: "Works within 30-60 minutes"
             },
             melatonin: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take 30-60min before bed",
                 affectedMetrics: ["sleep_score"],
                 loadingDays: 1,
@@ -12792,7 +12861,7 @@
                 notes: "Takes 2-4 weeks to saturate muscles"
             },
             glycine: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take before bed",
                 affectedMetrics: ["sleep_score"],
                 loadingDays: 1,
@@ -12808,7 +12877,7 @@
                 notes: "Adaptogen for energy and stress"
             },
             gaba: {
-                timing: "evening",
+                timing: "bedtime",
                 timingNote: "Take 30-60min before bed",
                 affectedMetrics: ["sleep_score", "hrv_score"],
                 loadingDays: 1,
@@ -12933,7 +13002,8 @@
         function getTimingIcon(timing) {
             switch(timing) {
                 case 'morning': return '☀️';
-                case 'evening': return '🌙';
+                case 'bedtime': return '🌙';
+                case 'evening': return '🌙'; // Legacy support
                 case 'meal': return '🍽️';
                 case 'flexible': return '⏰';
                 case 'anytime': return '✓';

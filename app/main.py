@@ -160,6 +160,8 @@ def run_migrations(db: Session = Depends(get_db)):
         # Push notification fields
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS push_subscription JSONB",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS notification_preferences JSONB DEFAULT '{}'",
+        # Stack preferences
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS afternoon_stack_enabled BOOLEAN DEFAULT FALSE",
         # Expanded health_data columns for comprehensive Oura integration
         # Sleep details
         "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS deep_sleep_duration INTEGER",
