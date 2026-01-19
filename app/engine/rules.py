@@ -19,6 +19,7 @@ class SupplementConfig:
     triggers: Dict[str, bool]
     contraindications: List[str]
     evidence: str = ""
+    research: Optional[Dict] = None  # Research citations with pubmed_id, finding, mechanism
 
 
 class RulesEngine:
