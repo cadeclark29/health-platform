@@ -64,6 +64,21 @@ class CycleWarning(BaseModel):
     reason: Optional[str] = None
 
 
+class HeldSupplement(BaseModel):
+    id: str
+    name: str
+    reason: str
+    trigger: Optional[str] = None
+
+
+class DynamicIntelligence(BaseModel):
+    overall_status: str
+    active_conditions: List[dict] = []
+    compound_conditions: List[str] = []
+    held_supplements: List[HeldSupplement] = []
+    alerts: List[str] = []
+
+
 class DispenseResponse(BaseModel):
     user_id: str
     time_of_day: str
@@ -74,6 +89,7 @@ class DispenseResponse(BaseModel):
     has_checkin: Optional[bool] = False
     interaction_warnings: List[InteractionWarning] = []
     cycle_warnings: List[CycleWarning] = []
+    dynamic_intelligence: Optional[DynamicIntelligence] = None
 
 
 class DispenseConfirm(BaseModel):
@@ -112,6 +128,20 @@ async def get_dispense_recommendation(
 
     result = await engine.get_recommendation(user, db, time_override)
 
+    # Build dynamic intelligence info if available
+    dynamic_intel = result.get("dynamic_intelligence")
+    dynamic_response = None
+    if dynamic_intel:
+        dynamic_response = DynamicIntelligence(
+            overall_status=dynamic_intel.get("overall_status", "optimal"),
+            active_conditions=dynamic_intel.get("active_conditions", []),
+            compound_conditions=dynamic_intel.get("compound_conditions", []),
+            held_supplements=[
+                HeldSupplement(**h) for h in dynamic_intel.get("held_supplements", [])
+            ],
+            alerts=dynamic_intel.get("alerts", [])
+        )
+
     return DispenseResponse(
         user_id=user_id,
         time_of_day=result["time_of_day"],
@@ -127,7 +157,8 @@ async def get_dispense_recommendation(
         ],
         cycle_warnings=[
             CycleWarning(**w) for w in result.get("cycle_warnings", [])
-        ]
+        ],
+        dynamic_intelligence=dynamic_response
     )
 
 
@@ -198,5 +229,6 @@ async def get_detailed_recommendation(
         "active_triggers": result.get("active_triggers", []),
         "health_snapshot": result.get("health_snapshot", {}),
         "interaction_warnings": result.get("interaction_warnings", []),
-        "cycle_warnings": result.get("cycle_warnings", [])
+        "cycle_warnings": result.get("cycle_warnings", []),
+        "dynamic_intelligence": result.get("dynamic_intelligence")
     }
