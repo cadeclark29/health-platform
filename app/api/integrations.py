@@ -678,3 +678,125 @@ async def debug_oura_data(user_id: str, db: Session = Depends(get_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Debug failed: {str(e)}")
+
+
+@router.post("/{user_id}/test-scenario")
+def set_test_scenario(
+    user_id: str,
+    scenario: str = Query(..., description="Test scenario: immune_alert, stress, poor_sleep, overtraining, optimal"),
+    db: Session = Depends(get_db)
+):
+    """
+    Set a test health scenario for testing dynamic intelligence.
+
+    Scenarios:
+    - immune_alert: Temperature +0.7°C above baseline
+    - stress: HRV at 35ms (very low)
+    - poor_sleep: Sleep score 52
+    - overtraining: Low HRV + poor sleep + poor recovery
+    - optimal: Good metrics across the board
+    """
+    from datetime import date
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Get today's date
+    today = date.today()
+    today_start = datetime.combine(today, datetime.min.time())
+    today_end = datetime.combine(today, datetime.max.time())
+
+    # Find or create today's health data
+    existing = db.query(HealthData).filter(
+        HealthData.user_id == user_id,
+        HealthData.timestamp >= today_start,
+        HealthData.timestamp <= today_end
+    ).first()
+
+    # Define test scenarios
+    scenarios = {
+        "immune_alert": {
+            "sleep_score": 72,
+            "hrv_score": 55,
+            "recovery_score": 65,
+            "strain_score": 45,
+            "temperature_deviation": 0.7,  # Triggers immune_alert
+            "resting_hr": 62,
+            "sleep_duration_hrs": 7.2,
+        },
+        "stress": {
+            "sleep_score": 68,
+            "hrv_score": 35,  # Very low - triggers severe_stress
+            "recovery_score": 58,
+            "strain_score": 55,
+            "temperature_deviation": 0.1,
+            "resting_hr": 68,
+            "sleep_duration_hrs": 6.8,
+        },
+        "poor_sleep": {
+            "sleep_score": 52,  # Triggers sleep_crisis
+            "hrv_score": 48,
+            "recovery_score": 55,
+            "strain_score": 40,
+            "temperature_deviation": 0.0,
+            "resting_hr": 60,
+            "sleep_duration_hrs": 5.5,
+            "sleep_efficiency": 72,
+            "deep_sleep_pct": 12,
+        },
+        "overtraining": {
+            "sleep_score": 55,  # Below 60
+            "hrv_score": 38,    # Below baseline * 0.8
+            "recovery_score": 45,  # Below 50
+            "strain_score": 85,
+            "temperature_deviation": 0.2,
+            "resting_hr": 70,
+            "sleep_duration_hrs": 5.8,
+        },
+        "optimal": {
+            "sleep_score": 88,
+            "hrv_score": 72,
+            "recovery_score": 85,
+            "strain_score": 55,
+            "temperature_deviation": -0.1,
+            "resting_hr": 52,
+            "sleep_duration_hrs": 8.2,
+            "sleep_efficiency": 92,
+            "deep_sleep_pct": 22,
+        }
+    }
+
+    if scenario not in scenarios:
+        raise HTTPException(status_code=400, detail=f"Unknown scenario. Available: {list(scenarios.keys())}")
+
+    scenario_data = scenarios[scenario]
+
+    if existing:
+        # Update existing record
+        for key, value in scenario_data.items():
+            setattr(existing, key, value)
+        existing.source = "test"
+        db.commit()
+        return {
+            "status": "updated",
+            "scenario": scenario,
+            "date": today.isoformat(),
+            "data": scenario_data
+        }
+    else:
+        # Create new record
+        health_data = HealthData(
+            user_id=user_id,
+            source="test",
+            timestamp=datetime.now(),
+            **scenario_data
+        )
+        db.add(health_data)
+        db.commit()
+        return {
+            "status": "created",
+            "scenario": scenario,
+            "date": today.isoformat(),
+            "data": scenario_data
+        }
