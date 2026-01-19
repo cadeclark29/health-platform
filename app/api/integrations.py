@@ -536,3 +536,76 @@ async def add_mock_history(
         "records": len(records_added),
         "sample": records_added[-5:]  # Last 5 days
     }
+
+
+@router.get("/{user_id}/oura/debug")
+async def debug_oura_data(user_id: str, db: Session = Depends(get_db)):
+    """
+    Debug endpoint to see raw Oura API responses.
+    Shows exactly what fields are being returned for sleep data.
+    """
+    import httpx
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.oura_token:
+        raise HTTPException(status_code=400, detail="Oura not connected")
+
+    oura = OuraIntegration()
+
+    try:
+        valid_token = await oura.get_valid_token(user.oura_token)
+        token = valid_token.get("access_token")
+        headers = {"Authorization": f"Bearer {token}"}
+
+        today = datetime.utcnow().date()
+        start_date = today - timedelta(days=3)
+
+        async with httpx.AsyncClient() as client:
+            # Fetch detailed sleep data
+            sleep_response = await client.get(
+                f"https://api.ouraring.com/v2/usercollection/sleep",
+                headers=headers,
+                params={"start_date": str(start_date), "end_date": str(today)}
+            )
+            sleep_data = sleep_response.json().get("data", [])
+
+            # Fetch daily readiness
+            readiness_response = await client.get(
+                f"https://api.ouraring.com/v2/usercollection/daily_readiness",
+                headers=headers,
+                params={"start_date": str(start_date), "end_date": str(today)}
+            )
+            readiness_data = readiness_response.json().get("data", [])
+
+        # Extract just the relevant fields for debugging
+        debug_sleep = []
+        for s in sleep_data:
+            debug_sleep.append({
+                "day": s.get("day"),
+                "average_hrv": s.get("average_hrv"),
+                "average_heart_rate": s.get("average_heart_rate"),
+                "has_hrv_field": "average_hrv" in s,
+                "all_keys": list(s.keys())
+            })
+
+        debug_readiness = []
+        for r in readiness_data:
+            contributors = r.get("contributors", {})
+            debug_readiness.append({
+                "day": r.get("day"),
+                "score": r.get("score"),
+                "hrv_balance": contributors.get("hrv_balance"),
+                "contributor_keys": list(contributors.keys())
+            })
+
+        return {
+            "sleep_records": debug_sleep,
+            "readiness_records": debug_readiness,
+            "raw_sleep_sample": sleep_data[0] if sleep_data else None
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Debug failed: {str(e)}")
