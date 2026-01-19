@@ -7737,7 +7737,7 @@
             if (!ouraConnected) return;
 
             const dateLabel = document.getElementById('oura-date-label');
-            const selectedDateStr = currentDate.toISOString().split('T')[0];
+            const selectedDateStr = getLocalDateString(currentDate);
 
             // Check if today or future
             const today = new Date();
@@ -7777,6 +7777,14 @@
                     dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions) + ' (no data)';
                 }
             }
+        }
+
+        // Get local date string in YYYY-MM-DD format (avoids timezone issues with toISOString)
+        function getLocalDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         // Get CSS class based on score
@@ -9095,7 +9103,7 @@
                     // Calculate start date based on duration
                     const startDate = new Date();
                     startDate.setDate(startDate.getDate() - (supp.duration || 0));
-                    const startDateStr = startDate.toISOString().split('T')[0];
+                    const startDateStr = getLocalDateString(startDate);
 
                     try {
                         // Combine dosage with unit for storage (e.g., "2000 IU", "400 mg")
@@ -9431,7 +9439,7 @@
 
         // Date functions
         function getDateString() {
-            return currentDate.toISOString().split('T')[0];
+            return getLocalDateString(currentDate);
         }
 
         function updateDateDisplay() {
@@ -10766,7 +10774,7 @@
                 // Get current hour for time-based display
                 const currentHour = new Date().getHours();
                 const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening';
-                const today = new Date().toISOString().split('T')[0];
+                const today = getLocalDateString(new Date());
 
                 // Fetch today's supplement logs to check what's already logged
                 const logsRes = await fetch(`/analytics/${currentUserId}/supplement-logs?days=1`);
@@ -10787,7 +10795,7 @@
 
                 // Get health data for the SELECTED date (to match Oura display)
                 const healthData = analyticsData?.health_data || [];
-                const selectedDateStr = currentDate.toISOString().split('T')[0];
+                const selectedDateStr = getLocalDateString(currentDate);
                 const selectedDayHealth = healthData.find(h => h.date === selectedDateStr);
 
                 const hasHealthData = selectedDayHealth && (selectedDayHealth.sleep_score || selectedDayHealth.hrv_score || selectedDayHealth.recovery_score);
@@ -10965,7 +10973,7 @@
                     return;
                 }
 
-                const today = new Date().toISOString().split('T')[0];
+                const today = getLocalDateString(new Date());
                 const currentHour = new Date().getHours();
                 const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening';
                 const period = currentHour < 12 ? 'Morning' : currentHour < 18 ? 'Afternoon' : 'Evening';
@@ -11871,7 +11879,7 @@
 
             // Use selected date from date navigation (currentDate)
             const selectedDate = currentDate;
-            const selectedDateStr = selectedDate.toISOString().split('T')[0];
+            const selectedDateStr = getLocalDateString(selectedDate);
 
             // Determine if today, past, or future
             const today = new Date();
@@ -12056,7 +12064,7 @@
             const isCurrentlyTaken = pill.classList.contains('taken');
 
             // Use selected date from date navigation
-            const selectedDateStr = currentDate.toISOString().split('T')[0];
+            const selectedDateStr = getLocalDateString(currentDate);
 
             // Auto-detect AM/PM based on selected time (currentTime is the hour)
             const autoTime = currentTime < 12 ? 'morning' : 'evening';
@@ -12106,7 +12114,7 @@
         async function quickAddSupplement(suppId, suppName, dosage) {
             if (!currentUserId) return;
 
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalDateString(new Date());
 
             try {
                 // Add the supplement to tracking
@@ -12963,7 +12971,7 @@
                 if (Math.random() < adherence) {
                     const logDate = new Date(start);
                     logDate.setDate(logDate.getDate() + i);
-                    datesToLog.push(logDate.toISOString().split('T')[0]);
+                    datesToLog.push(getLocalDateString(logDate));
                 }
             }
 
@@ -13050,7 +13058,7 @@
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        end_date: new Date().toISOString().split('T')[0]
+                        end_date: getLocalDateString(new Date())
                     })
                 });
 
