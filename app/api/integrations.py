@@ -150,6 +150,10 @@ async def check_oura_status(user_id: str, db: Session = Depends(get_db)):
     if not user.oura_token:
         return ConnectionStatus(connected=False, source="oura", error="Not connected")
 
+    # Handle mock/simulated tokens for testing
+    if user.oura_token.get("is_mock"):
+        return ConnectionStatus(connected=True, source="oura_simulated")
+
     oura = OuraIntegration()
 
     # Check if token needs refresh
