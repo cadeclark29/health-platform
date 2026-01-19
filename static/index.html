@@ -6752,24 +6752,6 @@
                         </div>
                     </div>
 
-                    <div class="smart-rec-metrics hidden" id="smart-rec-metrics">
-                        <div class="smart-rec-metric">
-                            <span class="metric-value" id="rec-sleep">--</span>
-                            <span class="metric-label">Sleep</span>
-                            <span class="metric-trend" id="rec-sleep-trend"></span>
-                        </div>
-                        <div class="smart-rec-metric">
-                            <span class="metric-value" id="rec-hrv">--</span>
-                            <span class="metric-label">HRV</span>
-                            <span class="metric-trend" id="rec-hrv-trend"></span>
-                        </div>
-                        <div class="smart-rec-metric">
-                            <span class="metric-value" id="rec-recovery">--</span>
-                            <span class="metric-label">Recovery</span>
-                            <span class="metric-trend" id="rec-recovery-trend"></span>
-                        </div>
-                    </div>
-
                     <!-- Supplements list -->
                     <div class="smart-rec-supplements hidden" id="smart-rec-supplements">
                         <div class="smart-rec-supplements-label">Your Stack</div>
@@ -10745,7 +10727,6 @@
             if (!currentUserId) return;
 
             const mainEl = document.getElementById('smart-rec-main');
-            const metricsEl = document.getElementById('smart-rec-metrics');
             const actionsEl = document.getElementById('smart-rec-actions');
             const suppListEl = document.getElementById('smart-rec-supplements');
 
@@ -10764,7 +10745,6 @@
                         </button>
                     </div>
                 `;
-                metricsEl?.classList.add('hidden');
                 actionsEl?.classList.add('hidden');
                 suppListEl?.classList.add('hidden');
                 return;
@@ -10792,16 +10772,6 @@
                 const allLoggedForPeriod = supplements.every(s =>
                     todaysLogs[s.supplement_id] === timeOfDay
                 );
-
-                // Get health data for the SELECTED date (to match Oura display)
-                const healthData = analyticsData?.health_data || [];
-                const selectedDateStr = getLocalDateString(currentDate);
-                const selectedDayHealth = healthData.find(h => h.date === selectedDateStr);
-
-                const hasHealthData = selectedDayHealth && (selectedDayHealth.sleep_score || selectedDayHealth.hrv_score || selectedDayHealth.recovery_score);
-
-                // Calculate trends based on selected date
-                const trends = hasHealthData ? calculateHealthTrends(healthData, selectedDayHealth) : { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
 
                 // Simple informational subtitle
                 let subtitleText = `${supplements.length} supplement${supplements.length > 1 ? 's' : ''} in your stack`;
@@ -10838,25 +10808,6 @@
                         `;
                     }).join('');
                     suppListEl.classList.remove('hidden');
-                }
-
-                // Show metrics if we have health data for selected date
-                if (hasHealthData) {
-                    document.getElementById('rec-sleep').textContent = Math.round(selectedDayHealth.sleep_score) || '--';
-                    document.getElementById('rec-hrv').textContent = Math.round(selectedDayHealth.hrv_score) || '--';
-                    document.getElementById('rec-recovery').textContent = Math.round(selectedDayHealth.recovery_score) || '--';
-
-                    // Add trend indicators
-                    document.getElementById('rec-sleep-trend').innerHTML = getTrendIcon(trends.sleep);
-                    document.getElementById('rec-sleep-trend').className = 'metric-trend ' + trends.sleep;
-                    document.getElementById('rec-hrv-trend').innerHTML = getTrendIcon(trends.hrv);
-                    document.getElementById('rec-hrv-trend').className = 'metric-trend ' + trends.hrv;
-                    document.getElementById('rec-recovery-trend').innerHTML = getTrendIcon(trends.recovery);
-                    document.getElementById('rec-recovery-trend').className = 'metric-trend ' + trends.recovery;
-
-                    metricsEl?.classList.remove('hidden');
-                } else {
-                    metricsEl?.classList.add('hidden');
                 }
 
                 // Show actions
