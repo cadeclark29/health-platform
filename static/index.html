@@ -10315,16 +10315,15 @@
                     todaysLogs[s.supplement_id] === timeOfDay
                 );
 
-                // Get health data from analyticsData (already loaded)
+                // Get health data for the SELECTED date (to match Oura display)
                 const healthData = analyticsData?.health_data || [];
-                const latestHealth = healthData.length > 0
-                    ? [...healthData].sort((a, b) => new Date(b.date) - new Date(a.date))[0]
-                    : null;
+                const selectedDateStr = currentDate.toISOString().split('T')[0];
+                const selectedDayHealth = healthData.find(h => h.date === selectedDateStr);
 
-                const hasHealthData = latestHealth && (latestHealth.sleep_score || latestHealth.hrv_score || latestHealth.recovery_score);
+                const hasHealthData = selectedDayHealth && (selectedDayHealth.sleep_score || selectedDayHealth.hrv_score || selectedDayHealth.recovery_score);
 
-                // Calculate trends
-                const trends = hasHealthData ? calculateHealthTrends(healthData, latestHealth) : { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
+                // Calculate trends based on selected date
+                const trends = hasHealthData ? calculateHealthTrends(healthData, selectedDayHealth) : { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
 
                 // Simple informational subtitle
                 let subtitleText = `${supplements.length} supplement${supplements.length > 1 ? 's' : ''} in your stack`;
@@ -10363,11 +10362,11 @@
                     suppListEl.classList.remove('hidden');
                 }
 
-                // Show metrics if we have health data
+                // Show metrics if we have health data for selected date
                 if (hasHealthData) {
-                    document.getElementById('rec-sleep').textContent = Math.round(latestHealth.sleep_score) || '--';
-                    document.getElementById('rec-hrv').textContent = Math.round(latestHealth.hrv_score) || '--';
-                    document.getElementById('rec-recovery').textContent = Math.round(latestHealth.recovery_score) || '--';
+                    document.getElementById('rec-sleep').textContent = Math.round(selectedDayHealth.sleep_score) || '--';
+                    document.getElementById('rec-hrv').textContent = Math.round(selectedDayHealth.hrv_score) || '--';
+                    document.getElementById('rec-recovery').textContent = Math.round(selectedDayHealth.recovery_score) || '--';
 
                     // Add trend indicators
                     document.getElementById('rec-sleep-trend').innerHTML = getTrendIcon(trends.sleep);

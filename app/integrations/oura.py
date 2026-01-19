@@ -127,13 +127,16 @@ class OuraIntegration(WearableIntegration):
         latest_detailed_sleep = detailed_sleep_data[-1] if detailed_sleep_data else {}
         latest_readiness = readiness_data[-1] if readiness_data else {}
 
-        # Get actual HRV in milliseconds from detailed sleep data
+        # Get HRV - try average_hrv from detailed sleep first, then hrv_balance from readiness
         actual_hrv = latest_detailed_sleep.get("average_hrv")
+        if actual_hrv is None:
+            # Fallback to hrv_balance contributor from readiness (0-100 score)
+            actual_hrv = latest_readiness.get("contributors", {}).get("hrv_balance")
 
         # Normalize to our schema
         return NormalizedHealthData(
             sleep_score=latest_sleep.get("score"),
-            hrv_score=actual_hrv,  # Actual HRV in milliseconds
+            hrv_score=actual_hrv,  # HRV in ms or hrv_balance score
             recovery_score=latest_readiness.get("score"),
             strain_score=self._calculate_strain_from_activity(latest_readiness),
             resting_hr=latest_readiness.get("contributors", {}).get("resting_heart_rate"),
@@ -201,13 +204,16 @@ class OuraIntegration(WearableIntegration):
             readiness = readiness_data.get(date_str, {})
             activity = activity_data.get(date_str, {})
 
-            # Get actual HRV in milliseconds from detailed sleep
+            # Get HRV - try average_hrv from detailed sleep first, then hrv_balance from readiness
             actual_hrv = detailed_sleep.get("average_hrv")
+            if actual_hrv is None:
+                # Fallback to hrv_balance contributor from readiness (0-100 score)
+                actual_hrv = readiness.get("contributors", {}).get("hrv_balance")
 
             historical.append({
                 "date": date_str,
                 "sleep_score": sleep.get("score"),
-                "hrv_score": actual_hrv,  # Actual HRV in milliseconds
+                "hrv_score": actual_hrv,  # HRV in ms or hrv_balance score
                 "recovery_score": readiness.get("score"),
                 "strain_score": self._calculate_strain_from_activity(readiness),
                 "resting_hr": readiness.get("contributors", {}).get("resting_heart_rate"),
