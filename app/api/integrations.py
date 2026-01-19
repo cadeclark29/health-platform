@@ -680,6 +680,36 @@ async def debug_oura_data(user_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Debug failed: {str(e)}")
 
 
+@router.post("/{user_id}/simulate-oura")
+def simulate_oura_connection(
+    user_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Simulate an Oura connection for testing purposes.
+    Sets a mock oura_token so the frontend shows the Oura card.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Set a mock token that indicates "connected" but won't work for real API calls
+    user.oura_token = {
+        "access_token": "mock_test_token",
+        "token_type": "Bearer",
+        "expires_at": 9999999999,  # Far future
+        "refresh_token": "mock_refresh",
+        "scope": "test",
+        "is_mock": True
+    }
+    db.commit()
+
+    return {
+        "status": "simulated",
+        "message": "Oura connection simulated for testing. Health data will display from test scenarios."
+    }
+
+
 @router.post("/{user_id}/test-scenario")
 def set_test_scenario(
     user_id: str,
