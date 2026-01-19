@@ -6,14 +6,16 @@ from app.models import User, HealthData, DispenseLog, DailyCheckIn
 from .rules import RulesEngine
 from .llm import LLMPersonalizer
 from .interactions import interaction_checker
+from .dynamic_intelligence import dynamic_intelligence, SupplementAdjustment
 
 
 class RecommendationEngine:
-    """Main recommendation engine combining rules and LLM personalization."""
+    """Main recommendation engine combining rules, dynamic intelligence, and LLM personalization."""
 
     def __init__(self):
         self.rules = RulesEngine()
         self.llm = LLMPersonalizer()
+        self.intelligence = dynamic_intelligence
 
     async def get_recommendation(
         self,
@@ -73,9 +75,43 @@ class RecommendationEngine:
             checkin=checkin
         )
 
-        # Step 6: Prepare supplements with remaining doses for LLM
+        # Step 7b: Evaluate dynamic intelligence rules
+        health_state = self.intelligence.evaluate_health_state(
+            health_data=health_data,
+            baseline=baseline,
+            user_profile={
+                "weight_kg": user.weight_kg,
+                "age": user.age,
+                "sex": user.sex
+            }
+        )
+
+        # Build dynamic adjustments lookup for quick access
+        dynamic_adjustments = {}
+        for adj in health_state.adjustments:
+            if adj.supplement_id not in dynamic_adjustments:
+                dynamic_adjustments[adj.supplement_id] = adj
+            elif adj.action == "hold":
+                # Hold always takes precedence
+                dynamic_adjustments[adj.supplement_id] = adj
+
+        # Step 8: Prepare supplements with remaining doses for LLM
+        # Apply dynamic adjustment filters (e.g., hold caffeine if immune_alert)
         supplements_for_llm = []
+        held_supplements = []
+
         for supp in available:
+            # Check if this supplement should be held due to dynamic rules
+            dyn_adj = dynamic_adjustments.get(supp.id)
+            if dyn_adj and dyn_adj.action == "hold":
+                held_supplements.append({
+                    "id": supp.id,
+                    "name": supp.name,
+                    "reason": dyn_adj.reason or dyn_adj.explanation,
+                    "trigger": dyn_adj.trigger_metric
+                })
+                continue  # Skip this supplement - it's being held
+
             remaining = self.rules.get_remaining_dose(supp.id, dispensed_today)
             supplements_for_llm.append({
                 "id": supp.id,
@@ -83,10 +119,11 @@ class RecommendationEngine:
                 "unit": supp.unit,
                 "standard_dose": supp.standard_dose,
                 "remaining_dose": remaining,
-                "triggers": list(supp.triggers.keys())
+                "triggers": list(supp.triggers.keys()),
+                "dynamic_adjustment": self._get_dynamic_adjustment_info(dyn_adj) if dyn_adj else None
             })
 
-        # Step 7: Get LLM personalized recommendations
+        # Step 9: Get LLM personalized recommendations
         llm_result = await self.llm.personalize_recommendations(
             health_data=health_data,
             active_triggers=active_triggers,
@@ -95,7 +132,7 @@ class RecommendationEngine:
             time_of_day=time_of_day
         )
 
-        # Step 8: Validate and finalize recommendations
+        # Step 10: Validate and finalize recommendations
         validated_recommendations = []
         for rec in llm_result.get("recommendations", []):
             supplement_id = rec.get("supplement_id")
@@ -142,10 +179,21 @@ class RecommendationEngine:
                         if trigger_explanation:
                             matched_triggers.append(trigger_explanation)
 
+                # Get dynamic intelligence info if available
+                dyn_adj = dynamic_adjustments.get(supplement_id)
+                dynamic_info = None
+                if dyn_adj:
+                    dynamic_info = self.intelligence.get_adjustment_with_research(dyn_adj)
+                    # Apply dose multiplier from dynamic rules
+                    if dyn_adj.action == "increase" and dyn_adj.dose_multiplier > 1:
+                        final_dose = min(final_dose * dyn_adj.dose_multiplier, config.max_daily_dose)
+                    elif dyn_adj.action == "reduce" and dyn_adj.dose_multiplier < 1:
+                        final_dose = final_dose * dyn_adj.dose_multiplier
+
                 validated_recommendations.append({
                     "supplement_id": supplement_id,
                     "name": config.name,
-                    "dose": final_dose,
+                    "dose": round(final_dose, 1),
                     "unit": config.unit,
                     "reason": rec.get("reason", ""),
                     "explanation": {
@@ -155,10 +203,62 @@ class RecommendationEngine:
                         "max_daily_dose": config.max_daily_dose,
                         "time_windows": config.time_windows,
                         "dose_adjustment": dose_adjustment
-                    }
+                    },
+                    "dynamic_intelligence": dynamic_info
                 })
 
-        # Step 9: Check for interactions between recommended supplements
+        # Step 11: Inject supplements that dynamic intelligence wants to ADD
+        # (These are supplements triggered by health conditions that LLM may not have suggested)
+        already_recommended = {r["supplement_id"] for r in validated_recommendations}
+
+        for adj in health_state.adjustments:
+            if adj.action == "add" and adj.supplement_id not in already_recommended:
+                config = self.rules.supplements.get(adj.supplement_id)
+                if config is None:
+                    continue
+
+                # Check if this supplement is valid for the current time and user
+                is_valid, message = self.rules.validate_recommendation(
+                    supplement_id=adj.supplement_id,
+                    dose=config.standard_dose * adj.dose_multiplier,
+                    time_of_day=time_of_day,
+                    user_allergies=user.allergies or [],
+                    dispensed_today=dispensed_today
+                )
+
+                if is_valid:
+                    dynamic_info = self.intelligence.get_adjustment_with_research(adj)
+                    final_dose = min(
+                        config.standard_dose * adj.dose_multiplier,
+                        config.max_daily_dose - dispensed_today.get(adj.supplement_id, 0)
+                    )
+
+                    validated_recommendations.append({
+                        "supplement_id": adj.supplement_id,
+                        "name": config.name,
+                        "dose": round(final_dose, 1),
+                        "unit": config.unit,
+                        "reason": adj.explanation or adj.reason,
+                        "explanation": {
+                            "matched_triggers": [{
+                                "trigger": adj.trigger_metric,
+                                "description": adj.trigger_condition,
+                                "metric": adj.trigger_metric,
+                                "actual_value": adj.trigger_value,
+                                "threshold": None,
+                                "comparison": None
+                            }],
+                            "evidence": config.evidence,
+                            "standard_dose": config.standard_dose,
+                            "max_daily_dose": config.max_daily_dose,
+                            "time_windows": config.time_windows,
+                            "dose_adjustment": None
+                        },
+                        "dynamic_intelligence": dynamic_info
+                    })
+                    already_recommended.add(adj.supplement_id)
+
+        # Step 12: Check for interactions between recommended supplements
         recommended_ids = [r["supplement_id"] for r in validated_recommendations]
         interaction_warnings = []
         cycle_warnings = []
@@ -190,6 +290,15 @@ class RecommendationEngine:
                             **status
                         })
 
+        # Build dynamic intelligence summary
+        dynamic_summary = {
+            "overall_status": health_state.overall_status,
+            "active_conditions": health_state.active_conditions,
+            "compound_conditions": [c["name"] for c in health_state.compound_conditions],
+            "held_supplements": held_supplements,
+            "alerts": health_state.alerts
+        }
+
         return {
             "recommendations": validated_recommendations,
             "reasoning": llm_result.get("reasoning", ""),
@@ -199,7 +308,21 @@ class RecommendationEngine:
             "using_baseline": baseline is not None,
             "has_checkin": checkin is not None,
             "interaction_warnings": interaction_warnings,
-            "cycle_warnings": cycle_warnings
+            "cycle_warnings": cycle_warnings,
+            "dynamic_intelligence": dynamic_summary
+        }
+
+    def _get_dynamic_adjustment_info(self, adj: SupplementAdjustment) -> Dict:
+        """Convert SupplementAdjustment to dict for LLM context."""
+        if adj is None:
+            return None
+        return {
+            "action": adj.action,
+            "dose_multiplier": adj.dose_multiplier,
+            "reason": adj.reason,
+            "trigger_metric": adj.trigger_metric,
+            "trigger_value": adj.trigger_value,
+            "priority_level": adj.priority_level
         }
 
     def _get_user_baseline(self, user: User, db: Session) -> Optional[Dict]:

@@ -3532,6 +3532,122 @@
             transform: rotate(180deg);
         }
 
+        /* Intelligent Insights Section */
+        .health-insights {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .health-insights.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .health-insight {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+
+        .health-insight.alert-immune {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border-color: rgba(251, 146, 60, 0.4);
+        }
+
+        .health-insight.alert-stress {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(251, 146, 60, 0.08) 100%);
+            border-color: rgba(234, 179, 8, 0.3);
+        }
+
+        .health-insight.alert-sleep {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(167, 139, 250, 0.08) 100%);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .health-insight.alert-recovery {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .insight-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #E8E8E8;
+        }
+
+        .insight-description {
+            font-size: 0.8em;
+            color: #999;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .insight-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .insight-action {
+            font-size: 0.75em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #CCC;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .insight-action.add {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .insight-action.hold {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .insight-action.reduce {
+            background: rgba(251, 146, 60, 0.15);
+            color: #FB923C;
+        }
+
+        .insight-research {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .insight-research-link {
+            font-size: 0.7em;
+            color: #A78BFA;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .insight-research-link:hover {
+            text-decoration: underline;
+        }
+
         .oura-details-sections {
             margin-top: 12px;
             display: none;
@@ -6532,6 +6648,11 @@
                         </div>
                     </div>
 
+                    <!-- Intelligent Health Insights -->
+                    <div class="health-insights" id="health-insights">
+                        <!-- Dynamically populated by JavaScript -->
+                    </div>
+
                     <!-- Toggle for expanded details -->
                     <button class="oura-details-toggle" id="oura-details-toggle" onclick="toggleOuraDetails()">
                         <span>View Details</span>
@@ -7743,6 +7864,7 @@
 
             if (dayData) {
                 updateOuraMetrics(dayData);
+                generateHealthInsights(dayData);  // Generate intelligent insights
                 if (isToday) {
                     dateLabel.textContent = "Today's scores";
                 } else {
@@ -7752,6 +7874,7 @@
             } else {
                 // No data for this date
                 updateOuraMetrics({ sleep_score: null, hrv_score: null, recovery_score: null });
+                generateHealthInsights(null);  // Clear insights
                 if (isToday) {
                     dateLabel.textContent = "No data yet today";
                 } else {
@@ -7774,6 +7897,175 @@
             if (score >= 70) return 'good';
             if (score >= 50) return 'fair';
             return 'poor';
+        }
+
+        // Generate health insights based on current health data
+        function generateHealthInsights(data) {
+            const container = document.getElementById('health-insights');
+            if (!container) return;
+
+            // Clear previous insights
+            container.innerHTML = '';
+            container.classList.remove('visible');
+
+            if (!data) return;
+
+            const insights = [];
+
+            // Temperature-based immune alerts (HIGHEST PRIORITY)
+            if (data.temperature_deviation != null && data.temperature_deviation > 0.5) {
+                const severity = data.temperature_deviation > 1.0 ? 'crisis' : 'alert';
+                insights.push({
+                    type: 'immune',
+                    priority: severity === 'crisis' ? 100 : 90,
+                    title: severity === 'crisis' ? 'Immune System Alert' : 'Immune Support Activated',
+                    description: `Your body temperature is ${data.temperature_deviation.toFixed(1)}°C above baseline. ${severity === 'crisis' ? 'This indicates a strong immune response.' : 'Your immune system may be responding to something.'}`,
+                    actions: [
+                        { type: 'add', text: '+ Elderberry' },
+                        { type: 'add', text: '+ Vitamin C' },
+                        { type: 'add', text: '+ Zinc' },
+                        { type: 'hold', text: 'Hold Caffeine' }
+                    ],
+                    research: {
+                        text: 'Meta-analysis: Elderberry reduces respiratory symptoms',
+                        url: 'https://pubmed.ncbi.nlm.nih.gov/30670267'
+                    },
+                    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+                });
+            }
+
+            // HRV-based stress alerts
+            const hrvBaseline = analyticsData?.user_baseline?.hrv?.mean;
+            if (data.hrv_score != null) {
+                const threshold = hrvBaseline ? hrvBaseline * 0.75 : 40;
+                const isStressed = hrvBaseline
+                    ? data.hrv_score < hrvBaseline * 0.75
+                    : data.hrv_score < 40;
+
+                if (isStressed) {
+                    const percentBelow = hrvBaseline
+                        ? Math.round((1 - data.hrv_score / hrvBaseline) * 100)
+                        : null;
+                    insights.push({
+                        type: 'stress',
+                        priority: 80,
+                        title: 'Stress Recovery Mode',
+                        description: percentBelow
+                            ? `Your HRV is ${percentBelow}% below your baseline. This indicates elevated stress.`
+                            : `Your HRV of ${data.hrv_score}ms suggests elevated stress levels.`,
+                        actions: [
+                            { type: 'add', text: '+ Ashwagandha' },
+                            { type: 'add', text: '+ L-Theanine' },
+                            { type: 'reduce', text: 'Reduce Caffeine' }
+                        ],
+                        research: {
+                            text: 'Ashwagandha significantly reduces cortisol',
+                            url: 'https://pubmed.ncbi.nlm.nih.gov/28471731'
+                        },
+                        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#EAB308" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'
+                    });
+                }
+            }
+
+            // Sleep-based alerts
+            if (data.sleep_score != null && data.sleep_score < 60) {
+                insights.push({
+                    type: 'sleep',
+                    priority: 70,
+                    title: 'Sleep Recovery Support',
+                    description: `Sleep score of ${data.sleep_score} is below optimal. Prioritizing sleep support today.`,
+                    actions: [
+                        { type: 'add', text: '+ Magnesium' },
+                        { type: 'add', text: '+ Apigenin (PM)' },
+                        { type: 'reduce', text: 'Limit Caffeine' }
+                    ],
+                    research: {
+                        text: 'Magnesium improves sleep quality',
+                        url: 'https://pubmed.ncbi.nlm.nih.gov/34883514'
+                    },
+                    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
+                });
+            }
+
+            // Recovery-based alerts
+            if (data.recovery_score != null && data.recovery_score < 50) {
+                insights.push({
+                    type: 'recovery',
+                    priority: 60,
+                    title: 'Recovery Focus',
+                    description: `Recovery score of ${data.recovery_score} suggests your body needs extra support today.`,
+                    actions: [
+                        { type: 'add', text: '+ Omega-3' },
+                        { type: 'add', text: '+ Magnesium' }
+                    ],
+                    research: {
+                        text: 'Omega-3 reduces inflammation and supports recovery',
+                        url: 'https://pubmed.ncbi.nlm.nih.gov/17277604'
+                    },
+                    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'
+                });
+            }
+
+            // Compound condition: Overtraining syndrome
+            const hasLowHRV = data.hrv_score != null && (hrvBaseline ? data.hrv_score < hrvBaseline * 0.8 : data.hrv_score < 45);
+            const hasPoorSleep = data.sleep_score != null && data.sleep_score < 60;
+            const hasPoorRecovery = data.recovery_score != null && data.recovery_score < 50;
+            const overtrained = [hasLowHRV, hasPoorSleep, hasPoorRecovery].filter(Boolean).length >= 2;
+
+            if (overtrained) {
+                // Replace individual alerts with compound alert
+                insights.length = 0; // Clear other insights
+                insights.push({
+                    type: 'stress',
+                    priority: 95,
+                    title: 'Accumulated Fatigue Detected',
+                    description: 'Multiple metrics indicate your body needs rest. Consider a recovery day.',
+                    actions: [
+                        { type: 'hold', text: 'Hold Caffeine' },
+                        { type: 'hold', text: 'Hold Creatine' },
+                        { type: 'add', text: '+ Ashwagandha' },
+                        { type: 'add', text: '+ Omega-3' }
+                    ],
+                    research: {
+                        text: 'Recovery protocols for accumulated fatigue',
+                        url: 'https://pubmed.ncbi.nlm.nih.gov/28471731'
+                    },
+                    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+                });
+            }
+
+            // Sort by priority and limit to top 2 insights
+            insights.sort((a, b) => b.priority - a.priority);
+            const topInsights = insights.slice(0, 2);
+
+            // Render insights
+            if (topInsights.length > 0) {
+                container.classList.add('visible');
+                container.innerHTML = topInsights.map(insight => `
+                    <div class="health-insight alert-${insight.type}">
+                        <div class="insight-header">
+                            <div class="insight-icon">${insight.icon}</div>
+                            <div class="insight-title">${insight.title}</div>
+                        </div>
+                        <div class="insight-description">${insight.description}</div>
+                        <div class="insight-actions">
+                            ${insight.actions.map(a => `
+                                <span class="insight-action ${a.type}">${a.text}</span>
+                            `).join('')}
+                        </div>
+                        ${insight.research ? `
+                            <div class="insight-research">
+                                <a href="${insight.research.url}" target="_blank" class="insight-research-link">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                    ${insight.research.text}
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
         }
 
         // Toggle Oura details visibility

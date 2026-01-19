@@ -154,6 +154,9 @@ class RulesEngine:
         "low_sunlight": {"metric": "default", "threshold": None, "comparison": None, "description": "Default: assume limited sun exposure"},
         "immune_support": {"metric": "user_reported", "threshold": None, "comparison": None, "description": "User-reported need"},
         "illness": {"metric": "user_reported", "threshold": None, "comparison": None, "description": "User-reported illness"},
+        # Temperature-based immune triggers
+        "immune_alert": {"metric": "temperature_deviation", "threshold": 0.5, "comparison": ">", "description": "Body temperature 0.5°C+ above baseline"},
+        "immune_crisis": {"metric": "temperature_deviation", "threshold": 1.0, "comparison": ">", "description": "Significant temperature elevation (1°C+ above baseline)"},
     }
 
     def analyze_health_triggers(
@@ -245,6 +248,19 @@ class RulesEngine:
         triggers["immune_support"] = False  # User can enable
         triggers["illness"] = False  # User can report
         triggers["low_sunlight"] = True  # Assume yes for supplement recommendation
+
+        # Temperature-based immune triggers
+        temperature_deviation = health_data.get("temperature_deviation")
+        if temperature_deviation is not None:
+            triggers["immune_alert"] = temperature_deviation > 0.5
+            triggers["immune_crisis"] = temperature_deviation > 1.0
+            # Also activate immune support if temperature is elevated
+            if temperature_deviation > 0.5:
+                triggers["immune_support"] = True
+                triggers["illness"] = True  # Treat elevated temp as potential illness
+        else:
+            triggers["immune_alert"] = False
+            triggers["immune_crisis"] = False
 
         return triggers
 

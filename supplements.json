@@ -1,6 +1,27 @@
 {
   "supplements": [
     {
+      "id": "elderberry",
+      "name": "Elderberry Extract",
+      "unit": "mg",
+      "max_daily_dose": 1500,
+      "standard_dose": 500,
+      "time_windows": ["morning", "afternoon", "evening"],
+      "triggers": {
+        "immune_support": true,
+        "illness": true,
+        "immune_alert": true,
+        "immune_crisis": true
+      },
+      "contraindications": ["autoimmune"],
+      "evidence": "PMID:30670267 Meta-analysis: elderberry supplementation substantially reduces upper respiratory symptoms. Active anthocyanins have antiviral properties.",
+      "research": {
+        "pubmed_id": "30670267",
+        "finding": "Meta-analysis: elderberry reduces upper respiratory symptoms by average 4 days",
+        "mechanism": "Inhibits viral attachment and entry, stimulates cytokine production"
+      }
+    },
+    {
       "id": "vitamin_d3",
       "name": "Vitamin D3",
       "unit": "IU",
@@ -29,7 +50,12 @@
         "muscle_recovery": true
       },
       "contraindications": [],
-      "evidence": "NIH RDA: 400-420mg men, 310-320mg women. Glycinate form best for sleep/absorption."
+      "evidence": "NIH RDA: 400-420mg men, 310-320mg women. Glycinate form best for sleep/absorption.",
+      "research": {
+        "pubmed_id": "34883514",
+        "finding": "Magnesium supplementation improves sleep quality and reduces cortisol",
+        "mechanism": "GABA receptor agonist, reduces sympathetic nervous system activity"
+      }
     },
     {
       "id": "vitamin_b12",
@@ -74,7 +100,12 @@
         "immune_support": true
       },
       "contraindications": [],
-      "evidence": "NIH RDA: 90mg men, 75mg women. Upper limit 2000mg. Higher doses for illness."
+      "evidence": "NIH RDA: 90mg men, 75mg women. Upper limit 2000mg. Higher doses for illness.",
+      "research": {
+        "pubmed_id": "21067697",
+        "finding": "High-dose vitamin C (1-2g) may reduce cold duration by 8% in adults",
+        "mechanism": "Antioxidant, supports immune cell function, enhances phagocytosis"
+      }
     },
     {
       "id": "zinc",
@@ -89,7 +120,12 @@
         "immune_support": true
       },
       "contraindications": [],
-      "evidence": "NIH RDA: 11mg men, 8mg women. Upper limit 40mg. Don't combine with copper."
+      "evidence": "NIH RDA: 11mg men, 8mg women. Upper limit 40mg. Don't combine with copper.",
+      "research": {
+        "pubmed_id": "21067697",
+        "finding": "Zinc lozenges can reduce cold duration by 33% when started within 24 hours",
+        "mechanism": "Inhibits viral replication, modulates immune response"
+      }
     },
     {
       "id": "electrolytes",
@@ -118,7 +154,12 @@
         "poor_sleep": true
       },
       "contraindications": [],
-      "evidence": "Examine.com: 100-200mg for relaxation. Synergistic with caffeine for focus."
+      "evidence": "Examine.com: 100-200mg for relaxation. Synergistic with caffeine for focus.",
+      "research": {
+        "pubmed_id": "18681988",
+        "finding": "L-theanine + caffeine combination improves focus while reducing jitters",
+        "mechanism": "Promotes alpha brain waves, modulates GABA, counteracts caffeine anxiety"
+      }
     },
     {
       "id": "melatonin",
@@ -206,7 +247,12 @@
         "fatigue": true
       },
       "contraindications": ["thyroid_medication", "autoimmune"],
-      "evidence": "Meta-analysis: 300-600mg/day reduces cortisol 14-28%. KSM-66 most studied."
+      "evidence": "Meta-analysis: 300-600mg/day reduces cortisol 14-28%. KSM-66 most studied.",
+      "research": {
+        "pubmed_id": "28471731",
+        "finding": "Ashwagandha significantly reduces cortisol levels and perceived stress",
+        "mechanism": "Adaptogen that modulates HPA axis, reduces cortisol, supports GABA"
+      }
     },
     {
       "id": "coq10",
