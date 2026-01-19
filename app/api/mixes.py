@@ -167,11 +167,11 @@ async def get_smart_recommendation(
                 reason="No health data available. Recommending essential daily nutrients.",
                 health_summary={}
             )
-        elif time_of_day == "evening":
+        elif time_of_day == "bedtime":
             return SmartRecommendation(
                 recommended_mix_id="night_drink",
                 recommended_mix_name="Night Drink",
-                reason="No health data available. Recommending sleep support for evening.",
+                reason="No health data available. Recommending sleep support for bedtime.",
                 health_summary={}
             )
         else:
