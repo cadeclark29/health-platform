@@ -3503,6 +3503,157 @@
             }
         }
 
+        /* Expandable Oura Details */
+        .oura-details-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            width: 100%;
+        }
+
+        .oura-details-toggle:hover {
+            color: #A78BFA;
+        }
+
+        .oura-details-toggle svg {
+            transition: transform 0.2s ease;
+        }
+
+        .oura-details-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .oura-details-sections {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .oura-details-sections.expanded {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .oura-detail-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .oura-detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .oura-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #A78BFA;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .oura-detail-header svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .oura-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .oura-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .oura-detail-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .oura-detail-label {
+            font-size: 0.7em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .oura-detail-wide {
+            grid-column: span 2;
+        }
+
+        .sleep-bar-container {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            margin-top: 4px;
+        }
+
+        .sleep-bar-segment {
+            height: 100%;
+        }
+
+        .sleep-bar-deep {
+            background: #6366F1;
+        }
+
+        .sleep-bar-rem {
+            background: #8B5CF6;
+        }
+
+        .sleep-bar-light {
+            background: #A78BFA;
+        }
+
+        .sleep-bar-awake {
+            background: #F59E0B;
+        }
+
+        .sleep-bar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 0.7em;
+        }
+
+        .sleep-bar-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #888;
+        }
+
+        .sleep-bar-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 500px) {
+            .oura-detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         /* User header */
         .user-header {
             display: flex;
@@ -6370,6 +6521,182 @@
                             <div class="oura-metric-label">Recovery</div>
                         </div>
                     </div>
+
+                    <!-- Toggle for expanded details -->
+                    <button class="oura-details-toggle" id="oura-details-toggle" onclick="toggleOuraDetails()">
+                        <span>View Details</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+
+                    <!-- Expanded Details Sections -->
+                    <div class="oura-details-sections" id="oura-details-sections">
+                        <!-- Sleep Details -->
+                        <div class="oura-detail-section">
+                            <div class="oura-detail-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                                </svg>
+                                Sleep Details
+                            </div>
+                            <div class="oura-detail-grid">
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-sleep-duration">--</div>
+                                    <div class="oura-detail-label">Total Sleep</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-sleep-efficiency">--</div>
+                                    <div class="oura-detail-label">Efficiency</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-bedtime">--</div>
+                                    <div class="oura-detail-label">Bedtime</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-waketime">--</div>
+                                    <div class="oura-detail-label">Wake Time</div>
+                                </div>
+                            </div>
+                            <!-- Sleep Stage Breakdown -->
+                            <div class="oura-detail-item oura-detail-wide" style="margin-top: 12px;">
+                                <div class="oura-detail-label" style="margin-bottom: 6px;">Sleep Stages</div>
+                                <div class="sleep-bar-container" id="oura-sleep-bar"></div>
+                                <div class="sleep-bar-legend">
+                                    <div class="sleep-bar-legend-item">
+                                        <div class="sleep-bar-legend-dot sleep-bar-deep"></div>
+                                        <span id="oura-deep-pct">--</span> Deep
+                                    </div>
+                                    <div class="sleep-bar-legend-item">
+                                        <div class="sleep-bar-legend-dot sleep-bar-rem"></div>
+                                        <span id="oura-rem-pct">--</span> REM
+                                    </div>
+                                    <div class="sleep-bar-legend-item">
+                                        <div class="sleep-bar-legend-dot sleep-bar-light"></div>
+                                        <span id="oura-light-pct">--</span> Light
+                                    </div>
+                                    <div class="sleep-bar-legend-item">
+                                        <div class="sleep-bar-legend-dot sleep-bar-awake"></div>
+                                        <span id="oura-awake-pct">--</span> Awake
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heart Rate -->
+                        <div class="oura-detail-section">
+                            <div class="oura-detail-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                </svg>
+                                Heart Rate
+                            </div>
+                            <div class="oura-detail-grid">
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-resting-hr">--</div>
+                                    <div class="oura-detail-label">Resting HR</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-lowest-hr">--</div>
+                                    <div class="oura-detail-label">Lowest HR</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-avg-hr">--</div>
+                                    <div class="oura-detail-label">Avg During Sleep</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-vo2max">--</div>
+                                    <div class="oura-detail-label">VO2 Max</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity -->
+                        <div class="oura-detail-section">
+                            <div class="oura-detail-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                Activity
+                            </div>
+                            <div class="oura-detail-grid">
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-steps">--</div>
+                                    <div class="oura-detail-label">Steps</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-active-cal">--</div>
+                                    <div class="oura-detail-label">Active Calories</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-activity-score">--</div>
+                                    <div class="oura-detail-label">Activity Score</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-active-time">--</div>
+                                    <div class="oura-detail-label">Active Time</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Body & Wellness -->
+                        <div class="oura-detail-section" id="oura-wellness-section">
+                            <div class="oura-detail-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                </svg>
+                                Body & Wellness
+                            </div>
+                            <div class="oura-detail-grid">
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-spo2">--</div>
+                                    <div class="oura-detail-label">SpO2</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-breathing">--</div>
+                                    <div class="oura-detail-label">Breathing Rate</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-temp">--</div>
+                                    <div class="oura-detail-label">Temp Deviation</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-stress">--</div>
+                                    <div class="oura-detail-label">Stress Level</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workout (conditional) -->
+                        <div class="oura-detail-section hidden" id="oura-workout-section">
+                            <div class="oura-detail-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                Workout
+                            </div>
+                            <div class="oura-detail-grid">
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-workout-type">--</div>
+                                    <div class="oura-detail-label">Activity</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-workout-duration">--</div>
+                                    <div class="oura-detail-label">Duration</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-workout-calories">--</div>
+                                    <div class="oura-detail-label">Calories</div>
+                                </div>
+                                <div class="oura-detail-item">
+                                    <div class="oura-detail-value" id="oura-workout-intensity">--</div>
+                                    <div class="oura-detail-label">Intensity</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="oura-actions">
                         <button class="oura-sync-btn" onclick="syncOuraData()">
                             Sync Latest
@@ -7400,6 +7727,9 @@
                 recoveryEl.textContent = '--';
                 recoveryEl.className = 'oura-metric-value';
             }
+
+            // Update expanded details
+            updateOuraDetails(data);
         }
 
         // Update Oura metrics for the currently selected date
@@ -7454,6 +7784,146 @@
             if (score >= 70) return 'good';
             if (score >= 50) return 'fair';
             return 'poor';
+        }
+
+        // Toggle Oura details visibility
+        function toggleOuraDetails() {
+            const toggle = document.getElementById('oura-details-toggle');
+            const sections = document.getElementById('oura-details-sections');
+            const isExpanded = sections.classList.contains('expanded');
+
+            if (isExpanded) {
+                sections.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+                toggle.querySelector('span').textContent = 'View Details';
+            } else {
+                sections.classList.add('expanded');
+                toggle.classList.add('expanded');
+                toggle.querySelector('span').textContent = 'Hide Details';
+            }
+        }
+
+        // Update expanded Oura details
+        function updateOuraDetails(data) {
+            // Helper to set element text or '--'
+            const setText = (id, value, suffix = '') => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value != null ? value + suffix : '--';
+                }
+            };
+
+            // Helper to format duration in minutes to "Xh Ym"
+            const formatDuration = (seconds) => {
+                if (seconds == null) return '--';
+                const hours = Math.floor(seconds / 3600);
+                const mins = Math.round((seconds % 3600) / 60);
+                if (hours > 0) {
+                    return `${hours}h ${mins}m`;
+                }
+                return `${mins}m`;
+            };
+
+            // Helper to format time from ISO string
+            const formatTime = (isoString) => {
+                if (!isoString) return '--';
+                try {
+                    const date = new Date(isoString);
+                    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                } catch (e) {
+                    return '--';
+                }
+            };
+
+            // Sleep Details
+            setText('oura-sleep-duration', data.sleep_duration_hrs ? data.sleep_duration_hrs.toFixed(1) + 'h' : null);
+            setText('oura-sleep-efficiency', data.sleep_efficiency, '%');
+            setText('oura-bedtime', formatTime(data.bedtime));
+            setText('oura-waketime', formatTime(data.wake_time));
+
+            // Calculate sleep stage percentages from durations
+            const totalSleep = (data.deep_sleep_duration || 0) + (data.rem_sleep_duration || 0) +
+                              (data.light_sleep_duration || 0) + (data.awake_duration || 0);
+
+            if (totalSleep > 0) {
+                const deepPct = Math.round((data.deep_sleep_duration || 0) / totalSleep * 100);
+                const remPct = Math.round((data.rem_sleep_duration || 0) / totalSleep * 100);
+                const lightPct = Math.round((data.light_sleep_duration || 0) / totalSleep * 100);
+                const awakePct = Math.round((data.awake_duration || 0) / totalSleep * 100);
+
+                setText('oura-deep-pct', deepPct + '%');
+                setText('oura-rem-pct', remPct + '%');
+                setText('oura-light-pct', lightPct + '%');
+                setText('oura-awake-pct', awakePct + '%');
+
+                // Update sleep bar
+                const sleepBar = document.getElementById('oura-sleep-bar');
+                if (sleepBar) {
+                    sleepBar.innerHTML = `
+                        <div class="sleep-bar-segment sleep-bar-deep" style="width: ${deepPct}%"></div>
+                        <div class="sleep-bar-segment sleep-bar-rem" style="width: ${remPct}%"></div>
+                        <div class="sleep-bar-segment sleep-bar-light" style="width: ${lightPct}%"></div>
+                        <div class="sleep-bar-segment sleep-bar-awake" style="width: ${awakePct}%"></div>
+                    `;
+                }
+            } else {
+                setText('oura-deep-pct', '--');
+                setText('oura-rem-pct', '--');
+                setText('oura-light-pct', '--');
+                setText('oura-awake-pct', '--');
+                const sleepBar = document.getElementById('oura-sleep-bar');
+                if (sleepBar) sleepBar.innerHTML = '';
+            }
+
+            // Heart Rate
+            setText('oura-resting-hr', data.resting_hr, ' bpm');
+            setText('oura-lowest-hr', data.lowest_hr, ' bpm');
+            setText('oura-avg-hr', data.average_hr_sleep ? Math.round(data.average_hr_sleep) + ' bpm' : null);
+            setText('oura-vo2max', data.vo2_max ? data.vo2_max.toFixed(1) : null);
+
+            // Activity
+            setText('oura-steps', data.steps ? data.steps.toLocaleString() : null);
+            setText('oura-active-cal', data.active_calories ? data.active_calories.toLocaleString() : null);
+            setText('oura-activity-score', data.activity_score);
+            setText('oura-active-time', data.active_time ? Math.round(data.active_time / 60) + 'm' : null);
+
+            // Body & Wellness
+            setText('oura-spo2', data.spo2_average ? data.spo2_average.toFixed(1) + '%' : null);
+            setText('oura-breathing', data.breathing_average ? data.breathing_average.toFixed(1) + '/min' : null);
+
+            if (data.temperature_deviation != null) {
+                const sign = data.temperature_deviation >= 0 ? '+' : '';
+                setText('oura-temp', sign + data.temperature_deviation.toFixed(2) + '°');
+            } else {
+                setText('oura-temp', null);
+            }
+
+            // Stress level formatting
+            if (data.stress_level) {
+                const stressColors = { low: '#22C55E', medium: '#F59E0B', high: '#EF4444' };
+                const stressEl = document.getElementById('oura-stress');
+                if (stressEl) {
+                    stressEl.textContent = data.stress_level.charAt(0).toUpperCase() + data.stress_level.slice(1);
+                    stressEl.style.color = stressColors[data.stress_level] || '#E8E8E8';
+                }
+            } else {
+                setText('oura-stress', null);
+                const stressEl = document.getElementById('oura-stress');
+                if (stressEl) stressEl.style.color = '';
+            }
+
+            // Workout section (show only if there's workout data)
+            const workoutSection = document.getElementById('oura-workout-section');
+            if (data.workout_type) {
+                workoutSection.classList.remove('hidden');
+                setText('oura-workout-type', data.workout_type);
+                setText('oura-workout-duration', data.workout_duration ? data.workout_duration + 'm' : null);
+                setText('oura-workout-calories', data.workout_calories);
+                setText('oura-workout-intensity', data.workout_intensity ?
+                    data.workout_intensity.charAt(0).toUpperCase() + data.workout_intensity.slice(1) : null);
+            } else {
+                workoutSection.classList.add('hidden');
+            }
         }
 
         // Sync Oura data (fetch last 7 days to ensure we get today's data)

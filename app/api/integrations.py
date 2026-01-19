@@ -235,29 +235,98 @@ async def get_oura_history(
                 ).first()
 
                 if existing:
-                    # Update existing record
-                    existing.sleep_score = day.get("sleep_score") or existing.sleep_score
-                    existing.hrv_score = day.get("hrv_score") or existing.hrv_score
-                    existing.recovery_score = day.get("recovery_score") or existing.recovery_score
-                    existing.strain_score = day.get("strain_score") or existing.strain_score
-                    existing.resting_hr = day.get("resting_hr") or existing.resting_hr
-                    existing.sleep_duration_hrs = day.get("sleep_duration_hrs") or existing.sleep_duration_hrs
-                    existing.deep_sleep_pct = day.get("deep_sleep_pct") or existing.deep_sleep_pct
-                    existing.rem_sleep_pct = day.get("rem_sleep_pct") or existing.rem_sleep_pct
+                    # Update existing record with all new fields
+                    existing.sleep_score = day.get("sleep_score")
+                    existing.hrv_score = day.get("hrv_score")
+                    existing.recovery_score = day.get("recovery_score")
+                    existing.strain_score = day.get("strain_score")
+                    existing.sleep_duration_hrs = day.get("sleep_duration_hrs")
+                    existing.deep_sleep_duration = day.get("deep_sleep_duration")
+                    existing.rem_sleep_duration = day.get("rem_sleep_duration")
+                    existing.light_sleep_duration = day.get("light_sleep_duration")
+                    existing.awake_duration = day.get("awake_duration")
+                    existing.sleep_efficiency = day.get("sleep_efficiency")
+                    existing.sleep_latency = day.get("sleep_latency")
+                    existing.restfulness_score = day.get("restfulness_score")
+                    existing.bedtime = day.get("bedtime")
+                    existing.wake_time = day.get("wake_time")
+                    existing.deep_sleep_pct = day.get("deep_sleep_pct")
+                    existing.rem_sleep_pct = day.get("rem_sleep_pct")
+                    existing.resting_hr = day.get("resting_hr")
+                    existing.lowest_hr = day.get("lowest_hr")
+                    existing.average_hr_sleep = day.get("average_hr_sleep")
+                    existing.vo2_max = day.get("vo2_max")
+                    existing.activity_score = day.get("activity_score")
+                    existing.steps = day.get("steps")
+                    existing.active_calories = day.get("active_calories")
+                    existing.total_calories = day.get("total_calories")
+                    existing.sedentary_time = day.get("sedentary_time")
+                    existing.active_time = day.get("active_time")
+                    existing.spo2_average = day.get("spo2_average")
+                    existing.breathing_average = day.get("breathing_average")
+                    existing.breathing_regularity = day.get("breathing_regularity")
+                    existing.stress_level = day.get("stress_level")
+                    existing.stress_score = day.get("stress_score")
+                    existing.workout_type = day.get("workout_type")
+                    existing.workout_duration = day.get("workout_duration")
+                    existing.workout_intensity = day.get("workout_intensity")
+                    existing.workout_calories = day.get("workout_calories")
+                    existing.workout_source = day.get("workout_source")
+                    existing.temperature_deviation = day.get("temperature_deviation")
+                    existing.temperature_trend = day.get("temperature_trend")
                 else:
                     # Create new record for this day
                     health_data = HealthData(
                         user_id=user_id,
                         source="oura",
                         timestamp=day_date,
+                        # Core metrics
                         sleep_score=day.get("sleep_score"),
                         hrv_score=day.get("hrv_score"),
                         recovery_score=day.get("recovery_score"),
                         strain_score=day.get("strain_score"),
-                        resting_hr=day.get("resting_hr"),
+                        # Sleep details
                         sleep_duration_hrs=day.get("sleep_duration_hrs"),
+                        deep_sleep_duration=day.get("deep_sleep_duration"),
+                        rem_sleep_duration=day.get("rem_sleep_duration"),
+                        light_sleep_duration=day.get("light_sleep_duration"),
+                        awake_duration=day.get("awake_duration"),
+                        sleep_efficiency=day.get("sleep_efficiency"),
+                        sleep_latency=day.get("sleep_latency"),
+                        restfulness_score=day.get("restfulness_score"),
+                        bedtime=day.get("bedtime"),
+                        wake_time=day.get("wake_time"),
                         deep_sleep_pct=day.get("deep_sleep_pct"),
-                        rem_sleep_pct=day.get("rem_sleep_pct")
+                        rem_sleep_pct=day.get("rem_sleep_pct"),
+                        # Heart rate
+                        resting_hr=day.get("resting_hr"),
+                        lowest_hr=day.get("lowest_hr"),
+                        average_hr_sleep=day.get("average_hr_sleep"),
+                        # Heart health
+                        vo2_max=day.get("vo2_max"),
+                        # Activity
+                        activity_score=day.get("activity_score"),
+                        steps=day.get("steps"),
+                        active_calories=day.get("active_calories"),
+                        total_calories=day.get("total_calories"),
+                        sedentary_time=day.get("sedentary_time"),
+                        active_time=day.get("active_time"),
+                        # SpO2 / Breathing
+                        spo2_average=day.get("spo2_average"),
+                        breathing_average=day.get("breathing_average"),
+                        breathing_regularity=day.get("breathing_regularity"),
+                        # Stress
+                        stress_level=day.get("stress_level"),
+                        stress_score=day.get("stress_score"),
+                        # Workout
+                        workout_type=day.get("workout_type"),
+                        workout_duration=day.get("workout_duration"),
+                        workout_intensity=day.get("workout_intensity"),
+                        workout_calories=day.get("workout_calories"),
+                        workout_source=day.get("workout_source"),
+                        # Temperature
+                        temperature_deviation=day.get("temperature_deviation"),
+                        temperature_trend=day.get("temperature_trend"),
                     )
                     db.add(health_data)
                     records_added += 1

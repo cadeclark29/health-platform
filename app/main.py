@@ -160,6 +160,46 @@ def run_migrations(db: Session = Depends(get_db)):
         # Push notification fields
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS push_subscription JSONB",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS notification_preferences JSONB DEFAULT '{}'",
+        # Expanded health_data columns for comprehensive Oura integration
+        # Sleep details
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS deep_sleep_duration INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS rem_sleep_duration INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS light_sleep_duration INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS awake_duration INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS sleep_efficiency INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS sleep_latency INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS restfulness_score INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS bedtime VARCHAR",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS wake_time VARCHAR",
+        # Heart rate
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS lowest_hr INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS average_hr_sleep FLOAT",
+        # Heart health
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS vo2_max FLOAT",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS cardiovascular_age INTEGER",
+        # Activity
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS activity_score INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS steps INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS active_calories INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS total_calories INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS sedentary_time INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS active_time INTEGER",
+        # SpO2 / Breathing
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS spo2_average FLOAT",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS breathing_average FLOAT",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS breathing_regularity FLOAT",
+        # Stress
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS stress_level VARCHAR",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS stress_score INTEGER",
+        # Workout
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS workout_type VARCHAR",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS workout_duration INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS workout_intensity VARCHAR",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS workout_calories INTEGER",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS workout_source VARCHAR",
+        # Temperature
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS temperature_deviation FLOAT",
+        "ALTER TABLE health_data ADD COLUMN IF NOT EXISTS temperature_trend FLOAT",
     ]
 
     results = []

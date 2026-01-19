@@ -620,13 +620,55 @@ def get_analytics_data(
         day_key = hd.timestamp.date().isoformat()
         daily_health[day_key] = {
             "date": day_key,
+            # Core metrics
             "sleep_score": hd.sleep_score,
             "hrv_score": hd.hrv_score,
             "recovery_score": hd.recovery_score,
-            "resting_hr": hd.resting_hr,
+            "strain_score": hd.strain_score,
+            # Sleep details
             "sleep_duration_hrs": hd.sleep_duration_hrs,
+            "deep_sleep_duration": hd.deep_sleep_duration,
+            "rem_sleep_duration": hd.rem_sleep_duration,
+            "light_sleep_duration": hd.light_sleep_duration,
+            "awake_duration": hd.awake_duration,
+            "sleep_efficiency": hd.sleep_efficiency,
+            "sleep_latency": hd.sleep_latency,
+            "restfulness_score": hd.restfulness_score,
+            "bedtime": hd.bedtime,
+            "wake_time": hd.wake_time,
             "deep_sleep_pct": hd.deep_sleep_pct,
             "rem_sleep_pct": hd.rem_sleep_pct,
+            # Heart rate
+            "resting_hr": hd.resting_hr,
+            "lowest_hr": hd.lowest_hr,
+            "average_hr_sleep": hd.average_hr_sleep,
+            # Heart health
+            "vo2_max": hd.vo2_max,
+            "cardiovascular_age": hd.cardiovascular_age,
+            # Activity
+            "activity_score": hd.activity_score,
+            "steps": hd.steps,
+            "active_calories": hd.active_calories,
+            "total_calories": hd.total_calories,
+            "sedentary_time": hd.sedentary_time,
+            "active_time": hd.active_time,
+            # SpO2 / Breathing
+            "spo2_average": hd.spo2_average,
+            "breathing_average": hd.breathing_average,
+            "breathing_regularity": hd.breathing_regularity,
+            # Stress
+            "stress_level": hd.stress_level,
+            "stress_score": hd.stress_score,
+            # Workout
+            "workout_type": hd.workout_type,
+            "workout_duration": hd.workout_duration,
+            "workout_intensity": hd.workout_intensity,
+            "workout_calories": hd.workout_calories,
+            "workout_source": hd.workout_source,
+            # Temperature
+            "temperature_deviation": hd.temperature_deviation,
+            "temperature_trend": hd.temperature_trend,
+            # Source
             "source": hd.source
         }
 
