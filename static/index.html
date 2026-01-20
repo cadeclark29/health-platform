@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -6401,6 +6402,209 @@
             }
         }
 
+        /* New supplement card v2 styles */
+        .supplement-card-v2 {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-left: 3px solid #8B5CF6;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .supplement-card-v2:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.03);
+        }
+
+        .supplement-card-v2.measurable {
+            border-left-color: #8B5CF6;
+        }
+
+        .supplement-card-v2.consistency {
+            border-left-color: #22C55E;
+        }
+
+        .supp-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .supp-card-name {
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #E8E8E8;
+        }
+
+        .supp-card-dose {
+            font-size: 0.8em;
+            color: #A78BFA;
+            background: rgba(139, 92, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .supp-card-metrics {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .metric-tag {
+            font-size: 0.7em;
+            padding: 2px 8px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 12px;
+            color: #A78BFA;
+        }
+
+        .supp-mini-chart-container {
+            height: 60px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .supp-card-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+
+        .supp-change {
+            font-weight: 500;
+        }
+
+        .supp-change.positive {
+            color: #22C55E;
+        }
+
+        .supp-change.negative {
+            color: #EF4444;
+        }
+
+        .supp-change.pending {
+            color: #666;
+            font-style: italic;
+        }
+
+        .supp-streak {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .supp-card-info {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 0.75em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .consistency-bar-container {
+            position: relative;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .consistency-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22C55E, #4ADE80);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+
+        .consistency-bar-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75em;
+            font-weight: 500;
+            color: #E8E8E8;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .consistency-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .consistency-stats .stat {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .consistency-stats .stat-value {
+            display: block;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #E8E8E8;
+        }
+
+        .consistency-stats .stat-label {
+            font-size: 0.7em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .supp-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .supp-start-date {
+            font-size: 0.75em;
+            color: #555;
+        }
+
+        .supp-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .supp-card-actions button {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.2s;
+        }
+
+        .supp-card-actions button:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #E8E8E8;
+        }
+
+        .supplements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
         .add-supplement-btn {
             width: 100%;
             padding: 16px;
@@ -6989,33 +7193,6 @@
                 <button class="time-btn active" onclick="setTime(21)" id="time-btn-bedtime">Bedtime</button>
             </div>
 
-            <!-- Tracking Card -->
-            <div class="card" id="tracking-card">
-                <h2>Your Supplement Intake</h2>
-
-                <div class="tracking-tabs">
-                    <button class="tracking-tab active" onclick="switchTrackingTab('daily')" id="tab-daily">Today</button>
-                    <button class="tracking-tab" onclick="switchTrackingTab('weekly')" id="tab-weekly">This Week</button>
-                </div>
-
-                <div class="tracking-content" id="tracking-content">
-                    <div class="empty-state">
-                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
-                        <div>No supplements taken yet</div>
-                    </div>
-                </div>
-
-                <!-- Saturation Gauge -->
-                <div class="saturation-gauge" id="saturation-gauge">
-                    <div class="saturation-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Saturation Tracking
-                    </div>
-                    <div id="saturation-content">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
             </div><!-- End Dashboard Section -->
 
             <!-- Analytics Section -->
@@ -7564,13 +7741,14 @@
         let customBlends = [];
         let currentMixData = null;
         let isDispensing = false;
-        let trackingTab = 'daily';
         let ouraConnected = false;
         let ouraData = null;
 
         // Analytics State
         let healthChart = null;
         let analyticsData = null;
+        let supplementInsightsData = null; // Cached insights for supplement cards
+        let miniCharts = {}; // Store mini chart instances
         let supplementList = []; // List of all supplements for dropdown
 
         // Supplement timing - determines Morning vs Bedtime stack
@@ -7629,6 +7807,82 @@
             'lions_mane': 'Stimulates nerve growth factor (NGF) production, supporting neuroplasticity and cognitive function.',
             'cordyceps': 'Increases ATP production and oxygen utilization. Traditionally used for endurance and vitality.',
         };
+
+        // Supplements with measurable health metrics - show charts for these
+        const MEASURABLE_SUPPLEMENTS = {
+            'magnesium_glycinate': {
+                metrics: ['sleep_score', 'deep_sleep_pct'],
+                primary: 'sleep_score',
+                label: 'Sleep & relaxation',
+                color: '#8B5CF6'
+            },
+            'magnesium': {
+                metrics: ['sleep_score', 'hrv_score'],
+                primary: 'sleep_score',
+                label: 'Sleep & relaxation',
+                color: '#8B5CF6'
+            },
+            'glycine': {
+                metrics: ['sleep_score', 'deep_sleep_pct'],
+                primary: 'sleep_score',
+                label: 'Sleep quality',
+                color: '#8B5CF6'
+            },
+            'ashwagandha': {
+                metrics: ['hrv_score', 'recovery_score'],
+                primary: 'hrv_score',
+                label: 'Stress & HRV',
+                color: '#22C55E'
+            },
+            'l_theanine': {
+                metrics: ['hrv_score', 'sleep_score'],
+                primary: 'hrv_score',
+                label: 'Calm & focus',
+                color: '#22C55E'
+            },
+            'melatonin': {
+                metrics: ['sleep_score'],
+                primary: 'sleep_score',
+                label: 'Sleep onset',
+                color: '#8B5CF6'
+            },
+            'apigenin': {
+                metrics: ['sleep_score'],
+                primary: 'sleep_score',
+                label: 'Sleep quality',
+                color: '#8B5CF6'
+            },
+            'rhodiola': {
+                metrics: ['recovery_score', 'hrv_score'],
+                primary: 'recovery_score',
+                label: 'Energy & recovery',
+                color: '#F59E0B'
+            },
+            'gaba': {
+                metrics: ['sleep_score', 'hrv_score'],
+                primary: 'sleep_score',
+                label: 'Relaxation',
+                color: '#8B5CF6'
+            }
+        };
+
+        // Helper to check if supplement has measurable metrics
+        function isMeasurableSupplement(supplementId) {
+            const id = (supplementId || '').toLowerCase().replace(/-/g, '_');
+            return MEASURABLE_SUPPLEMENTS.hasOwnProperty(id);
+        }
+
+        // Format metric name for display
+        function formatMetricName(metric) {
+            const names = {
+                'sleep_score': 'Sleep',
+                'hrv_score': 'HRV',
+                'recovery_score': 'Recovery',
+                'deep_sleep_pct': 'Deep Sleep',
+                'resting_hr': 'Resting HR'
+            };
+            return names[metric] || metric.replace(/_/g, ' ');
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -9651,8 +9905,6 @@
         // Load all data
         function loadAllData() {
             loadMixes();
-            loadTracking();
-            loadSaturation();
             checkDailyFoundationTaken();
             checkOuraStatus();
             loadTodaysStackData();
@@ -10216,148 +10468,6 @@
                     </button>
                 </div>
             `;
-        }
-
-        // Load tracking
-        async function loadTracking() {
-            if (!currentUserId) return;
-
-            try {
-                const dateStr = getDateString();
-                let url = `/mixes/${currentUserId}/tracking/daily?date_override=${dateStr}`;
-                if (trackingTab === 'weekly') {
-                    url = `/mixes/${currentUserId}/tracking/weekly?date_override=${dateStr}`;
-                }
-
-                const res = await fetch(url);
-                if (res.ok) {
-                    const data = await res.json();
-                    renderTracking(data);
-                }
-            } catch (e) {
-                console.error('Error loading tracking:', e);
-            }
-        }
-
-        // Render tracking
-        function renderTracking(data) {
-            const content = document.getElementById('tracking-content');
-            const supplements = data.supplements || [];
-            const isWeekly = trackingTab === 'weekly';
-
-            if (supplements.length === 0) {
-                content.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
-                        <div>No supplements taken ${isWeekly ? 'this week' : 'yet'}</div>
-                    </div>
-                `;
-                return;
-            }
-
-            content.innerHTML = supplements.map(s => {
-                // Handle both daily (taken/max_daily) and weekly (weekly_total/weekly_max) formats
-                const taken = isWeekly ? s.weekly_total : s.taken;
-                const max = isWeekly ? s.weekly_max : s.max_daily;
-                const pct = s.percentage || Math.min((taken / max) * 100, 100);
-                let barClass = '';
-                if (pct >= 90) barClass = 'danger';
-                else if (pct >= 70) barClass = 'warning';
-
-                // Format display value (round if needed)
-                const takenDisplay = taken % 1 === 0 ? taken : taken.toFixed(1);
-                const maxDisplay = max % 1 === 0 ? max : max.toFixed(0);
-
-                return `
-                    <div class="tracking-item">
-                        <div class="tracking-header">
-                            <span class="tracking-name">${s.name}${isWeekly ? ` (${s.days_taken || 0} days)` : ''}</span>
-                            <span class="tracking-values">${takenDisplay}${s.unit} / ${maxDisplay}${s.unit}</span>
-                        </div>
-                        <div class="tracking-bar">
-                            <div class="tracking-fill ${barClass}" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Switch tracking tab
-        function switchTrackingTab(tab) {
-            trackingTab = tab;
-            document.querySelectorAll('.tracking-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            loadTracking();
-        }
-
-        // Load saturation
-        async function loadSaturation() {
-            if (!currentUserId) return;
-
-            try {
-                const dateStr = getDateString();
-                const res = await fetch(`/mixes/${currentUserId}/tracking/saturation?as_of_date=${dateStr}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    renderSaturation(data);
-                }
-            } catch (e) {
-                console.error('Error loading saturation:', e);
-            }
-        }
-
-        // Render saturation
-        function renderSaturation(data) {
-            const content = document.getElementById('saturation-content');
-            const items = data.supplements || [];
-
-            if (items.length === 0) {
-                content.innerHTML = '<p style="color: #444; font-size: 0.85em;">No saturation data yet. Take supplements with saturation effects to see progress here.</p>';
-                return;
-            }
-
-            content.innerHTML = items.map(s => {
-                const pct = s.saturation_percentage || 0;
-                const circumference = 2 * Math.PI * 32;
-                const offset = circumference - (pct / 100) * circumference;
-                let progressClass = '';
-                let statusClass = '';
-                let statusText = '';
-
-                if (pct >= 100) {
-                    statusClass = 'saturated';
-                    statusText = 'Fully saturated';
-                } else if (s.status === 'building' || s.consecutive_days > 0) {
-                    progressClass = 'building';
-                    statusClass = 'building';
-                    statusText = `Building (${s.consecutive_days} days) - ${s.days_to_saturate - s.consecutive_days} days to full`;
-                } else if (s.status === 'not_started') {
-                    statusClass = '';
-                    statusText = `Not started - ${s.days_to_saturate} days to saturate`;
-                } else {
-                    progressClass = 'decaying';
-                    statusClass = 'decaying';
-                    statusText = 'Decaying - take daily to maintain';
-                }
-
-                return `
-                    <div class="saturation-item">
-                        <div class="saturation-ring">
-                            <svg width="80" height="80">
-                                <circle class="bg" cx="40" cy="40" r="32"></circle>
-                                <circle class="progress ${progressClass}" cx="40" cy="40" r="32"
-                                    stroke-dasharray="${circumference}"
-                                    stroke-dashoffset="${offset}"></circle>
-                            </svg>
-                            <div class="saturation-pct">${Math.round(pct)}%</div>
-                        </div>
-                        <div class="saturation-info">
-                            <div class="saturation-name">${s.name}</div>
-                            <div class="saturation-status ${statusClass}">${statusText}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         // Toggle settings
@@ -11806,19 +11916,25 @@
             if (!currentUserId) return;
 
             const container = document.getElementById('insights-content');
-            if (!container) return;
 
             try {
                 const res = await fetch(`/analytics/${currentUserId}/supplement-insights`);
                 if (res.ok) {
                     const data = await res.json();
-                    renderSupplementInsights(data);
-                } else {
+                    supplementInsightsData = data; // Store globally for supplement cards
+                    if (container) {
+                        renderSupplementInsights(data);
+                    }
+                    // Re-render supplements grid with insights data
+                    renderSupplementsGrid();
+                } else if (container) {
                     container.innerHTML = '<div class="insights-empty"><div class="insights-empty-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div><div>Unable to load insights</div></div>';
                 }
             } catch (e) {
                 console.error('Error loading supplement insights:', e);
-                container.innerHTML = '<div class="insights-empty"><div class="insights-empty-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div><div>Unable to load insights</div></div>';
+                if (container) {
+                    container.innerHTML = '<div class="insights-empty"><div class="insights-empty-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div><div>Unable to load insights</div></div>';
+                }
             }
         }
 
@@ -12114,6 +12230,9 @@
                             borderWidth: 1,
                             padding: 12,
                             displayColors: true
+                        },
+                        annotation: {
+                            annotations: annotations
                         }
                     },
                     scales: {
@@ -12354,14 +12473,6 @@
                     </div>
                 `;
             }
-
-            // Add the "Add supplement" pill
-            html += `
-                <div class="stack-add-pill" onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);">
-                    <div class="stack-add-icon">+</div>
-                    <div class="stack-add-text">Add</div>
-                </div>
-            `;
 
             container.innerHTML = html;
         }
@@ -13330,36 +13441,188 @@
             // Separate active supplements (no end_date)
             const active = supplements.filter(s => !s.end_date);
 
+            // Destroy existing mini charts before re-rendering
+            Object.values(miniCharts).forEach(chart => chart?.destroy?.());
+            miniCharts = {};
+
             container.innerHTML = active.map(supp => {
-                const isManual = supp.is_manual;
-                const typeClass = isManual ? 'manual' : 'recommended';
-                const icon = getSupplementIcon(supp.supplement_id);
-                const reasonText = supp.reason ? formatReason(supp.reason) : '';
+                const suppId = (supp.supplement_id || '').toLowerCase().replace(/-/g, '_');
                 const suppName = supp.supplement_name || formatSupplementName(supp.supplement_id);
 
-                return `
-                    <div class="supplement-card ${typeClass}">
-                        <div class="supplement-icon ${typeClass}">${icon}</div>
-                        <div class="supplement-details">
-                            <div class="supplement-name">${suppName}</div>
-                            <div class="supplement-meta">
-                                ${supp.dosage ? `<span class="supplement-tag">${supp.dosage}</span>` : ''}
-                                ${supp.frequency ? `<span class="supplement-tag">${formatFrequency(supp.frequency)}</span>` : ''}
-                                ${reasonText ? `<span class="supplement-tag">${reasonText}</span>` : ''}
-                            </div>
-                            <div style="font-size: 0.75em; color: #555; margin-top: 4px;">
-                                Since ${formatDate(supp.start_date)}
-                                <span class="type-badge ${typeClass}">${isManual ? 'Manual' : 'Tracked'}</span>
-                            </div>
-                        </div>
-                        <div class="supplement-actions">
-                            <button class="supplement-action-btn edit" onclick="openEditSupplement('${supp.id}')" title="Edit">✎</button>
-                            <button class="supplement-action-btn stop" onclick="stopSupplement('${supp.id}')" title="Stop taking">⏸</button>
-                            <button class="supplement-action-btn delete" onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Delete permanently"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                if (isMeasurableSupplement(suppId)) {
+                    return renderMeasurableCard(supp, suppId, suppName);
+                } else {
+                    return renderConsistencyCard(supp, suppId, suppName);
+                }
+            }).join('');
+
+            // Initialize mini charts after DOM is updated
+            setTimeout(() => initMiniCharts(), 50);
+        }
+
+        // Render card for supplements with measurable health metrics
+        function renderMeasurableCard(supp, suppId, suppName) {
+            const config = MEASURABLE_SUPPLEMENTS[suppId] || {};
+            const metrics = config.metrics || [];
+            const color = config.color || '#8B5CF6';
+
+            // Get impact data from insights
+            const impact = supplementInsightsData?.impact_analysis?.find(
+                i => (i.supplement_id || '').toLowerCase().replace(/-/g, '_') === suppId
+            );
+
+            const hasData = impact?.has_sufficient_data && impact?.change !== null;
+            const changeText = hasData
+                ? `${impact.change_pct > 0 ? '+' : ''}${impact.change_pct}% ${formatMetricName(impact.primary_metric)}`
+                : 'Collecting data...';
+            const changeClass = hasData ? (impact.is_positive ? 'positive' : 'negative') : 'pending';
+            const streakDays = impact?.days_on || Math.floor((new Date() - new Date(supp.start_date)) / (1000 * 60 * 60 * 24));
+
+            return `
+                <div class="supplement-card-v2 measurable" style="border-left-color: ${color}">
+                    <div class="supp-card-header">
+                        <span class="supp-card-name">${suppName}</span>
+                        ${supp.dosage ? `<span class="supp-card-dose">${supp.dosage}</span>` : ''}
+                    </div>
+                    <div class="supp-card-metrics">
+                        ${metrics.map(m => `<span class="metric-tag">${formatMetricName(m)}</span>`).join('')}
+                    </div>
+                    <div class="supp-mini-chart-container">
+                        <canvas id="mini-chart-${supp.id}" width="200" height="60"></canvas>
+                    </div>
+                    <div class="supp-card-stats">
+                        <span class="supp-change ${changeClass}">${changeText}</span>
+                        <span class="supp-streak">${streakDays}d</span>
+                    </div>
+                    <div class="supp-card-footer">
+                        <span class="supp-start-date">Since ${formatDateShort(supp.start_date)}</span>
+                        <div class="supp-card-actions">
+                            <button onclick="openEditSupplement('${supp.id}')" title="Edit">Edit</button>
+                            <button onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Remove">Remove</button>
                         </div>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `;
+        }
+
+        // Render card for supplements without measurable metrics (consistency tracking only)
+        function renderConsistencyCard(supp, suppId, suppName) {
+            // Get consistency data from insights
+            const tracking = supplementInsightsData?.consistency_tracking?.find(
+                t => (t.supplement_id || '').toLowerCase().replace(/-/g, '_') === suppId
+            );
+
+            const adherencePct = tracking?.adherence_pct || 0;
+            const streak = tracking?.streak_days || 0;
+            const daysTaken = tracking?.days_taken || Math.floor((new Date() - new Date(supp.start_date)) / (1000 * 60 * 60 * 24));
+
+            return `
+                <div class="supplement-card-v2 consistency">
+                    <div class="supp-card-header">
+                        <span class="supp-card-name">${suppName}</span>
+                        ${supp.dosage ? `<span class="supp-card-dose">${supp.dosage}</span>` : ''}
+                    </div>
+                    <div class="supp-card-info">
+                        <span class="info-label">Long-term supplement - tracking consistency</span>
+                    </div>
+                    <div class="consistency-bar-container">
+                        <div class="consistency-bar-fill" style="width: ${adherencePct}%"></div>
+                        <span class="consistency-bar-label">${adherencePct}% adherence</span>
+                    </div>
+                    <div class="consistency-stats">
+                        <div class="stat">
+                            <span class="stat-value">${streak}</span>
+                            <span class="stat-label">Day Streak</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${daysTaken}</span>
+                            <span class="stat-label">Days Taken</span>
+                        </div>
+                    </div>
+                    <div class="supp-card-footer">
+                        <span class="supp-start-date">Since ${formatDateShort(supp.start_date)}</span>
+                        <div class="supp-card-actions">
+                            <button onclick="openEditSupplement('${supp.id}')" title="Edit">Edit</button>
+                            <button onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Remove">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize mini sparkline charts for measurable supplements
+        function initMiniCharts() {
+            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
+            const healthData = analyticsData?.health_data || [];
+
+            if (healthData.length === 0) return;
+
+            supplements.forEach(supp => {
+                const suppId = (supp.supplement_id || '').toLowerCase().replace(/-/g, '_');
+                if (!isMeasurableSupplement(suppId)) return;
+
+                const canvas = document.getElementById(`mini-chart-${supp.id}`);
+                if (!canvas) return;
+
+                const config = MEASURABLE_SUPPLEMENTS[suppId];
+                const primaryMetric = config?.primary || 'sleep_score';
+                const color = config?.color || '#8B5CF6';
+
+                // Filter health data from supplement start date
+                const startDate = new Date(supp.start_date);
+                const relevantData = healthData
+                    .filter(d => new Date(d.date) >= startDate && d[primaryMetric] !== null)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (relevantData.length < 2) return;
+
+                const chartData = relevantData.map(d => d[primaryMetric]);
+                const labels = relevantData.map(d => d.date);
+
+                miniCharts[supp.id] = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: chartData,
+                            borderColor: color,
+                            backgroundColor: color + '20',
+                            borderWidth: 1.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(26, 26, 26, 0.9)',
+                                titleColor: '#E8E8E8',
+                                bodyColor: '#A0A0A0',
+                                padding: 8,
+                                displayColors: false,
+                                callbacks: {
+                                    title: (items) => items[0]?.label || '',
+                                    label: (item) => `${formatMetricName(primaryMetric)}: ${item.raw}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { display: false },
+                            y: { display: false }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            });
         }
 
         // Stop taking a supplement (set end date)
