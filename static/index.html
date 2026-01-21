@@ -9961,10 +9961,15 @@
             // Save supplements if any were selected
             if (onboardingData.selectedSupplements.length > 0) {
                 for (const supp of onboardingData.selectedSupplements) {
-                    // Calculate start date based on duration
-                    const startDate = new Date();
-                    startDate.setDate(startDate.getDate() - (supp.duration || 0));
-                    const startDateStr = getLocalDateString(startDate);
+                    // Use explicit startDate if set, otherwise calculate from duration
+                    let startDateStr;
+                    if (supp.startDate) {
+                        startDateStr = supp.startDate;
+                    } else {
+                        const startDate = new Date();
+                        startDate.setDate(startDate.getDate() - (supp.duration || 0));
+                        startDateStr = getLocalDateString(startDate);
+                    }
 
                     try {
                         // Combine dosage with unit for storage (e.g., "2000 IU", "400 mg")
@@ -9984,8 +9989,9 @@
                             })
                         });
 
-                        // Create backdate logs if duration > 0 (assume 80% adherence)
-                        if (supp.duration > 0) {
+                        // Create backdate logs if start date is in the past (assume 80% adherence)
+                        const daysAgo = Math.floor((new Date() - new Date(startDateStr)) / (1000 * 60 * 60 * 24));
+                        if (daysAgo > 0) {
                             await createBackdateLogs(supp.id, startDateStr, 0.8);
                         }
                     } catch (e) {
