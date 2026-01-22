@@ -7596,6 +7596,8 @@
         }
 
         // Update Oura metrics for the currently selected date
+        // Note: Sleep data from Oura is recorded for the night you went to sleep,
+        // so "today" should show last night's sleep (yesterday's date in Oura)
         function updateOuraMetricsForSelectedDate() {
             if (!ouraConnected) return;
 
@@ -7620,13 +7622,26 @@
 
             // Find health data for this date from analyticsData
             const healthData = analyticsData?.health_data || [];
-            const dayData = healthData.find(h => h.date === selectedDateStr);
+
+            // For "today", show last night's sleep data (yesterday's date in Oura)
+            // Sleep data is recorded for the night you went to sleep
+            let lookupDateStr = selectedDateStr;
+            let showingLastNight = false;
+
+            if (isToday) {
+                const yesterday = new Date(currentDate);
+                yesterday.setDate(yesterday.getDate() - 1);
+                lookupDateStr = getLocalDateString(yesterday);
+                showingLastNight = true;
+            }
+
+            const dayData = healthData.find(h => h.date === lookupDateStr);
 
             if (dayData) {
                 updateOuraMetrics(dayData);
                 generateHealthInsights(dayData);  // Generate intelligent insights
-                if (isToday) {
-                    dateLabel.textContent = "Today's scores";
+                if (showingLastNight) {
+                    dateLabel.textContent = "Last night's sleep";
                 } else {
                     const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
                     dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions);
@@ -7635,8 +7650,8 @@
                 // No data for this date
                 updateOuraMetrics({ sleep_score: null, hrv_score: null, recovery_score: null });
                 generateHealthInsights(null);  // Clear insights
-                if (isToday) {
-                    dateLabel.textContent = "No data yet today";
+                if (showingLastNight) {
+                    dateLabel.textContent = "No sleep data yet";
                 } else {
                     const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
                     dateLabel.textContent = currentDate.toLocaleDateString('en-US', dateOptions) + ' (no data)';
