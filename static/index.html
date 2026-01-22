@@ -7599,9 +7599,8 @@
         // Note: Sleep data from Oura is recorded for the night you went to sleep,
         // so "today" should show last night's sleep (yesterday's date in Oura)
         function updateOuraMetricsForSelectedDate() {
-            if (!ouraConnected) return;
-
             const dateLabel = document.getElementById('oura-date-label');
+            if (!dateLabel) return;
             const selectedDateStr = getLocalDateString(currentDate);
 
             // Check if today or future
