@@ -7596,8 +7596,8 @@
         }
 
         // Update Oura metrics for the currently selected date
-        // Note: Sleep data from Oura is recorded for the night you went to sleep,
-        // so "today" should show last night's sleep (yesterday's date in Oura)
+        // Note: Oura records sleep data under the date you WAKE UP,
+        // so today's data = last night's sleep
         function updateOuraMetricsForSelectedDate() {
             const dateLabel = document.getElementById('oura-date-label');
             if (!dateLabel) return;
@@ -7621,25 +7621,12 @@
 
             // Find health data for this date from analyticsData
             const healthData = analyticsData?.health_data || [];
-
-            // For "today", show last night's sleep data (yesterday's date in Oura)
-            // Sleep data is recorded for the night you went to sleep
-            let lookupDateStr = selectedDateStr;
-            let showingLastNight = false;
-
-            if (isToday) {
-                const yesterday = new Date(currentDate);
-                yesterday.setDate(yesterday.getDate() - 1);
-                lookupDateStr = getLocalDateString(yesterday);
-                showingLastNight = true;
-            }
-
-            const dayData = healthData.find(h => h.date === lookupDateStr);
+            const dayData = healthData.find(h => h.date === selectedDateStr);
 
             if (dayData) {
                 updateOuraMetrics(dayData);
                 generateHealthInsights(dayData);  // Generate intelligent insights
-                if (showingLastNight) {
+                if (isToday) {
                     dateLabel.textContent = "Last night's sleep";
                 } else {
                     const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
@@ -7649,7 +7636,7 @@
                 // No data for this date
                 updateOuraMetrics({ sleep_score: null, hrv_score: null, recovery_score: null });
                 generateHealthInsights(null);  // Clear insights
-                if (showingLastNight) {
+                if (isToday) {
                     dateLabel.textContent = "No sleep data yet";
                 } else {
                     const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
