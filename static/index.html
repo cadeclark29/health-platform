@@ -7499,23 +7499,48 @@
             notConnected.classList.add('hidden');
             connected.classList.add('hidden');
 
+            // Helper to show connected state
+            const showConnected = (syncing = false) => {
+                ouraConnected = true;
+                loading.classList.add('hidden');
+                status.className = 'oura-status connected';
+                statusText.textContent = syncing ? 'Connected' : 'Connected (cached)';
+                notConnected.classList.add('hidden');
+                connected.classList.remove('hidden');
+                updateAISubtitle();
+                updateProgressiveDisclosure();
+            };
+
             try {
                 const res = await fetch(`/integrations/${currentUserId}/oura/status`);
-                const data = await res.json();
 
+                if (!res.ok) {
+                    // API error - check if we have cached Oura data
+                    const healthData = analyticsData?.health_data || [];
+                    const hasOuraData = healthData.some(h => h.source === 'oura');
+                    if (hasOuraData) {
+                        showConnected(false);
+                        return;
+                    }
+                    throw new Error('Status check failed');
+                }
+
+                const data = await res.json();
                 loading.classList.add('hidden');
 
                 if (data.connected) {
-                    ouraConnected = true;
-                    status.className = 'oura-status connected';
-                    statusText.textContent = 'Connected';
-                    notConnected.classList.add('hidden');
-                    connected.classList.remove('hidden');
-                    updateAISubtitle();
-                    updateProgressiveDisclosure();
+                    showConnected(true);
                     // Fetch latest data
                     await fetchOuraHistory();
                 } else {
+                    // Check if we have cached data even if not "connected"
+                    const healthData = analyticsData?.health_data || [];
+                    const hasOuraData = healthData.some(h => h.source === 'oura');
+                    if (hasOuraData) {
+                        showConnected(false);
+                        return;
+                    }
+
                     ouraConnected = false;
                     status.className = 'oura-status disconnected';
                     statusText.textContent = 'Not connected';
@@ -7525,6 +7550,14 @@
                     updateProgressiveDisclosure();
                 }
             } catch (e) {
+                // Error - check if we have cached Oura data anyway
+                const healthData = analyticsData?.health_data || [];
+                const hasOuraData = healthData.some(h => h.source === 'oura');
+                if (hasOuraData) {
+                    showConnected(false);
+                    return;
+                }
+
                 loading.classList.add('hidden');
                 notConnected.classList.remove('hidden');
                 connected.classList.add('hidden');
@@ -9538,11 +9571,12 @@
         }
 
         // Load all data
-        function loadAllData() {
+        async function loadAllData() {
             loadMixes();
             checkDailyFoundationTaken();
+            // Load analytics data first so checkOuraStatus can use cached data if API fails
+            await loadTodaysStackData();
             checkOuraStatus();
-            loadTodaysStackData();
         }
 
         // Check Daily Foundation status and update display
