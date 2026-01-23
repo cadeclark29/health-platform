@@ -5352,6 +5352,37 @@
             color: #666;
         }
 
+        .todays-stack-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stack-add-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .stack-add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+        }
+
+        .stack-add-btn:active {
+            transform: scale(0.95);
+        }
+
         .stack-pills {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -6695,7 +6726,10 @@
             <div class="card todays-stack-card" id="stack-card">
                 <div class="todays-stack-header">
                     <span class="todays-stack-title">Your Stack</span>
-                    <span class="todays-stack-date" id="todays-stack-date">Loading...</span>
+                    <div class="todays-stack-actions">
+                        <span class="todays-stack-date" id="todays-stack-date">Loading...</span>
+                        <button class="stack-add-btn" onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);">+</button>
+                    </div>
                 </div>
                 <div id="stack-container">
                     <!-- Morning Section -->
@@ -7298,6 +7332,50 @@
             // Default: morning for unspecified supplements
             '_default': 'morning'
         };
+
+        // Default units for supplements (used when dose is just a number)
+        const SUPPLEMENT_UNITS = {
+            'vitamin_d3': 'IU',
+            'vitamin_d': 'IU',
+            'fish_oil': 'mg',
+            'omega_3': 'mg',
+            'magnesium_glycinate': 'mg',
+            'magnesium': 'mg',
+            'magnesium_l_threonate': 'mg',
+            'glycine': 'g',
+            'creatine': 'g',
+            'l_theanine': 'mg',
+            'ashwagandha': 'mg',
+            'melatonin': 'mg',
+            'zinc': 'mg',
+            'rhodiola': 'mg',
+            'lions_mane': 'mg',
+            'cordyceps': 'mg',
+            'coq10': 'mg',
+            'alpha_lipoic_acid': 'mg',
+            'gaba': 'mg',
+            'valerian': 'mg',
+            'apigenin': 'mg',
+            'vitamin_b12': 'mcg',
+            'vitamin_b_complex': '',
+            'iron': 'mg',
+            'caffeine': 'mg'
+        };
+
+        // Format dose with proper units
+        function formatDoseWithUnit(dose, suppId) {
+            if (!dose) return null;
+            const doseStr = String(dose).trim();
+
+            // If already has a unit (letters at end), return as-is
+            if (/[a-zA-Z]/.test(doseStr)) {
+                return doseStr;
+            }
+
+            // Add the appropriate unit
+            const unit = SUPPLEMENT_UNITS[suppId] || 'mg';
+            return unit ? `${doseStr}${unit}` : doseStr;
+        }
 
         // Dynamic dose adjustments based on health metrics
         const DOSE_ADJUSTMENTS = {
@@ -11590,8 +11668,13 @@
                 const timeTaken = loggedToday[suppId] || '';
 
                 // Get dose: user override > supplement record > recommended > default
-                let dose = userDoses[suppId] || supp.dosage;
+                let dose = userDoses[suppId];
                 let isAdjusted = false;
+
+                if (!dose && supp.dosage) {
+                    // Format the stored dose with proper units
+                    dose = formatDoseWithUnit(supp.dosage, suppId);
+                }
 
                 if (!dose) {
                     const recommended = getRecommendedDose(suppId);
