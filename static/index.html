@@ -5611,6 +5611,100 @@
             color: #555;
         }
 
+        /* Drag and drop styles */
+        .stack-section.drag-over {
+            background: rgba(139, 92, 246, 0.15);
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+        }
+
+        .stack-pill.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .stack-pill {
+            cursor: grab;
+        }
+
+        .stack-pill:active {
+            cursor: grabbing;
+        }
+
+        /* Stack pill content wrapper */
+        .stack-pill-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Editable dose input */
+        .stack-pill-dose {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s ease;
+        }
+
+        .stack-pill-dose:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .stack-pill-dose.adjusted {
+            color: #A78BFA;
+            font-weight: 500;
+        }
+
+        .dose-input {
+            width: 70px;
+            padding: 4px 6px;
+            border: 1px solid #8B5CF6;
+            border-radius: 6px;
+            font-size: 0.75em;
+            text-align: center;
+            outline: none;
+            background: rgba(0, 0, 0, 0.3);
+            color: #E8E8E8;
+        }
+
+        .dose-input:focus {
+            border-color: #A78BFA;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Empty hint in sections */
+        .stack-empty-hint {
+            font-size: 0.8em;
+            color: #555;
+            text-align: center;
+            padding: 16px;
+            font-style: italic;
+        }
+
+        .stack-empty-inline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            color: #666;
+        }
+
+        .stack-empty-inline button {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .stack-empty-inline button:hover {
+            transform: translateY(-1px);
+        }
+
         /* Supplement Start Markers */
         .supplement-markers {
             margin-top: 20px;
@@ -6597,115 +6691,40 @@
                 </div>
             </div>
 
-            <!-- Smart Recommendation Hero Card -->
-            <div class="smart-rec-card" id="smart-rec-card">
-                <div class="smart-rec-glow"></div>
-                <div class="smart-rec-content">
-                    <div class="smart-rec-header">
-                        <div class="smart-rec-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#sparkle-gradient)" stroke-width="2">
-                                <defs>
-                                    <linearGradient id="sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#A78BFA"/>
-                                        <stop offset="100%" style="stop-color:#8B5CF6"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                            </svg>
-                        </div>
-                        <div class="smart-rec-label">Daily Check-in</div>
-                    </div>
-
-                    <div class="smart-rec-main" id="smart-rec-main">
-                        <div class="smart-rec-loading">
-                            <div class="smart-rec-loading-spinner"></div>
-                            <span>Analyzing your health data...</span>
-                        </div>
-                    </div>
-
-                    <!-- Supplements list -->
-                    <div class="smart-rec-supplements hidden" id="smart-rec-supplements">
-                        <div class="smart-rec-supplements-label">Your Stack</div>
-                        <div class="smart-rec-supp-list" id="smart-rec-supp-list"></div>
-                    </div>
-
-                    <div class="smart-rec-actions hidden" id="smart-rec-actions">
-                        <button class="smart-rec-take-btn" id="smart-rec-take-btn" onclick="takeRecommendedStack()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            Take Stack
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Your Progress Card -->
-            <div class="card progress-card hidden" id="progress-card">
-                <div class="progress-card-header">
-                    <h3>Your Progress</h3>
-                    <span class="progress-period" id="progress-period">Last 30 days</span>
-                </div>
-                <div class="progress-metrics" id="progress-metrics">
-                    <div class="progress-metric">
-                        <div class="progress-metric-icon sleep">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                            </svg>
-                        </div>
-                        <div class="progress-metric-info">
-                            <div class="progress-metric-label">Sleep</div>
-                            <div class="progress-metric-value" id="progress-sleep">--</div>
-                        </div>
-                        <div class="progress-metric-trend" id="progress-sleep-trend"></div>
-                    </div>
-                    <div class="progress-metric">
-                        <div class="progress-metric-icon hrv">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                            </svg>
-                        </div>
-                        <div class="progress-metric-info">
-                            <div class="progress-metric-label">HRV</div>
-                            <div class="progress-metric-value" id="progress-hrv">--</div>
-                        </div>
-                        <div class="progress-metric-trend" id="progress-hrv-trend"></div>
-                    </div>
-                    <div class="progress-metric">
-                        <div class="progress-metric-icon recovery">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                            </svg>
-                        </div>
-                        <div class="progress-metric-info">
-                            <div class="progress-metric-label">Recovery</div>
-                            <div class="progress-metric-value" id="progress-recovery">--</div>
-                        </div>
-                        <div class="progress-metric-trend" id="progress-recovery-trend"></div>
-                    </div>
-                </div>
-                <div class="progress-summary" id="progress-summary"></div>
-            </div>
-
-            <!-- Your Stack - Quick Log -->
-            <div class="card todays-stack-card">
+            <!-- Your Stack - Quick Log with Time Sections -->
+            <div class="card todays-stack-card" id="stack-card">
                 <div class="todays-stack-header">
                     <span class="todays-stack-title">Your Stack</span>
                     <span class="todays-stack-date" id="todays-stack-date">Loading...</span>
                 </div>
-                <div class="stack-pills" id="stack-pills">
-                    <div class="stack-empty">
-                        <div class="stack-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="6"/><path d="M6 12h12"/></svg></div>
-                        <div class="stack-empty-text">Loading your supplements...</div>
+                <div id="stack-container">
+                    <!-- Morning Section -->
+                    <div class="stack-section" data-time="morning" ondrop="dropPill(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        <div class="stack-section-header">
+                            <span class="stack-section-icon">&#127749;</span>
+                            <span class="stack-section-title">Morning</span>
+                        </div>
+                        <div class="stack-section-pills" id="morning-pills"></div>
+                    </div>
+
+                    <!-- Intra-Day Section -->
+                    <div class="stack-section" data-time="intraday" ondrop="dropPill(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        <div class="stack-section-header">
+                            <span class="stack-section-icon">&#9728;&#65039;</span>
+                            <span class="stack-section-title">Intra-Day</span>
+                        </div>
+                        <div class="stack-section-pills" id="intraday-pills"></div>
+                    </div>
+
+                    <!-- Evening Section -->
+                    <div class="stack-section" data-time="evening" ondrop="dropPill(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        <div class="stack-section-header">
+                            <span class="stack-section-icon">&#127769;</span>
+                            <span class="stack-section-title">Evening</span>
+                        </div>
+                        <div class="stack-section-pills" id="evening-pills"></div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Time Selector -->
-            <div class="time-selector">
-                <button class="time-btn" onclick="setTime(7)" id="time-btn-morning">Morning</button>
-                <button class="time-btn" onclick="setTime(14)" id="time-btn-afternoon" style="display: none;">Afternoon</button>
-                <button class="time-btn active" onclick="setTime(21)" id="time-btn-bedtime">Bedtime</button>
             </div>
 
             </div><!-- End Dashboard Section -->
@@ -7242,21 +7261,8 @@
         let miniCharts = {}; // Store mini chart instances
         let supplementList = []; // List of all supplements for dropdown
 
-        // Supplement timing - determines Morning vs Bedtime stack
+        // Supplement timing - determines Morning, Intra-Day, or Evening stack
         const SUPPLEMENT_TIMING = {
-            // Bedtime supplements (take 60 mins before bed)
-            'magnesium_glycinate': 'bedtime',
-            'magnesium': 'bedtime',
-            'glycine': 'bedtime',
-            'melatonin': 'bedtime',
-            'l_theanine': 'bedtime',
-            'ashwagandha': 'bedtime',
-            'valerian': 'bedtime',
-            'gaba': 'bedtime',
-            'zinc': 'bedtime',  // Better absorbed at night, away from other minerals
-            'apigenin': 'bedtime',
-            'magnesium_l_threonate': 'bedtime',
-
             // Morning supplements (take with breakfast or AM)
             'vitamin_d3': 'morning',
             'vitamin_d': 'morning',
@@ -7266,14 +7272,80 @@
             'vitamin_b_complex': 'morning',
             'iron': 'morning',
             'coq10': 'morning',
-            'alpha_lipoic_acid': 'morning',
-            'creatine': 'morning',  // Timing flexible, but morning is common
-            'caffeine': 'morning',
             'rhodiola': 'morning',
             'cordyceps': 'morning',
             'lions_mane': 'morning',
+            'caffeine': 'morning',
+
+            // Intra-day supplements (take during the day, timing flexible)
+            'creatine': 'intraday',
+            'alpha_lipoic_acid': 'intraday',
+            'electrolytes': 'intraday',
+
+            // Evening supplements (take 60 mins before bed)
+            'magnesium_glycinate': 'evening',
+            'magnesium': 'evening',
+            'glycine': 'evening',
+            'melatonin': 'evening',
+            'l_theanine': 'evening',
+            'ashwagandha': 'evening',
+            'valerian': 'evening',
+            'gaba': 'evening',
+            'zinc': 'evening',
+            'apigenin': 'evening',
+            'magnesium_l_threonate': 'evening',
 
             // Default: morning for unspecified supplements
+            '_default': 'morning'
+        };
+
+        // Dynamic dose adjustments based on health metrics
+        const DOSE_ADJUSTMENTS = {
+            'magnesium_glycinate': {
+                default: '400mg',
+                poor_sleep: '500mg',
+                good_sleep: '300mg'
+            },
+            'glycine': {
+                default: '3g',
+                poor_sleep: '4g',
+                good_sleep: '2g'
+            },
+            'l_theanine': {
+                default: '200mg',
+                high_stress: '300mg',
+                low_stress: '100mg'
+            },
+            'ashwagandha': {
+                default: '300mg',
+                high_stress: '600mg',
+                low_stress: '300mg'
+            },
+            'melatonin': {
+                default: '0.5mg',
+                poor_sleep: '1mg',
+                good_sleep: '0.3mg'
+            },
+            'vitamin_d3': { default: '2000 IU' },
+            'vitamin_d': { default: '2000 IU' },
+            'fish_oil': { default: '2g' },
+            'omega_3': { default: '2g' },
+            'creatine': { default: '5g' },
+            'zinc': { default: '15mg' },
+            'magnesium': { default: '400mg' },
+            'magnesium_l_threonate': { default: '2g' },
+            'rhodiola': { default: '400mg' },
+            'lions_mane': { default: '1g' },
+            'cordyceps': { default: '1g' },
+            'coq10': { default: '100mg' },
+            'alpha_lipoic_acid': { default: '600mg' },
+            'gaba': { default: '500mg' },
+            'valerian': { default: '500mg' },
+            'apigenin': { default: '50mg' },
+            'vitamin_b12': { default: '1000mcg' },
+            'vitamin_b_complex': { default: '1 capsule' },
+            'iron': { default: '18mg' },
+            'caffeine': { default: '100mg' }
         };
 
         // Supplement mechanisms - explains WHY each supplement works
@@ -10853,145 +10925,8 @@
                 loadTodaysStack();
                 // Update Oura metrics for the selected date
                 updateOuraMetricsForSelectedDate();
-                // Load smart recommendation
-                loadSmartRecommendation();
-                // Load progress card
-                loadProgressCard();
             } catch (e) {
                 console.error('Error loading Your Stack:', e);
-            }
-        }
-
-        // Track what's been logged today
-        let todaysLogs = {};
-
-        // Load Daily Check-in card for Dashboard
-        async function loadSmartRecommendation() {
-            if (!currentUserId) return;
-
-            const mainEl = document.getElementById('smart-rec-main');
-            const actionsEl = document.getElementById('smart-rec-actions');
-            const suppListEl = document.getElementById('smart-rec-supplements');
-
-            if (!mainEl) return;
-
-            // Check if user has supplements
-            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
-
-            if (supplements.length === 0) {
-                mainEl.innerHTML = `
-                    <div class="smart-rec-empty">
-                        <div class="smart-rec-empty-title">Add supplements to get started</div>
-                        <div class="smart-rec-empty-text">Track your daily stack and see how it impacts your health</div>
-                        <button class="smart-rec-take-btn" onclick="openAddManualSupplement()" style="width: auto; padding: 12px 24px;">
-                            + Add Your First Supplement
-                        </button>
-                    </div>
-                `;
-                actionsEl?.classList.add('hidden');
-                suppListEl?.classList.add('hidden');
-                return;
-            }
-
-            try {
-                // Get current hour for time-based display
-                const currentHour = new Date().getHours();
-                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 21 ? 'afternoon' : 'bedtime';
-                const today = getLocalDateString(new Date());
-
-                // Fetch today's supplement logs to check what's already logged
-                const logsRes = await fetch(`/analytics/${currentUserId}/supplement-logs?days=1`);
-                if (logsRes.ok) {
-                    const logs = await logsRes.json();
-                    todaysLogs = {};
-                    logs.forEach(log => {
-                        if (log.date === today && log.taken) {
-                            todaysLogs[log.supplement_id] = log.time_taken || 'logged';
-                        }
-                    });
-                }
-
-                // Check if all supplements already logged for this time period
-                const allLoggedForPeriod = supplements.every(s =>
-                    todaysLogs[s.supplement_id] === timeOfDay
-                );
-
-                // Simple informational subtitle
-                let subtitleText = `${supplements.length} supplement${supplements.length > 1 ? 's' : ''} in your stack`;
-                if (allLoggedForPeriod) {
-                    subtitleText = "All logged for this period ✓";
-                }
-
-                mainEl.innerHTML = `
-                    <div class="smart-rec-title">${getTimeGreeting()} Stack</div>
-                    <div class="smart-rec-reason">${subtitleText}</div>
-                `;
-
-                // Show supplements list with timing guidance
-                const suppListContainer = document.getElementById('smart-rec-supp-list');
-                if (suppListContainer && suppListEl) {
-                    suppListContainer.innerHTML = supplements.map(s => {
-                        const isLogged = todaysLogs[s.supplement_id] === timeOfDay;
-                        const name = s.supplement_name || s.supplement_id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                        const guidance = SUPPLEMENT_GUIDANCE[s.supplement_id] || {};
-                        const timingIcon = getTimingIcon(guidance.timing);
-                        const timingNote = guidance.timingNote || 'Take as directed';
-                        const dose = s.dosage || '';
-
-                        return `
-                            <div class="smart-rec-supp-item ${isLogged ? 'logged' : ''}">
-                                <div class="smart-rec-supp-timing">${timingIcon}</div>
-                                <div class="smart-rec-supp-info">
-                                    <div class="supp-name">${name}</div>
-                                    <div class="supp-timing-note">${timingNote}</div>
-                                </div>
-                                ${dose ? `<div class="smart-rec-supp-dose">${dose}</div>` : ''}
-                                ${isLogged ? '<svg class="smart-rec-supp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                            </div>
-                        `;
-                    }).join('');
-                    suppListEl.classList.remove('hidden');
-                }
-
-                // Show actions
-                actionsEl?.classList.remove('hidden');
-
-                // Update take button based on logged state
-                const takeBtn = document.getElementById('smart-rec-take-btn');
-                if (takeBtn) {
-                    const period = currentHour < 12 ? 'Morning' : currentHour < 18 ? 'Afternoon' : 'Evening';
-
-                    if (allLoggedForPeriod) {
-                        // Already logged - show success state
-                        takeBtn.innerHTML = `
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            ${period} Stack Logged
-                        `;
-                        takeBtn.disabled = true;
-                        takeBtn.classList.add('logged');
-                    } else {
-                        takeBtn.innerHTML = `
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            Log ${period} Stack
-                        `;
-                        takeBtn.disabled = false;
-                        takeBtn.classList.remove('logged');
-                    }
-                }
-
-            } catch (e) {
-                console.error('Error loading daily check-in:', e);
-                mainEl.innerHTML = `
-                    <div class="smart-rec-empty">
-                        <div class="smart-rec-empty-title">Your Daily Stack</div>
-                        <div class="smart-rec-empty-text">Tap below to log your supplements for today</div>
-                    </div>
-                `;
-                actionsEl?.classList.remove('hidden');
             }
         }
 
@@ -11003,228 +10938,6 @@
             return 'Evening';
         }
 
-        // Calculate health trends
-        function calculateHealthTrends(healthData, current) {
-            const trends = { sleep: 'flat', hrv: 'flat', recovery: 'flat' };
-
-            if (healthData.length < 2) return trends;
-
-            // Get yesterday's data (second most recent)
-            const sorted = [...healthData].sort((a, b) =>
-                new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp)
-            );
-
-            if (sorted.length >= 2) {
-                const prev = sorted[1];
-
-                if (current.sleep_score && prev.sleep_score) {
-                    const diff = current.sleep_score - prev.sleep_score;
-                    trends.sleep = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
-                }
-                if (current.hrv_score && prev.hrv_score) {
-                    const diff = current.hrv_score - prev.hrv_score;
-                    trends.hrv = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
-                }
-                if (current.recovery_score && prev.recovery_score) {
-                    const diff = current.recovery_score - prev.recovery_score;
-                    trends.recovery = diff > 3 ? 'up' : diff < -3 ? 'down' : 'flat';
-                }
-            }
-
-            return trends;
-        }
-
-        // Get trend icon SVG
-        function getTrendIcon(trend) {
-            if (trend === 'up') {
-                return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>';
-            } else if (trend === 'down') {
-                return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
-            }
-            return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>';
-        }
-
-        // Take recommended stack - logs all active supplements
-        async function takeRecommendedStack() {
-            if (!currentUserId) return;
-
-            const btn = document.getElementById('smart-rec-take-btn');
-            if (btn.disabled) return; // Already logged
-
-            btn.disabled = true;
-            btn.innerHTML = `
-                <div class="smart-rec-loading-spinner" style="width: 18px; height: 18px;"></div>
-                Logging...
-            `;
-
-            try {
-                // Get active supplements
-                const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
-
-                if (supplements.length === 0) {
-                    showStatus('No active supplements to log', 'error');
-                    btn.disabled = false;
-                    return;
-                }
-
-                const today = getLocalDateString(new Date());
-                const currentHour = new Date().getHours();
-                const timeOfDay = currentHour < 12 ? 'morning' : currentHour < 21 ? 'afternoon' : 'bedtime';
-                const period = currentHour < 12 ? 'Morning' : currentHour < 21 ? 'Afternoon' : 'Bedtime';
-
-                // Log each supplement
-                let loggedCount = 0;
-                for (const supp of supplements) {
-                    try {
-                        const res = await fetch(`/analytics/${currentUserId}/supplement-logs`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                supplement_id: supp.supplement_id,
-                                log_date: today,
-                                taken: true,
-                                time_taken: timeOfDay
-                            })
-                        });
-
-                        if (res.ok) {
-                            loggedCount++;
-                            todaysLogs[supp.supplement_id] = timeOfDay;
-                        }
-                    } catch (e) {
-                        console.error('Error logging supplement:', supp.supplement_id, e);
-                    }
-                }
-
-                // Show permanent success state
-                btn.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    ${period} Stack Logged
-                `;
-                btn.classList.add('logged');
-
-                showStatus(`Logged ${loggedCount} supplements!`, 'success');
-
-                // Update supplement list to show checkmarks
-                const suppListContainer = document.getElementById('smart-rec-supp-list');
-                if (suppListContainer) {
-                    suppListContainer.querySelectorAll('.smart-rec-supp-item').forEach(item => {
-                        if (!item.classList.contains('logged')) {
-                            item.classList.add('logged');
-                            item.innerHTML = `<svg class="smart-rec-supp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${item.innerHTML}`;
-                        }
-                    });
-                }
-
-                // Refresh the stack display
-                await loadTodaysStackData();
-
-            } catch (e) {
-                console.error('Error taking stack:', e);
-                showStatus('Error logging supplements', 'error');
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-            }
-        }
-
-        // Load and display progress card
-        function loadProgressCard() {
-            const card = document.getElementById('progress-card');
-            if (!card) return;
-
-            const healthData = analyticsData?.health_data || [];
-            const supplements = analyticsData?.supplement_starts?.filter(s => !s.end_date) || [];
-
-            // Need both health data and supplements to show progress
-            if (healthData.length < 7 || supplements.length === 0) {
-                card.classList.add('hidden');
-                return;
-            }
-
-            card.classList.remove('hidden');
-
-            // Sort health data by date
-            const sorted = [...healthData].sort((a, b) =>
-                new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp)
-            );
-
-            // Get recent (last 7 days) vs previous (7-30 days ago) averages
-            const recent = sorted.slice(0, 7);
-            const previous = sorted.slice(7, 30);
-
-            if (previous.length < 3) {
-                card.classList.add('hidden');
-                return;
-            }
-
-            // Calculate averages
-            const calcAvg = (data, field) => {
-                const values = data.filter(d => d[field] != null).map(d => d[field]);
-                return values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
-            };
-
-            const recentSleep = calcAvg(recent, 'sleep_score');
-            const prevSleep = calcAvg(previous, 'sleep_score');
-            const recentHrv = calcAvg(recent, 'hrv_score');
-            const prevHrv = calcAvg(previous, 'hrv_score');
-            const recentRecovery = calcAvg(recent, 'recovery_score');
-            const prevRecovery = calcAvg(previous, 'recovery_score');
-
-            // Update values
-            document.getElementById('progress-sleep').textContent = recentSleep || '--';
-            document.getElementById('progress-hrv').textContent = recentHrv || '--';
-            document.getElementById('progress-recovery').textContent = recentRecovery || '--';
-
-            // Calculate and display trends
-            const getTrend = (recent, prev) => {
-                if (recent == null || prev == null) return { class: 'flat', diff: 0 };
-                const diff = recent - prev;
-                const pct = Math.round((diff / prev) * 100);
-                if (pct > 3) return { class: 'up', diff: pct };
-                if (pct < -3) return { class: 'down', diff: pct };
-                return { class: 'flat', diff: pct };
-            };
-
-            const sleepTrend = getTrend(recentSleep, prevSleep);
-            const hrvTrend = getTrend(recentHrv, prevHrv);
-            const recoveryTrend = getTrend(recentRecovery, prevRecovery);
-
-            const trendHTML = (trend) => {
-                const icon = trend.class === 'up'
-                    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>'
-                    : trend.class === 'down'
-                    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'
-                    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>';
-                const sign = trend.diff > 0 ? '+' : '';
-                return `${icon}<span>${sign}${trend.diff}%</span>`;
-            };
-
-            document.getElementById('progress-sleep-trend').innerHTML = trendHTML(sleepTrend);
-            document.getElementById('progress-sleep-trend').className = 'progress-metric-trend ' + sleepTrend.class;
-            document.getElementById('progress-hrv-trend').innerHTML = trendHTML(hrvTrend);
-            document.getElementById('progress-hrv-trend').className = 'progress-metric-trend ' + hrvTrend.class;
-            document.getElementById('progress-recovery-trend').innerHTML = trendHTML(recoveryTrend);
-            document.getElementById('progress-recovery-trend').className = 'progress-metric-trend ' + recoveryTrend.class;
-
-            // Generate summary
-            const improvements = [];
-            if (sleepTrend.diff > 5) improvements.push(`sleep up ${sleepTrend.diff}%`);
-            if (hrvTrend.diff > 5) improvements.push(`HRV up ${hrvTrend.diff}%`);
-            if (recoveryTrend.diff > 5) improvements.push(`recovery up ${recoveryTrend.diff}%`);
-
-            const summaryEl = document.getElementById('progress-summary');
-            if (improvements.length > 0) {
-                summaryEl.innerHTML = `<strong>Nice progress!</strong> Your ${improvements.join(' and ')} compared to last month.`;
-                summaryEl.style.display = 'block';
-            } else if (sleepTrend.diff < -5 || hrvTrend.diff < -5 || recoveryTrend.diff < -5) {
-                summaryEl.innerHTML = `<strong>Keep tracking!</strong> Your metrics may still be adjusting. Consistency is key.`;
-                summaryEl.style.display = 'block';
-            } else {
-                summaryEl.style.display = 'none';
-            }
-        }
 
         // Load all analytics data
         async function loadAnalyticsData() {
@@ -11712,112 +11425,217 @@
             renderTodaysStack(activeSupplements, loggedOnDate);
         }
 
-        // Render Today's Stack pills - split into Morning and Evening sections
+        // Get recommended dose based on health metrics
+        function getRecommendedDose(suppId) {
+            const config = DOSE_ADJUSTMENTS[suppId];
+            if (!config) return null;
+
+            // Get today's health data
+            const healthData = analyticsData?.health_data || [];
+            const today = getLocalDateString(new Date());
+            const todayData = healthData.find(h => h.date === today) || healthData[healthData.length - 1];
+
+            if (!todayData) return { dose: config.default, adjusted: false };
+
+            const sleepScore = todayData.sleep_score;
+            const hrvScore = todayData.hrv_score;
+
+            // Sleep-based supplements
+            if (config.poor_sleep && sleepScore && sleepScore < 60) {
+                return { dose: config.poor_sleep, adjusted: true, reason: 'poor sleep' };
+            }
+            if (config.good_sleep && sleepScore && sleepScore > 80) {
+                return { dose: config.good_sleep, adjusted: true, reason: 'good sleep' };
+            }
+
+            // Stress-based supplements
+            if (config.high_stress && hrvScore && hrvScore < 40) {
+                return { dose: config.high_stress, adjusted: true, reason: 'high stress' };
+            }
+            if (config.low_stress && hrvScore && hrvScore > 70) {
+                return { dose: config.low_stress, adjusted: true, reason: 'low stress' };
+            }
+
+            return { dose: config.default, adjusted: false };
+        }
+
+        // Drag and drop functions
+        function dragPill(event) {
+            const pill = event.target.closest('.stack-pill');
+            if (!pill) return;
+            event.dataTransfer.setData('suppId', pill.dataset.suppId);
+            event.dataTransfer.effectAllowed = 'move';
+            pill.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function dropPill(event) {
+            event.preventDefault();
+            const section = event.currentTarget;
+            section.classList.remove('drag-over');
+
+            const suppId = event.dataTransfer.getData('suppId');
+            if (!suppId) return;
+
+            const newTime = section.dataset.time; // 'morning', 'intraday', 'evening'
+
+            // Move the pill element
+            const pill = document.getElementById(`stack-pill-${suppId}`);
+            if (pill) {
+                pill.classList.remove('dragging');
+                section.querySelector('.stack-section-pills').appendChild(pill);
+            }
+
+            // Save new timing preference to localStorage
+            saveSupplementTiming(suppId, newTime);
+        }
+
+        function saveSupplementTiming(suppId, timeSlot) {
+            const userTimings = JSON.parse(localStorage.getItem('userSupplementTimings') || '{}');
+            userTimings[suppId] = timeSlot;
+            localStorage.setItem('userSupplementTimings', JSON.stringify(userTimings));
+        }
+
+        // Inline dose editing
+        function editDose(suppId, event) {
+            if (event) event.stopPropagation();
+
+            const doseEl = document.getElementById(`dose-${suppId}`);
+            if (!doseEl || doseEl.querySelector('input')) return; // Already editing
+
+            const currentDose = doseEl.textContent.replace(/^[↑↓]\s*/, '').trim();
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentDose === 'Set dose' ? '' : currentDose;
+            input.className = 'dose-input';
+            input.placeholder = 'e.g., 400mg';
+
+            doseEl.innerHTML = '';
+            doseEl.appendChild(input);
+            input.focus();
+            input.select();
+
+            const saveDose = () => {
+                const newDose = input.value.trim() || 'Set dose';
+                doseEl.textContent = newDose;
+
+                // Save to localStorage
+                const userDoses = JSON.parse(localStorage.getItem('userSupplementDoses') || '{}');
+                userDoses[suppId] = newDose;
+                localStorage.setItem('userSupplementDoses', JSON.stringify(userDoses));
+            };
+
+            input.addEventListener('blur', saveDose);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    doseEl.textContent = currentDose;
+                }
+            });
+        }
+
+        // Render Today's Stack pills - split into Morning, Intra-Day, and Evening sections
         function renderTodaysStack(supplements, loggedToday) {
-            const container = document.getElementById('stack-pills');
-            if (!container) return;
+            const morningPills = document.getElementById('morning-pills');
+            const intradayPills = document.getElementById('intraday-pills');
+            const eveningPills = document.getElementById('evening-pills');
+
+            if (!morningPills) return;
+
+            // Get user's custom timings and doses from localStorage
+            const userTimings = JSON.parse(localStorage.getItem('userSupplementTimings') || '{}');
+            const userDoses = JSON.parse(localStorage.getItem('userSupplementDoses') || '{}');
 
             if (supplements.length === 0) {
-                container.innerHTML = `
-                    <div class="stack-empty">
-                        <div class="stack-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="1.5"><path d="M12 2L15 8l6 1-4.5 4 1.5 6-6-3-6 3 1.5-6L3 9l6-1 3-6z"/></svg></div>
-                        <div class="stack-empty-text">Start Your Supplement Journey</div>
-                        <div class="stack-empty-hint">Add the supplements you take daily and track their impact on your health</div>
-                        <div class="quick-add-buttons">
-                            <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_d3', 'Vitamin D3', '2000 IU')">+ Vitamin D</button>
-                            <button class="quick-add-btn" onclick="quickAddSupplement('fish_oil', 'Fish Oil', '1000mg')">+ Fish Oil</button>
-                            <button class="quick-add-btn" onclick="quickAddSupplement('magnesium_glycinate', 'Magnesium', '400mg')">+ Magnesium</button>
-                            <button class="quick-add-btn" onclick="quickAddSupplement('vitamin_b12', 'Vitamin B12', '1000mcg')">+ B12</button>
-                        </div>
-                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 12px;">
-                            + Add Your First Supplement
-                        </button>
+                const emptyHtml = `
+                    <div class="stack-empty-inline">
+                        <span>No supplements yet</span>
+                        <button onclick="switchMainTab('analytics'); setTimeout(() => openAddManualSupplement(), 100);">+ Add</button>
                     </div>
                 `;
+                morningPills.innerHTML = emptyHtml;
+                intradayPills.innerHTML = '<div class="stack-empty-hint">Add intra-day supplements</div>';
+                eveningPills.innerHTML = '<div class="stack-empty-hint">Add evening supplements</div>';
                 return;
             }
 
-            // Split supplements into morning and bedtime based on SUPPLEMENT_TIMING
-            const morningSupps = [];
-            const bedtimeSupps = [];
+            // Group supplements by time
+            const groups = { morning: [], intraday: [], evening: [] };
 
             supplements.forEach(supp => {
                 const suppId = supp.supplement_id;
-                const timing = SUPPLEMENT_TIMING[suppId] || 'morning'; // Default to morning
-                if (timing === 'bedtime') {
-                    bedtimeSupps.push(supp);
-                } else {
-                    morningSupps.push(supp);
-                }
+                // Check user's custom timing first, then default
+                let timing = userTimings[suppId] || SUPPLEMENT_TIMING[suppId] || SUPPLEMENT_TIMING._default || 'morning';
+                // Map 'bedtime' to 'evening' for backwards compatibility
+                if (timing === 'bedtime') timing = 'evening';
+                if (!groups[timing]) timing = 'morning';
+                groups[timing].push(supp);
             });
 
             // Helper to render a single pill
             const renderPill = (supp) => {
                 const suppId = supp.supplement_id;
                 const suppName = supp.supplement_name || formatSupplementName(suppId);
-                const dosage = supp.dosage || '';
                 const isTaken = loggedToday[suppId] !== undefined;
                 const timeTaken = loggedToday[suppId] || '';
+
+                // Get dose: user override > supplement record > recommended > default
+                let dose = userDoses[suppId] || supp.dosage;
+                let isAdjusted = false;
+
+                if (!dose) {
+                    const recommended = getRecommendedDose(suppId);
+                    if (recommended) {
+                        dose = recommended.dose;
+                        isAdjusted = recommended.adjusted;
+                    } else {
+                        dose = 'Set dose';
+                    }
+                }
+
+                const dosePrefix = isAdjusted ? '↑ ' : '';
 
                 return `
                     <div class="stack-pill ${isTaken ? 'taken' : ''}"
                          id="stack-pill-${suppId}"
-                         onclick="toggleStackLog('${suppId}', '${suppName.replace(/'/g, "\\'")}', '${dosage.replace(/'/g, "\\'")}')">
+                         draggable="true"
+                         ondragstart="dragPill(event)"
+                         data-supp-id="${suppId}"
+                         data-supp-name="${suppName.replace(/"/g, '&quot;')}">
                         <div class="stack-pill-check">✓</div>
-                        <div class="stack-pill-name">${suppName}</div>
-                        <div class="stack-pill-dose">${dosage || 'Tap to log'}</div>
-                        <div class="stack-pill-time">${isTaken ? (timeTaken === 'morning' ? 'AM' : 'PM') : ''}</div>
+                        <div class="stack-pill-content" onclick="toggleStackLog('${suppId}', '${suppName.replace(/'/g, "\\'")}', '${(dose || '').replace(/'/g, "\\'")}')">
+                            <div class="stack-pill-name">${suppName}</div>
+                            <div class="stack-pill-dose ${isAdjusted ? 'adjusted' : ''}"
+                                 onclick="editDose('${suppId}', event)"
+                                 id="dose-${suppId}">${dosePrefix}${dose}</div>
+                        </div>
                     </div>
                 `;
             };
 
-            let html = '';
+            // Render each group
+            morningPills.innerHTML = groups.morning.length > 0
+                ? groups.morning.map(renderPill).join('')
+                : '<div class="stack-empty-hint">Drag supplements here</div>';
 
-            // Morning Stack
-            if (morningSupps.length > 0) {
-                html += `
-                    <div class="stack-section">
-                        <div class="stack-section-header">
-                            <svg class="stack-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                <circle cx="12" cy="12" r="5"/>
-                                <line x1="12" y1="1" x2="12" y2="3"/>
-                                <line x1="12" y1="21" x2="12" y2="23"/>
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                                <line x1="1" y1="12" x2="3" y2="12"/>
-                                <line x1="21" y1="12" x2="23" y2="12"/>
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                            </svg>
-                            <span class="stack-section-title">Morning Stack</span>
-                            <span class="stack-section-hint">Take with breakfast</span>
-                        </div>
-                        <div class="stack-section-pills">
-                            ${morningSupps.map(renderPill).join('')}
-                        </div>
-                    </div>
-                `;
-            }
+            intradayPills.innerHTML = groups.intraday.length > 0
+                ? groups.intraday.map(renderPill).join('')
+                : '<div class="stack-empty-hint">Drag supplements here</div>';
 
-            // Bedtime Stack
-            if (bedtimeSupps.length > 0) {
-                html += `
-                    <div class="stack-section">
-                        <div class="stack-section-header">
-                            <svg class="stack-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
-                            <span class="stack-section-title">Bedtime Stack</span>
-                            <span class="stack-section-hint">Take 60 mins before bed</span>
-                        </div>
-                        <div class="stack-section-pills">
-                            ${bedtimeSupps.map(renderPill).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
+            eveningPills.innerHTML = groups.evening.length > 0
+                ? groups.evening.map(renderPill).join('')
+                : '<div class="stack-empty-hint">Drag supplements here</div>';
         }
 
         // Toggle a supplement log with one tap
@@ -11832,17 +11650,18 @@
             // Use selected date from date navigation
             const selectedDateStr = getLocalDateString(currentDate);
 
-            // Auto-detect AM/PM based on selected time (currentTime is the hour)
-            const autoTime = currentTime < 12 ? 'morning' : 'bedtime';
+            // Detect which section the pill is in to determine time
+            const section = pill.closest('.stack-section');
+            const sectionTime = section ? section.dataset.time : 'morning';
+
+            // Map section time to API time format
+            let apiTime = 'morning';
+            if (sectionTime === 'evening') apiTime = 'bedtime';
+            else if (sectionTime === 'intraday') apiTime = 'afternoon';
+            else apiTime = 'morning';
 
             // Optimistic UI update
             pill.classList.toggle('taken', !isCurrentlyTaken);
-            const timeEl = pill.querySelector('.stack-pill-time');
-            if (!isCurrentlyTaken) {
-                timeEl.textContent = autoTime === 'morning' ? 'AM' : 'PM';
-            } else {
-                timeEl.textContent = '';
-            }
 
             try {
                 // Call the API with single supplement for the selected date
@@ -11854,7 +11673,7 @@
                         supplements: [{
                             supplement_id: suppId,
                             taken: !isCurrentlyTaken,
-                            time_taken: autoTime
+                            time_taken: apiTime
                         }]
                     })
                 });
@@ -11871,7 +11690,6 @@
                 console.error('Error toggling supplement:', e);
                 // Revert UI on error
                 pill.classList.toggle('taken', isCurrentlyTaken);
-                timeEl.textContent = isCurrentlyTaken ? (autoTime === 'morning' ? 'AM' : 'PM') : '';
                 showStatus('Failed to save. Please try again.', 'error');
             }
         }
