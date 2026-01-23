@@ -11360,9 +11360,9 @@
 
         // Load and render Your Stack on Dashboard (uses selected date from date nav)
         async function loadTodaysStack() {
-            const container = document.getElementById('stack-pills');
+            const stackContainer = document.getElementById('stack-container');
             const dateEl = document.getElementById('todays-stack-date');
-            if (!container) return;
+            if (!stackContainer) return;
 
             // Use selected date from date navigation (currentDate)
             const selectedDate = currentDate;
@@ -11395,13 +11395,12 @@
 
             // Handle future dates - show message instead of logging pills
             if (isFuture) {
-                container.innerHTML = `
-                    <div class="stack-future">
-                        <div class="stack-future-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-                        <div class="stack-future-text">Future date</div>
-                        <div class="stack-future-hint">Navigate to today or a past date to log supplements</div>
-                    </div>
-                `;
+                const morningPills = document.getElementById('morning-pills');
+                const intradayPills = document.getElementById('intraday-pills');
+                const eveningPills = document.getElementById('evening-pills');
+                if (morningPills) morningPills.innerHTML = '<div class="stack-empty-hint">Future date - navigate to today to log</div>';
+                if (intradayPills) intradayPills.innerHTML = '';
+                if (eveningPills) eveningPills.innerHTML = '';
                 return;
             }
 
