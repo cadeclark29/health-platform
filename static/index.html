@@ -7654,7 +7654,14 @@
 
             // Find health data for this date from analyticsData
             const healthData = analyticsData?.health_data || [];
-            const dayData = healthData.find(h => h.date === selectedDateStr);
+            let dayData = healthData.find(h => h.date === selectedDateStr);
+
+            // If viewing today and no data for today, show most recent data (last night's sleep)
+            if (isToday && !dayData && healthData.length > 0) {
+                // Sort by date descending and get most recent
+                const sorted = [...healthData].sort((a, b) => b.date.localeCompare(a.date));
+                dayData = sorted[0];
+            }
 
             if (dayData) {
                 updateOuraMetrics(dayData);
