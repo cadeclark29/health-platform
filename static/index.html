@@ -6288,6 +6288,26 @@
         .supp-start-date {
             font-size: 0.75em;
             color: #555;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .supp-start-date:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8B5CF6;
+        }
+
+        .supp-start-date-input {
+            width: 110px;
+            padding: 2px 4px;
+            border: 1px solid #8B5CF6;
+            border-radius: 4px;
+            font-size: 0.75em;
+            background: #1a1a1a;
+            color: #fff;
+            outline: none;
         }
 
         .supp-card-actions {
@@ -7695,78 +7715,73 @@
             const status = document.getElementById('oura-status');
             const statusText = document.getElementById('oura-status-text');
 
-            // Show loading
-            loading.classList.remove('hidden');
-            notConnected.classList.add('hidden');
-            connected.classList.add('hidden');
-
             // Helper to show connected state
             const showConnected = (syncing = false) => {
                 ouraConnected = true;
                 loading.classList.add('hidden');
                 status.className = 'oura-status connected';
-                statusText.textContent = syncing ? 'Connected' : 'Connected (cached)';
+                statusText.textContent = syncing ? 'Connected' : 'Connected';
                 notConnected.classList.add('hidden');
                 connected.classList.remove('hidden');
                 updateAISubtitle();
                 updateProgressiveDisclosure();
             };
 
+            // Helper to show not connected state
+            const showNotConnected = () => {
+                ouraConnected = false;
+                loading.classList.add('hidden');
+                status.className = 'oura-status disconnected';
+                statusText.textContent = 'Not connected';
+                notConnected.classList.remove('hidden');
+                connected.classList.add('hidden');
+                updateAISubtitle();
+                updateProgressiveDisclosure();
+            };
+
+            // Check for cached Oura data FIRST (instant UI response)
+            const healthData = analyticsData?.health_data || [];
+            const hasOuraData = healthData.some(h => h.source === 'oura');
+
+            if (hasOuraData) {
+                // We have cached data - show connected immediately
+                showConnected(false);
+                // Update metrics display
+                updateOuraMetricsForSelectedDate();
+                // Then try to sync fresh data in the background
+                fetchOuraHistory().catch(e => console.log('Background sync failed:', e));
+                return;
+            }
+
+            // No cached data - show loading and check API
+            loading.classList.remove('hidden');
+            notConnected.classList.add('hidden');
+            connected.classList.add('hidden');
+
             try {
                 const res = await fetch(`/integrations/${currentUserId}/oura/status`);
 
                 if (!res.ok) {
-                    // API error - check if we have cached Oura data
-                    const healthData = analyticsData?.health_data || [];
-                    const hasOuraData = healthData.some(h => h.source === 'oura');
-                    if (hasOuraData) {
-                        showConnected(false);
-                        return;
-                    }
-                    throw new Error('Status check failed');
+                    showNotConnected();
+                    return;
                 }
 
                 const data = await res.json();
-                loading.classList.add('hidden');
 
                 if (data.connected) {
                     showConnected(true);
                     // Fetch latest data
                     await fetchOuraHistory();
                 } else {
-                    // Check if we have cached data even if not "connected"
-                    const healthData = analyticsData?.health_data || [];
-                    const hasOuraData = healthData.some(h => h.source === 'oura');
-                    if (hasOuraData) {
-                        showConnected(false);
-                        return;
-                    }
-
-                    ouraConnected = false;
-                    status.className = 'oura-status disconnected';
-                    statusText.textContent = 'Not connected';
-                    notConnected.classList.remove('hidden');
-                    connected.classList.add('hidden');
-                    updateAISubtitle();
-                    updateProgressiveDisclosure();
+                    showNotConnected();
                 }
             } catch (e) {
-                // Error - check if we have cached Oura data anyway
-                const healthData = analyticsData?.health_data || [];
-                const hasOuraData = healthData.some(h => h.source === 'oura');
-                if (hasOuraData) {
-                    showConnected(false);
-                    return;
-                }
-
-                loading.classList.add('hidden');
-                notConnected.classList.remove('hidden');
-                connected.classList.add('hidden');
                 console.error('Error checking Oura status:', e);
+                showNotConnected();
             }
         }
 
-        // Fetch Oura history data (just syncs data, doesn't update display)
+        // Fetch Oura history data and refresh display
         async function fetchOuraHistory() {
             if (!currentUserId) return;
 
@@ -7774,10 +7789,15 @@
                 // Sync latest 7 days of data to the database
                 const res = await fetch(`/integrations/${currentUserId}/oura/history?days=7`);
                 if (res.ok) {
-                    // Data is now synced to database
-                    // The display will be updated by updateOuraMetricsForSelectedDate()
-                    // which uses analyticsData.health_data for the selected date
                     console.log('Oura history synced');
+                    // Reload analytics data to get fresh Oura metrics
+                    const analyticsRes = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
+                    if (analyticsRes.ok) {
+                        analyticsData = await analyticsRes.json();
+                        // Update display with fresh data
+                        updateOuraMetricsForSelectedDate();
+                        loadTodaysStack();
+                    }
                 }
             } catch (e) {
                 console.error('Error fetching Oura data:', e);
@@ -12290,6 +12310,72 @@
             document.getElementById('supplement-start-modal').classList.remove('hidden');
         }
 
+        // Inline edit start date (click on "Since [date]" to edit)
+        function editStartDate(suppId, currentDate) {
+            const dateEl = document.getElementById(`start-date-${suppId}`);
+            if (!dateEl || dateEl.querySelector('input')) return; // Already editing
+
+            // Create inline date input
+            const input = document.createElement('input');
+            input.type = 'date';
+            input.value = currentDate;
+            input.className = 'supp-start-date-input';
+
+            // Replace text with input
+            dateEl.innerHTML = '';
+            dateEl.appendChild(input);
+            input.focus();
+
+            // Save on blur or Enter
+            const saveDate = async () => {
+                const newDate = input.value;
+                if (!newDate) {
+                    // Cancelled - restore original
+                    dateEl.textContent = `Since ${formatDateShort(currentDate)}`;
+                    return;
+                }
+
+                if (newDate === currentDate) {
+                    // No change
+                    dateEl.textContent = `Since ${formatDateShort(currentDate)}`;
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/analytics/${currentUserId}/supplement-starts/${suppId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ start_date: newDate })
+                    });
+
+                    if (res.ok) {
+                        dateEl.textContent = `Since ${formatDateShort(newDate)}`;
+                        // Update onclick with new date
+                        dateEl.onclick = () => editStartDate(suppId, newDate);
+                        showStatus('Start date updated!', 'success');
+                        // Reload analytics data to refresh charts
+                        loadAnalyticsData();
+                    } else {
+                        const err = await res.json();
+                        showStatus(err.detail || 'Error updating date', 'error');
+                        dateEl.textContent = `Since ${formatDateShort(currentDate)}`;
+                    }
+                } catch (e) {
+                    showStatus('Error updating date', 'error');
+                    dateEl.textContent = `Since ${formatDateShort(currentDate)}`;
+                }
+            };
+
+            input.addEventListener('blur', saveDate);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    dateEl.textContent = `Since ${formatDateShort(currentDate)}`;
+                }
+            });
+        }
+
         // Populate supplement dropdown from library
         function populateSupplementDropdown() {
             const select = document.getElementById('start-supplement-id');
@@ -12587,7 +12673,7 @@
                         <span class="supp-streak">${streakDays}d</span>
                     </div>
                     <div class="supp-card-footer">
-                        <span class="supp-start-date">Since ${formatDateShort(supp.start_date)}</span>
+                        <span class="supp-start-date" id="start-date-${supp.id}" onclick="editStartDate('${supp.id}', '${supp.start_date}')" title="Click to edit start date">Since ${formatDateShort(supp.start_date)}</span>
                         <div class="supp-card-actions">
                             <button onclick="openEditSupplement('${supp.id}')" title="Edit">Edit</button>
                             <button onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Remove">Remove</button>
@@ -12632,7 +12718,7 @@
                         </div>
                     </div>
                     <div class="supp-card-footer">
-                        <span class="supp-start-date">Since ${formatDateShort(supp.start_date)}</span>
+                        <span class="supp-start-date" id="start-date-${supp.id}" onclick="editStartDate('${supp.id}', '${supp.start_date}')" title="Click to edit start date">Since ${formatDateShort(supp.start_date)}</span>
                         <div class="supp-card-actions">
                             <button onclick="openEditSupplement('${supp.id}')" title="Edit">Edit</button>
                             <button onclick="deleteSupplement('${supp.id}', '${suppName.replace(/'/g, "\\'")}')" title="Remove">Remove</button>

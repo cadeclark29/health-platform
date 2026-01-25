@@ -184,6 +184,7 @@ class SupplementStartCreate(BaseModel):
 
 
 class SupplementStartUpdate(BaseModel):
+    start_date: Optional[str] = None  # YYYY-MM-DD
     end_date: Optional[str] = None
     notes: Optional[str] = None
     dosage: Optional[str] = None
@@ -455,6 +456,8 @@ def update_supplement_start(
     if not start:
         raise HTTPException(status_code=404, detail="Supplement start record not found")
 
+    if update.start_date:
+        start.start_date = date.fromisoformat(update.start_date)
     if update.end_date:
         start.end_date = date.fromisoformat(update.end_date)
     if update.notes is not None:
