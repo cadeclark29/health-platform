@@ -5185,6 +5185,48 @@
             margin-bottom: 12px;
         }
 
+        /* Chart Header with Timeframe Selector */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .chart-header h2 {
+            margin: 0;
+        }
+
+        .chart-timeframe-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .timeframe-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: #888;
+            font-size: 0.8em;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .timeframe-btn:hover {
+            color: #E8E8E8;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .timeframe-btn.active {
+            background: #8B5CF6;
+            color: #fff;
+        }
+
         /* Chart Container */
         .chart-container {
             position: relative;
@@ -6796,7 +6838,16 @@
 
                 <!-- Health Metrics Chart -->
                 <div class="card">
-                    <h2>Health Metrics Over Time</h2>
+                    <div class="chart-header">
+                        <h2>Health Metrics Over Time</h2>
+                        <div class="chart-timeframe-selector">
+                            <button class="timeframe-btn" onclick="setChartTimeframe(7)">7d</button>
+                            <button class="timeframe-btn" onclick="setChartTimeframe(14)">14d</button>
+                            <button class="timeframe-btn active" onclick="setChartTimeframe(30)">30d</button>
+                            <button class="timeframe-btn" onclick="setChartTimeframe(90)">90d</button>
+                            <button class="timeframe-btn" onclick="setChartTimeframe(0)">All</button>
+                        </div>
+                    </div>
                     <div class="chart-container">
                         <canvas id="health-chart"></canvas>
                         <!-- Overlay for when Oura not connected -->
@@ -11239,6 +11290,23 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
+        // Current chart timeframe in days (0 = all)
+        let chartTimeframeDays = 30;
+
+        // Set chart timeframe and re-render
+        function setChartTimeframe(days) {
+            chartTimeframeDays = days;
+
+            // Update button states
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Re-render chart with new timeframe
+            renderHealthChart();
+        }
+
         // Render health metrics chart
         function renderHealthChart() {
             const ctx = document.getElementById('health-chart');
@@ -11249,13 +11317,20 @@
                 healthChart.destroy();
             }
 
-            const healthData = analyticsData?.health_data || [];
+            let healthData = [...(analyticsData?.health_data || [])];
             if (healthData.length === 0) {
                 return;
             }
 
             // Sort by date
             healthData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Filter by timeframe
+            if (chartTimeframeDays > 0) {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - chartTimeframeDays);
+                healthData = healthData.filter(d => new Date(d.date) >= cutoffDate);
+            }
 
             const labels = healthData.map(d => d.date);
             const sleepScores = healthData.map(d => d.sleep_score);
@@ -12200,7 +12275,7 @@
 
             // Pre-fill form values
             document.getElementById('start-date').value = supp.start_date;
-            document.getElementById('start-date').disabled = true; // Can't change start date when editing
+            document.getElementById('start-date').disabled = false; // Allow editing start date
             document.getElementById('start-dosage').value = supp.dosage || '';
             document.getElementById('start-frequency').value = supp.frequency || 'daily';
             document.getElementById('start-reason').value = supp.reason || '';
