@@ -9946,19 +9946,23 @@
         }
 
         function updateTimeButtons() {
+            // Time buttons may not exist after UI redesign - safely handle missing elements
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
 
             // Check if afternoon stack is visible
             const afternoonBtn = document.getElementById('time-btn-afternoon');
             const afternoonVisible = afternoonBtn && afternoonBtn.style.display !== 'none';
 
+            const morningBtn = document.getElementById('time-btn-morning');
+            const bedtimeBtn = document.getElementById('time-btn-bedtime');
+
             if (currentTime < 12) {
-                document.getElementById('time-btn-morning').classList.add('active');
+                morningBtn?.classList.add('active');
             } else if (afternoonVisible && currentTime < 21) {
                 // If afternoon is enabled and before bedtime
-                document.getElementById('time-btn-afternoon').classList.add('active');
+                afternoonBtn?.classList.add('active');
             } else {
-                document.getElementById('time-btn-bedtime').classList.add('active');
+                bedtimeBtn?.classList.add('active');
             }
         }
 
