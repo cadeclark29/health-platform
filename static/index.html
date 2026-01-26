@@ -7706,15 +7706,7 @@
 
         // Check Oura connection status
         async function checkOuraStatus() {
-            console.log('[Oura] checkOuraStatus called');
-            console.log('[Oura] currentUserId:', currentUserId);
-            console.log('[Oura] analyticsData:', analyticsData);
-            console.log('[Oura] analyticsData?.health_data:', analyticsData?.health_data);
-
-            if (!currentUserId) {
-                console.log('[Oura] No currentUserId, returning');
-                return;
-            }
+            if (!currentUserId) return;
 
             const card = document.getElementById('oura-card');
             const loading = document.getElementById('oura-loading');
@@ -7725,11 +7717,10 @@
 
             // Helper to show connected state
             const showConnected = (syncing = false) => {
-                console.log('[Oura] showConnected called, syncing:', syncing);
                 ouraConnected = true;
                 loading.classList.add('hidden');
                 status.className = 'oura-status connected';
-                statusText.textContent = syncing ? 'Connected' : 'Connected';
+                statusText.textContent = 'Connected';
                 notConnected.classList.add('hidden');
                 connected.classList.remove('hidden');
                 updateAISubtitle();
@@ -7738,7 +7729,6 @@
 
             // Helper to show not connected state
             const showNotConnected = () => {
-                console.log('[Oura] showNotConnected called');
                 ouraConnected = false;
                 loading.classList.add('hidden');
                 status.className = 'oura-status disconnected';
@@ -7751,14 +7741,10 @@
 
             // Check for cached Oura data FIRST (instant UI response)
             const healthData = analyticsData?.health_data || [];
-            console.log('[Oura] healthData length:', healthData.length);
-            console.log('[Oura] healthData sources:', healthData.map(h => h.source));
             const hasOuraData = healthData.some(h => h.source === 'oura');
-            console.log('[Oura] hasOuraData:', hasOuraData);
 
             if (hasOuraData) {
                 // We have cached data - show connected immediately
-                console.log('[Oura] Found cached Oura data, showing connected');
                 showConnected(false);
                 // Update metrics display
                 updateOuraMetricsForSelectedDate();
@@ -7768,7 +7754,6 @@
             }
 
             // No cached data - show loading and check API
-            console.log('[Oura] No cached data, checking API');
             loading.classList.remove('hidden');
             notConnected.classList.add('hidden');
             connected.classList.add('hidden');
@@ -9815,14 +9800,10 @@
 
         // Load all data
         async function loadAllData() {
-            console.log('[Init] loadAllData called');
             loadMixes();
             checkDailyFoundationTaken();
             // Load analytics data first so checkOuraStatus can use cached data if API fails
-            console.log('[Init] Calling loadTodaysStackData...');
             await loadTodaysStackData();
-            console.log('[Init] loadTodaysStackData complete, analyticsData:', analyticsData ? 'set' : 'null');
-            console.log('[Init] Calling checkOuraStatus...');
             checkOuraStatus();
         }
 
@@ -11081,11 +11062,7 @@
 
         // Load minimal data for Today's Stack on Dashboard
         async function loadTodaysStackData() {
-            console.log('[Stack] loadTodaysStackData called');
-            if (!currentUserId) {
-                console.log('[Stack] No currentUserId, returning');
-                return;
-            }
+            if (!currentUserId) return;
 
             // Load supplement library if not already loaded
             if (!supplementLibrary) {
@@ -11094,15 +11071,9 @@
 
             try {
                 // Always fetch fresh analytics data (includes health data for Oura display)
-                console.log('[Stack] Fetching analytics data...');
                 const res = await fetch(`/analytics/${currentUserId}/analytics?days=60`);
-                console.log('[Stack] Analytics response status:', res.status);
                 if (res.ok) {
                     analyticsData = await res.json();
-                    console.log('[Stack] analyticsData set, health_data length:', analyticsData?.health_data?.length);
-                    console.log('[Stack] health_data sources:', analyticsData?.health_data?.map(h => h.source));
-                } else {
-                    console.log('[Stack] Analytics response not ok');
                 }
                 loadTodaysStack();
                 // Update Oura metrics for the selected date
