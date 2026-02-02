@@ -376,6 +376,27 @@ def get_supplement_logs(
     return [log.to_dict() for log in logs]
 
 
+@router.delete("/{user_id}/supplement-logs/{log_id}")
+def delete_supplement_log(
+    user_id: str,
+    log_id: str,
+    db: Session = Depends(get_db)
+):
+    """Delete a supplement log entry."""
+    log = db.query(SupplementLog).filter(
+        SupplementLog.id == log_id,
+        SupplementLog.user_id == user_id
+    ).first()
+
+    if not log:
+        raise HTTPException(status_code=404, detail="Supplement log not found")
+
+    db.delete(log)
+    db.commit()
+
+    return {"status": "deleted", "id": log_id}
+
+
 # --- Supplement Start Endpoints ---
 
 @router.post("/{user_id}/supplement-starts", response_model=SupplementStartResponse)
