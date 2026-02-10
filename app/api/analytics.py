@@ -1240,12 +1240,23 @@ def get_supplement_insights(
         # Calculate streak (consecutive days taken ending recently)
         streak = 0
         check_date = date.today()
-        taken_dates = set(l.log_date for l in supp_logs if l.taken)
 
-        # Allow up to 2 days back to handle UTC vs local timezone offset
+        # Normalize log_date to datetime.date to prevent type mismatch
+        # (SQLite returns str, some drivers return datetime instead of date)
+        taken_dates = set()
+        for l in supp_logs:
+            if l.taken:
+                d = l.log_date
+                if isinstance(d, datetime):
+                    d = d.date()
+                elif isinstance(d, str):
+                    d = date.fromisoformat(d[:10])
+                taken_dates.add(d)
+
+        # Allow up to 3 days back to handle UTC vs local timezone offset
         # plus the case where today hasn't been logged yet
         days_back = 0
-        while check_date not in taken_dates and days_back < 2:
+        while check_date not in taken_dates and days_back < 3:
             check_date = check_date - timedelta(days=1)
             days_back += 1
 

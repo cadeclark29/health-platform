@@ -202,7 +202,7 @@ export function AnalyticsScreen() {
     const endDate = filteredHealth[filteredHealth.length - 1].date;
     const totalDays = filteredHealth.length - 1;
 
-    const suppMarkers = supplementStarts
+    const rawMarkers = supplementStarts
       .filter(s => s.start_date >= startDate && s.start_date <= endDate)
       .map(s => {
         const idx = filteredHealth.findIndex(h => h.date === s.start_date);
@@ -212,6 +212,28 @@ export function AnalyticsScreen() {
         return { x, name, date: s.start_date };
       })
       .filter(Boolean) as { x: number; name: string; date: string }[];
+
+    // Group by date to prevent overlapping labels
+    const markersByDate = new Map<string, { x: number; names: string[]; date: string }>();
+    rawMarkers.forEach(m => {
+      const existing = markersByDate.get(m.date);
+      if (existing) {
+        existing.names.push(m.name);
+      } else {
+        markersByDate.set(m.date, { x: m.x, names: [m.name], date: m.date });
+      }
+    });
+    const suppMarkers = Array.from(markersByDate.values()).map(g => {
+      let name: string;
+      if (g.names.length === 1) {
+        name = g.names[0];
+      } else if (g.names.length === 2) {
+        name = g.names[0].slice(0, 10) + ', ' + g.names[1].slice(0, 10);
+      } else {
+        name = g.names[0].slice(0, 10) + ' +' + (g.names.length - 1) + ' more';
+      }
+      return { x: g.x, name, date: g.date };
+    });
 
     const eventMarkers = lifeEvents
       .filter(e => e.event_date >= startDate && e.event_date <= endDate)

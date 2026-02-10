@@ -11428,22 +11428,40 @@
             const lifeEvents = analyticsData?.life_events || [];
 
             // Create annotations for supplement starts (different colors for manual vs recommended)
+            // Group by start_date to prevent overlapping labels
             const annotations = {};
-            supplementStarts.forEach((start, i) => {
-                const isManual = start.is_manual;
+            const suppByDate = {};
+            supplementStarts.forEach(start => {
+                const d = start.start_date;
+                if (!suppByDate[d]) suppByDate[d] = [];
+                suppByDate[d].push(start);
+            });
+            Object.entries(suppByDate).forEach(([dateStr, starts], i) => {
+                const isManual = starts[0].is_manual;
                 const color = isManual ? '#22C55E' : '#8B5CF6';
                 const bgColor = isManual ? 'rgba(34, 197, 94, 0.8)' : 'rgba(139, 92, 246, 0.8)';
 
+                let labelText;
+                const firstName = truncateLabel(starts[0].supplement_name || starts[0].supplement_id.replace(/_/g, ' '), 14);
+                if (starts.length === 1) {
+                    labelText = firstName;
+                } else if (starts.length === 2) {
+                    const secondName = truncateLabel(starts[1].supplement_name || starts[1].supplement_id.replace(/_/g, ' '), 14);
+                    labelText = firstName + ', ' + secondName;
+                } else {
+                    labelText = firstName + ' +' + (starts.length - 1) + ' more';
+                }
+
                 annotations[`supp-${i}`] = {
                     type: 'line',
-                    xMin: start.start_date,
-                    xMax: start.start_date,
+                    xMin: dateStr,
+                    xMax: dateStr,
                     borderColor: color,
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         display: true,
-                        content: truncateLabel(start.supplement_name || start.supplement_id.replace(/_/g, ' ')),
+                        content: labelText,
                         position: 'start',
                         backgroundColor: bgColor,
                         color: '#fff',
