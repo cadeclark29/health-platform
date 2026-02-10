@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dose - Smart supplement tracking and dispensing. Track your supplement stack, monitor health metrics, and optimize your routine.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <title>Dose - Smart Supplement Dispensing</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -6416,6 +6418,37 @@
         .legend-marker-dot.recommended {
             background: #8B5CF6;
         }
+
+        /* Settings overlay for click-outside-to-close */
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 34;
+        }
+
+        .settings-panel {
+            z-index: 35;
+        }
+
+        /* Bug #9: Mobile chart header overlap */
+        @media (max-width: 500px) {
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .chart-timeframe-selector {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        /* Bug #10: Mobile nav badge overflow */
+        @media (max-width: 500px) {
+            .coming-soon-badge {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -6497,7 +6530,7 @@
                     <div class="day" id="date-day">Today</div>
                     <div class="full-date" id="date-full">January 15, 2026</div>
                 </div>
-                <button onclick="changeDate(1)" title="Next day">&#8594;</button>
+                <button id="next-day-btn" onclick="changeDate(1)" title="Next day">&#8594;</button>
             </div>
 
             <!-- Getting Started Card (for new users) -->
@@ -7204,6 +7237,9 @@
         <span>&#x2699;</span>
     </button>
 
+    <!-- Settings Overlay (click-outside to close) -->
+    <div class="settings-overlay hidden" id="settings-overlay" onclick="closeSettings()"></div>
+
     <!-- Settings Panel -->
     <div class="settings-panel hidden" id="settings-panel">
         <h3>Settings</h3>
@@ -7434,6 +7470,15 @@
         };
 
         // Format dose with proper units
+        function truncateLabel(name, maxLen = 18) {
+            if (name.length <= maxLen) return name;
+            const parts = name.split(' ');
+            if (parts.length > 1 && parts[0].length > 5) {
+                return parts[0].substring(0, 3) + '. ' + parts.slice(1).join(' ');
+            }
+            return name.substring(0, maxLen);
+        }
+
         function formatDoseWithUnit(dose, suppId) {
             if (!dose) return null;
             const doseStr = String(dose).trim();
@@ -7445,7 +7490,7 @@
 
             // Add the appropriate unit
             const unit = SUPPLEMENT_UNITS[suppId] || 'mg';
-            return unit ? `${doseStr}${unit}` : doseStr;
+            return unit ? `${doseStr} ${unit}` : doseStr;
         }
 
         // Dynamic dose adjustments based on health metrics
@@ -9344,7 +9389,7 @@
                 const daysAgo = parseInt(selectedOption.dataset.days);
                 const startDate = new Date();
                 startDate.setDate(startDate.getDate() - daysAgo);
-                supp.startDate = startDate.toISOString().split('T')[0];
+                supp.startDate = getLocalDateString(startDate);
             }
 
             closeOnboardingSupplementEdit();
@@ -9911,6 +9956,14 @@
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 dayEl.textContent = days[currentDate.getDay()];
             }
+
+            const isFutureOrToday = current >= today;
+            const nextBtn = document.getElementById('next-day-btn');
+            if (nextBtn) {
+                nextBtn.disabled = isFutureOrToday;
+                nextBtn.style.opacity = isFutureOrToday ? '0.3' : '1';
+                nextBtn.style.pointerEvents = isFutureOrToday ? 'none' : 'auto';
+            }
         }
 
         function changeDate(delta) {
@@ -10373,12 +10426,21 @@
 
         // Toggle settings
         function toggleSettings() {
-            document.getElementById('settings-panel').classList.toggle('hidden');
+            const panel = document.getElementById('settings-panel');
+            const overlay = document.getElementById('settings-overlay');
+            panel.classList.toggle('hidden');
+            overlay.classList.toggle('hidden');
         }
 
         function openSettings() {
             document.getElementById('settings-panel').classList.remove('hidden');
+            document.getElementById('settings-overlay').classList.remove('hidden');
             loadNotificationPreferences();
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-panel').classList.add('hidden');
+            document.getElementById('settings-overlay').classList.add('hidden');
         }
 
         // ========== PUSH NOTIFICATIONS ==========
@@ -11381,11 +11443,11 @@
                     borderDash: [5, 5],
                     label: {
                         display: true,
-                        content: (start.supplement_name || start.supplement_id.replace(/_/g, ' ')).substring(0, 15),
+                        content: truncateLabel(start.supplement_name || start.supplement_id.replace(/_/g, ' ')),
                         position: 'start',
                         backgroundColor: bgColor,
                         color: '#fff',
-                        font: { size: 10 }
+                        font: { size: window.innerWidth < 500 ? 8 : 10 }
                     }
                 };
             });
@@ -11951,7 +12013,7 @@
             const form = document.getElementById('add-event-form');
             form.classList.toggle('visible');
             if (form.classList.contains('visible')) {
-                document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('event-date').value = getLocalDateString(new Date());
             }
         }
 
@@ -12405,7 +12467,7 @@
 
         // Reset supplement form
         function resetSupplementForm() {
-            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('start-date').value = getLocalDateString(new Date());
             document.getElementById('start-dosage').value = '';
             document.getElementById('start-frequency').value = 'daily';
             document.getElementById('start-reason').value = '';
@@ -12664,7 +12726,7 @@
                 <div class="supplement-card-v2 measurable" style="border-left-color: ${color}">
                     <div class="supp-card-header">
                         <span class="supp-card-name">${suppName}</span>
-                        ${supp.dosage ? `<span class="supp-card-dose">${supp.dosage}</span>` : ''}
+                        ${supp.dosage ? `<span class="supp-card-dose">${formatDoseWithUnit(supp.dosage, suppId) || supp.dosage}</span>` : ''}
                     </div>
                     <div class="supp-card-metrics">
                         ${metrics.map(m => `<span class="metric-tag">${formatMetricName(m)}</span>`).join('')}
@@ -12702,7 +12764,7 @@
                 <div class="supplement-card-v2 consistency">
                     <div class="supp-card-header">
                         <span class="supp-card-name">${suppName}</span>
-                        ${supp.dosage ? `<span class="supp-card-dose">${supp.dosage}</span>` : ''}
+                        ${supp.dosage ? `<span class="supp-card-dose">${formatDoseWithUnit(supp.dosage, suppId) || supp.dosage}</span>` : ''}
                     </div>
                     <div class="supp-card-info">
                         <span class="info-label">Long-term supplement - tracking consistency</span>

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import FastAPI, Query, Depends
+from fastapi import FastAPI, Query, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, RedirectResponse
 from contextlib import asynccontextmanager
@@ -50,6 +50,14 @@ async def root():
     if index_file.exists():
         return FileResponse(index_file)
     return {"message": "Health Platform API", "docs": "/docs"}
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    favicon_file = static_path / "favicon.ico"
+    if favicon_file.exists():
+        return FileResponse(favicon_file, media_type="image/x-icon")
+    raise HTTPException(status_code=404, detail="Favicon not found")
 
 
 @app.get("/health")

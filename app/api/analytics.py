@@ -1237,14 +1237,17 @@ def get_supplement_insights(
         days_taken = len([l for l in supp_logs if l.log_date >= start_date_val and l.taken])
         adherence_pct = round((days_taken / days_logged * 100) if days_logged > 0 else 0, 1)
 
-        # Calculate streak (consecutive days taken ending today or yesterday)
+        # Calculate streak (consecutive days taken ending recently)
         streak = 0
         check_date = date.today()
         taken_dates = set(l.log_date for l in supp_logs if l.taken)
 
-        # Allow for today not being logged yet
-        if check_date not in taken_dates:
+        # Allow up to 2 days back to handle UTC vs local timezone offset
+        # plus the case where today hasn't been logged yet
+        days_back = 0
+        while check_date not in taken_dates and days_back < 2:
             check_date = check_date - timedelta(days=1)
+            days_back += 1
 
         while check_date in taken_dates:
             streak += 1
